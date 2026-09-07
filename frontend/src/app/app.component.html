@@ -1,6 +1,6 @@
-<mat-toolbar>Neo4flix</mat-toolbar>
+<mat-toolbar>{{ applicationName() }}</mat-toolbar>
 <main>
-  <h1>Welcome to Neo4flix</h1>
+  <h1>Welcome to {{ applicationName() }}</h1>
   <p>Your movie discovery experience starts here.</p>
   <router-outlet />
 </main>
