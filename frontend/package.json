@@ -7,7 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "lint": "eslint \"src/**/*.ts\" \"src/**/*.html\" --max-warnings=0",
-    "test": "node scripts/test.mjs"
+    "test": "node --test scripts/docker-node.test.mjs && node scripts/test.mjs"
   },
   "private": true,
   "packageManager": "npm@11.16.0",
