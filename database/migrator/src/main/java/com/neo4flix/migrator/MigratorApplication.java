@@ -6,6 +6,7 @@ import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.QueryConfig;
+import org.neo4j.driver.Record;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -15,7 +16,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @SpringBootApplication
 public class MigratorApplication implements CommandLineRunner {
@@ -24,23 +24,24 @@ public class MigratorApplication implements CommandLineRunner {
     private static final Duration QUERY_TIMEOUT = Duration.ofSeconds(10);
     private static final String DEFAULT_DATABASE = "neo4j";
     private static final String DEFAULT_LOCATION = "classpath:database/migrations";
-    private static final Set<String> EXPECTED_VERSIONS = Set.of("001", "002", "003", "004", "005");
-    private static final Set<String> EXPECTED_CONSTRAINTS = Set.of(
-            "user_id_unique",
-            "user_normalized_email_unique",
-            "movie_id_unique",
-            "genre_id_unique",
-            "genre_normalized_name_unique",
-            "rated_key_unique",
-            "watchlisted_key_unique",
-            "auth_session_id_unique",
-            "auth_challenge_id_unique",
-            "recommendation_share_id_unique",
-            "recommendation_share_token_hash_unique");
-    private static final Set<String> EXPECTED_INDEXES = Set.of(
-            "movie_title_index",
-            "movie_release_year_index",
-            "genre_name_index");
+    private static final List<String> EXPECTED_VERSIONS = List.of("001", "002", "003", "004", "005");
+    private static final List<SchemaValidator.SchemaObject> EXPECTED_CONSTRAINTS = List.of(
+            nodeUniqueness("user_id_unique", "User", "id"),
+            nodeUniqueness("user_normalized_email_unique", "User", "normalizedEmail"),
+            nodeUniqueness("movie_id_unique", "Movie", "id"),
+            nodeUniqueness("genre_id_unique", "Genre", "id"),
+            nodeUniqueness("genre_normalized_name_unique", "Genre", "normalizedName"),
+            relationshipUniqueness("rated_key_unique", "RATED", "key"),
+            relationshipUniqueness("watchlisted_key_unique", "WATCHLISTED", "key"),
+            nodeUniqueness("auth_session_id_unique", "AuthSession", "id"),
+            nodeUniqueness("auth_challenge_id_unique", "AuthChallenge", "id"),
+            nodeUniqueness("recommendation_share_id_unique", "RecommendationShare", "id"),
+            nodeUniqueness(
+                    "recommendation_share_token_hash_unique", "RecommendationShare", "publicTokenHash"));
+    private static final List<SchemaValidator.SchemaObject> EXPECTED_INDEXES = List.of(
+            rangeIndex("movie_title_index", "Movie", "normalizedTitle"),
+            rangeIndex("movie_release_year_index", "Movie", "releaseYear"),
+            rangeIndex("genre_name_index", "Genre", "name"));
 
     public static void main(String[] args) {
         SpringApplication.run(MigratorApplication.class, args);
@@ -106,47 +107,82 @@ public class MigratorApplication implements CommandLineRunner {
     }
 
     private static void verifySchema(Driver driver, String database) {
-        Set<String> constraints = schemaNames(
-                driver,
-                database,
-                "SHOW CONSTRAINTS YIELD name WHERE name IN $names RETURN name",
-                EXPECTED_CONSTRAINTS);
-        Set<String> indexes = schemaNames(
-                driver,
-                database,
-                "SHOW INDEXES YIELD name WHERE name IN $names RETURN name",
-                EXPECTED_INDEXES);
-        requireAllSchemaNames("constraints", EXPECTED_CONSTRAINTS, constraints);
-        requireAllSchemaNames("indexes", EXPECTED_INDEXES, indexes);
-    }
+        driver.executableQuery("CALL db.awaitIndexes(30)")
+                .withConfig(queryConfig(database, Duration.ofSeconds(35)))
+                .execute();
 
-    private static Set<String> schemaNames(
-            Driver driver, String database, String query, Set<String> expectedNames) {
-        return driver.executableQuery(query)
-                .withParameters(Map.of("names", expectedNames))
+        List<SchemaValidator.SchemaObject> constraints = driver.executableQuery(
+                        "SHOW CONSTRAINTS YIELD name, type, entityType, labelsOrTypes, properties "
+                                + "WHERE name IN $names "
+                                + "RETURN name, type, entityType, labelsOrTypes, properties")
+                .withParameters(Map.of("names", expectedNames(EXPECTED_CONSTRAINTS)))
                 .withConfig(queryConfig(database))
                 .execute()
                 .records()
                 .stream()
-                .map(record -> record.get("name").asString())
-                .collect(java.util.stream.Collectors.toUnmodifiableSet());
+                .map(MigratorApplication::schemaObject)
+                .toList();
+        List<SchemaValidator.IndexMetadata> indexes = driver.executableQuery(
+                        "SHOW INDEXES YIELD name, type, entityType, labelsOrTypes, properties, state "
+                                + "WHERE name IN $names "
+                                + "RETURN name, type, entityType, labelsOrTypes, properties, state")
+                .withParameters(Map.of("names", expectedNames(EXPECTED_INDEXES)))
+                .withConfig(queryConfig(database))
+                .execute()
+                .records()
+                .stream()
+                .map(record -> new SchemaValidator.IndexMetadata(
+                        schemaObject(record), record.get("state").asString()))
+                .toList();
+
+        SchemaValidator.verifyConstraints(EXPECTED_CONSTRAINTS, constraints);
+        SchemaValidator.verifyIndexes(EXPECTED_INDEXES, indexes);
     }
 
-    private static void requireAllSchemaNames(String type, Set<String> expected, Set<String> actual) {
-        List<String> missing = expected.stream()
-                .filter(name -> !actual.contains(name))
-                .sorted()
-                .toList();
-        if (!missing.isEmpty()) {
-            throw new IllegalStateException("Missing schema " + type + ": " + missing);
-        }
+    private static List<String> expectedNames(List<SchemaValidator.SchemaObject> expected) {
+        return expected.stream().map(SchemaValidator.SchemaObject::name).toList();
+    }
+
+    private static SchemaValidator.SchemaObject schemaObject(Record record) {
+        return new SchemaValidator.SchemaObject(
+                record.get("name").asString(),
+                record.get("type").asString(),
+                record.get("entityType").asString(),
+                record.get("labelsOrTypes").asList(value -> value.asString()),
+                record.get("properties").asList(value -> value.asString()));
     }
 
     private static QueryConfig queryConfig(String database) {
+        return queryConfig(database, QUERY_TIMEOUT);
+    }
+
+    private static QueryConfig queryConfig(String database, Duration timeout) {
         return QueryConfig.builder()
                 .withDatabase(database)
-                .withTimeout(QUERY_TIMEOUT)
+                .withTimeout(timeout)
                 .build();
+    }
+
+    private static SchemaValidator.SchemaObject nodeUniqueness(
+            String name, String label, String property) {
+        return new SchemaValidator.SchemaObject(
+                name, "NODE_PROPERTY_UNIQUENESS", "NODE", List.of(label), List.of(property));
+    }
+
+    private static SchemaValidator.SchemaObject relationshipUniqueness(
+            String name, String relationshipType, String property) {
+        return new SchemaValidator.SchemaObject(
+                name,
+                "RELATIONSHIP_PROPERTY_UNIQUENESS",
+                "RELATIONSHIP",
+                List.of(relationshipType),
+                List.of(property));
+    }
+
+    private static SchemaValidator.SchemaObject rangeIndex(
+            String name, String label, String property) {
+        return new SchemaValidator.SchemaObject(
+                name, "RANGE", "NODE", List.of(label), List.of(property));
     }
 
     private static String requiredEnvironment(String name) {

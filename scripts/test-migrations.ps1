@@ -55,4 +55,11 @@ foreach ($schemaName in $allSchemaNames) {
 
 $businessMigrations = @(Get-ChildItem -LiteralPath (Join-Path $repositoryRoot 'backend') -Recurse -File -Filter 'V*.cypher')
 Assert-Contract ($businessMigrations.Count -eq 0) 'Business services must not own schema migrations.'
+
+[xml]$migratorPom = Get-Content -Raw -LiteralPath (Join-Path $repositoryRoot 'database/migrator/pom.xml')
+$driverDependencies = @($migratorPom.project.dependencies.dependency | Where-Object {
+    $_.groupId -eq 'org.neo4j.driver' -and $_.artifactId -eq 'neo4j-java-driver'
+})
+Assert-Contract ($driverDependencies.Count -eq 1) 'Migrator must declare one explicit Neo4j Java driver dependency.'
+Assert-Contract ($driverDependencies[0].version -ceq '6.2.0') 'Migrator Neo4j Java driver must be pinned to 6.2.0.'
 Write-Host "Migration contract passed: $($expected.Count) versions, $($allSchemaNames.Count) named schema objects."

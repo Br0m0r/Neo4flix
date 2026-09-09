@@ -33,6 +33,9 @@ try {
     Assert-Contract (@($config.services.neo4j.volumes | Where-Object { $_.type -eq 'volume' -and $_.target -eq '/data' }).Count -eq 1) 'Neo4j data must use a named volume.'
     Assert-Contract (@($config.services.'database-migrator'.command).Count -eq 1 -and $config.services.'database-migrator'.command[0] -ceq 'migrate') 'Migrator must run the migrate command.'
     Assert-Contract (-not $config.services.'database-migrator'.PSObject.Properties['volumes']) 'Migrator must run from its built JAR without host script mounts.'
+    $migratorDockerfile = [string]$config.services.'database-migrator'.build.dockerfile_inline
+    Assert-Contract ($migratorDockerfile -match 'COPY --from=build --chown=10001:10001 /workspace/database/migrator/check-gds\.sh /app/check-gds\.sh') 'Migrator image must include the compatibility wrapper beside its default JAR.'
+    Assert-Contract ($migratorDockerfile -match 'RUN chmod 0555 /app/check-gds\.sh') 'Migrator compatibility wrapper must be executable in the final image.'
 
     $devJson = & docker compose --env-file .env.example -f infra/compose.yml -f infra/compose.dev.yml config --format json
     Assert-Contract ($LASTEXITCODE -eq 0) 'Docker Compose development configuration failed.'
