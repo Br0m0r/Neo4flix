@@ -10,9 +10,12 @@ import org.testcontainers.containers.Neo4jContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 class AuditSeedLoaderIT {
 
@@ -41,6 +44,36 @@ class AuditSeedLoaderIT {
 
                 assertThat(count(driver, "MATCH ()-[rated:RATED]->() RETURN count(rated) AS count"))
                         .isEqualTo(10L);
+            }
+        }
+    }
+
+    @Test
+    void loadsDemoAndLoadScaffoldingWithUuidApplicationIdentifiers() {
+        try (Neo4jContainer<?> container = new Neo4jContainer<>(
+                DockerImageName.parse("neo4j:2026.07.1-community"))
+                .withAdminPassword(PASSWORD)) {
+            container.start();
+            try (Driver driver = GraphDatabase.driver(
+                    container.getBoltUrl(), AuthTokens.basic(USERNAME, PASSWORD))) {
+                applyMigrations(driver);
+                new DemoSeedLoader().load(driver, DATABASE);
+                new LoadSeedLoader().load(driver, DATABASE);
+
+                List<String> ids = driver.executableQuery("""
+                                MATCH (node)
+                                WHERE node:Genre OR node:Movie
+                                RETURN node.id AS id
+                                """)
+                        .execute()
+                        .records()
+                        .stream()
+                        .map(record -> record.get("id").asString())
+                        .toList();
+
+                assertThat(ids).hasSize(5);
+                assertThat(ids).allSatisfy(id ->
+                        assertThatCode(() -> UUID.fromString(id)).doesNotThrowAnyException());
             }
         }
     }

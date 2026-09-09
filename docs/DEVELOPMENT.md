@@ -87,17 +87,21 @@ The base topology publishes only web. `infra/compose.dev.yml` adds localhost-onl
 backend and Neo4j ports for these checks. Both local lifecycle commands use:
 `docker compose --env-file .env -f infra/compose.yml -f infra/compose.dev.yml`.
 
-The `database-migrator` is a GDS readiness placeholder until Batch 1. It waits for
-Neo4j and checks `RETURN gds.version();`; it does not apply schema migrations.
-Business services start only after it succeeds. Development currently downloads
-GDS at Neo4j startup; deterministic GDS packaging is required for release/audit.
-See [Neo4j bootstrap details](../infra/neo4j/README.md).
+The one-shot `database-migrator` first proves `RETURN gds.version();`, then in
+`migrate` mode applies the versioned schema migrations and verifies both their
+history and the expected Neo4j schema. `verify` and every explicit `seed-*`
+mode require that same migrated, valid schema before completing; they do not
+apply migrations themselves. Business services start only after the migrator
+succeeds. Development currently downloads GDS at Neo4j startup; deterministic
+GDS packaging is required for release/audit. See [Neo4j bootstrap details](../infra/neo4j/README.md).
 
 ## Explicit seed data
 
 Seed data is separate from schema migrations and is never loaded by application
-startup or Compose. Start a migrated test/development graph first, then export
-its Neo4j connection values in the shell that invokes one of:
+startup or Compose. First run the migrator in `migrate` mode against the target
+test/development graph; seed modes verify that existing migration history and
+schema before they write fixture data. Then export its Neo4j connection values
+in the shell that invokes one of:
 
 ```powershell
 make seed-demo

@@ -9,6 +9,8 @@ import java.util.Map;
 /** Loads a small, credential-free graph for local UI development. */
 public final class DemoSeedLoader {
 
+    private static final String GENRE_ID = "44444444-4444-4444-4444-444444444444";
+    private static final String MOVIE_ID = "55555555-5555-5555-5555-555555555555";
     private static final String MERGE_GENRE = """
             MERGE (genre:Genre {id: $id})
             SET genre.name = $name,
@@ -27,13 +29,13 @@ public final class DemoSeedLoader {
     public void load(Driver driver, String database) {
         QueryConfig config = queryConfig(database);
         driver.executableQuery(MERGE_GENRE)
-                .withParameters(Map.of("id", "demo-genre-scifi", "name", "Science Fiction", "normalizedName", "science fiction"))
+                .withParameters(Map.of("id", GENRE_ID, "name", "Science Fiction", "normalizedName", "science fiction"))
                 .withConfig(config)
                 .execute();
         driver.executableQuery(MERGE_MOVIE)
                 .withParameters(Map.of(
-                        "id", "demo-movie-station", "title", "Orbit Station", "normalizedTitle", "orbit station",
-                        "releaseYear", 2026, "genreId", "demo-genre-scifi"))
+                        "id", MOVIE_ID, "title", "Orbit Station", "normalizedTitle", "orbit station",
+                        "releaseYear", 2026, "genreId", GENRE_ID))
                 .withConfig(config)
                 .execute();
     }
