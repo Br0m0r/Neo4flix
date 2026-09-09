@@ -24,6 +24,7 @@ public record UserNode(
         @Property("createdAt") Instant createdAt,
         @Property("updatedAt") Instant updatedAt,
         @Relationship(type = "HAS_SESSION", direction = Relationship.Direction.OUTGOING) Set<AuthSessionNode> sessions,
-        @Relationship(type = "HAS_AUTH_CHALLENGE", direction = Relationship.Direction.OUTGOING) Set<AuthChallengeNode> challenges
+        @Relationship(type = "HAS_AUTH_CHALLENGE", direction = Relationship.Direction.OUTGOING) Set<AuthChallengeNode> challenges,
+        @Relationship(type = "WATCHLISTED", direction = Relationship.Direction.OUTGOING) Set<WatchlistedRelationship> watchlisted
 ) {
 }
