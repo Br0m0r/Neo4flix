@@ -93,6 +93,31 @@ Business services start only after it succeeds. Development currently downloads
 GDS at Neo4j startup; deterministic GDS packaging is required for release/audit.
 See [Neo4j bootstrap details](../infra/neo4j/README.md).
 
+## Explicit seed data
+
+Seed data is separate from schema migrations and is never loaded by application
+startup or Compose. Start a migrated test/development graph first, then export
+its Neo4j connection values in the shell that invokes one of:
+
+```powershell
+make seed-demo
+make seed-audit
+make seed-load
+```
+
+The commands require `NEO4J_URI`, `NEO4J_USERNAME`, and `NEO4J_PASSWORD`; they
+do not read `.env`, publish ports, or start containers. `seed-audit` loads the
+fixed, idempotent audit fixture (three users and ten ratings). `seed-demo` and
+`seed-load` create only deterministic, credential-free scaffolding. To preview
+without building or changing graph data, use:
+
+```powershell
+pwsh -NoProfile -File scripts/seed.ps1 -WhatIf audit
+```
+
+`make reset-db` is intentionally deferred to the deployment batch. No destructive
+reset target is available in this batch.
+
 ## Stop the stack
 
 ```powershell

@@ -2,6 +2,9 @@ package com.neo4flix.migrator;
 
 import ac.simons.neo4j.migrations.core.Migrations;
 import ac.simons.neo4j.migrations.core.MigrationsConfig;
+import com.neo4flix.migrator.seed.AuditSeedLoader;
+import com.neo4flix.migrator.seed.DemoSeedLoader;
+import com.neo4flix.migrator.seed.LoadSeedLoader;
 import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
@@ -50,9 +53,6 @@ public class MigratorApplication implements CommandLineRunner {
     @Override
     public void run(String... args) {
         MigrationCommand command = MigrationCommand.parse(args);
-        if (command.mode().startsWith("seed-")) {
-            throw new IllegalStateException("seed commands are introduced by the explicit seed-loader task");
-        }
 
         String uri = requiredEnvironment("NEO4J_URI");
         String username = requiredEnvironment("NEO4J_USERNAME");
@@ -79,8 +79,20 @@ public class MigratorApplication implements CommandLineRunner {
 
             verifyVersions(migrations);
             verifySchema(driver, database);
+            runSeed(command.mode(), driver, database);
             LOG.info("Database migrator completed mode={} database={} versions={}",
                     command.mode(), database, EXPECTED_VERSIONS.size());
+        }
+    }
+
+    private static void runSeed(String mode, Driver driver, String database) {
+        switch (mode) {
+            case "seed-demo" -> new DemoSeedLoader().load(driver, database);
+            case "seed-audit" -> new AuditSeedLoader().load(driver, database);
+            case "seed-load" -> new LoadSeedLoader().load(driver, database);
+            default -> {
+                // migrate and verify must not load seed data.
+            }
         }
     }
 
