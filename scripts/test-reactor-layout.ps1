@@ -1,6 +1,7 @@
 [xml]$root = Get-Content -Raw "$PSScriptRoot/../pom.xml"
-if (@($root.project.modules.module).Count -ne 1 -or $root.project.modules.module -ne 'backend') {
-    throw 'Root reactor must contain backend only.'
+$rootModules = @('backend', 'database/migrator')
+if ((@($root.project.modules.module) -join ',') -ne ($rootModules -join ',')) {
+    throw 'Root reactor must contain the backend and one-shot database migrator modules only.'
 }
 
 [xml]$backend = Get-Content -Raw "$PSScriptRoot/../backend/pom.xml"

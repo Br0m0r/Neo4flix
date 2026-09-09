@@ -15,7 +15,7 @@ try {
     $actual = @($config.services.PSObject.Properties.Name)
     Assert-Contract (@(Compare-Object $expected $actual).Count -eq 0) 'Unexpected Compose services.'
     Assert-Contract ($config.services.neo4j.image -ceq 'neo4j:2026.07.1-community') 'Neo4j image must match the baseline pin.'
-    Assert-Contract ($config.services.'database-migrator'.image -ceq 'neo4j:2026.07.1-community') 'Migrator must use the same pinned Neo4j image.'
+    Assert-Contract ($config.services.'database-migrator'.image -ceq 'neo4flix/database-migrator:0.0.1') 'Migrator must use the versioned Java migrator image.'
     foreach ($name in $expected) {
         $service = $config.services.$name
         Assert-Contract ($service.image -notmatch ':latest(?:$|@)') "$name must not use latest."
@@ -31,7 +31,8 @@ try {
     Assert-Contract ($config.services.neo4j.environment.NEO4J_PLUGINS -ceq '["graph-data-science"]') 'Development GDS plugin configuration is required.'
     Assert-Contract (-not $config.services.neo4j.environment.PSObject.Properties['NEO4J_USERNAME'] -and -not $config.services.neo4j.environment.PSObject.Properties['NEO4J_PASSWORD']) 'Neo4j health credentials must not become unrecognized NEO4J_ configuration settings.'
     Assert-Contract (@($config.services.neo4j.volumes | Where-Object { $_.type -eq 'volume' -and $_.target -eq '/data' }).Count -eq 1) 'Neo4j data must use a named volume.'
-    Assert-Contract (@($config.services.'database-migrator'.volumes | Where-Object { $_.target -eq '/opt/neo4flix/check-gds.sh' -and $_.read_only }).Count -eq 1) 'GDS readiness script must be mounted read-only.'
+    Assert-Contract (@($config.services.'database-migrator'.command).Count -eq 1 -and $config.services.'database-migrator'.command[0] -ceq 'migrate') 'Migrator must run the migrate command.'
+    Assert-Contract (-not $config.services.'database-migrator'.PSObject.Properties['volumes']) 'Migrator must run from its built JAR without host script mounts.'
 
     $devJson = & docker compose --env-file .env.example -f infra/compose.yml -f infra/compose.dev.yml config --format json
     Assert-Contract ($LASTEXITCODE -eq 0) 'Docker Compose development configuration failed.'

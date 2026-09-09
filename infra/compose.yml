@@ -8,6 +8,7 @@ x-service-build: &service-build
     COPY .mvn/ .mvn/
     COPY mvnw pom.xml ./
     COPY backend/ backend/
+    COPY database/migrator/pom.xml database/migrator/pom.xml
     ARG SERVICE_MODULE
     RUN sh ./mvnw -B -pl backend/$${SERVICE_MODULE} -am package -DskipTests && \
         cp backend/$${SERVICE_MODULE}/target/$${SERVICE_MODULE}-*.jar /workspace/app.jar
@@ -22,6 +23,23 @@ x-service-environment: &service-environment
   NEO4J_URI: bolt://neo4j:7687
   NEO4J_USERNAME: ${NEO4J_USERNAME:?Set NEO4J_USERNAME}
   NEO4J_PASSWORD: ${NEO4J_PASSWORD:?Set NEO4J_PASSWORD}
+
+x-migrator-build: &migrator-build
+  context: ..
+  dockerfile_inline: |
+    FROM eclipse-temurin:21.0.11_10-jdk-alpine-3.22 AS build
+    WORKDIR /workspace
+    COPY .mvn/ .mvn/
+    COPY mvnw pom.xml ./
+    COPY backend/ backend/
+    COPY database/ database/
+    RUN sh ./mvnw -B -pl database/migrator -am package -DskipTests && \
+        cp database/migrator/target/database-migrator-*.jar /workspace/app.jar
+    FROM eclipse-temurin:21.0.11_10-jre-alpine-3.22
+    WORKDIR /app
+    COPY --from=build --chown=10001:10001 /workspace/app.jar /app/app.jar
+    USER 10001:10001
+    ENTRYPOINT ["java", "-jar", "/app/app.jar"]
 
 x-business-service: &business-service
   environment: *service-environment
@@ -56,11 +74,10 @@ services:
     restart: unless-stopped
 
   database-migrator:
-    image: neo4j:2026.07.1-community
+    image: neo4flix/database-migrator:0.0.1
+    build: *migrator-build
+    command: ["migrate"]
     environment: *service-environment
-    volumes:
-      - ../database/migrator/check-gds.sh:/opt/neo4flix/check-gds.sh:ro
-    entrypoint: ["/bin/sh", "/opt/neo4flix/check-gds.sh"]
     depends_on:
       neo4j:
         condition: service_healthy
