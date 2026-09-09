@@ -52,8 +52,8 @@ Do not add public API behavior, authentication flows, recommendation scoring, au
 | --- | --- | --- |
 | Complete — review approved | Task 1 migration baseline | Brief: `task-1-brief.md`; report: `task-1-report.md`; initial implementation `a9c2e36`, fix `ec68e1f`, scoped re-review approved. Strict schema metadata/ONLINE validation, Java driver `6.2.0`, and final-image wrapper are complete. Live empty-db/GDS/rerun proof remains explicitly owned by Task 3. |
 | Complete — review approved | Task 2 service-owned persistence mappings | Initial implementation `e778998`, relationship-mapping fix `d96fae1`, and scoped re-review approved. It may now be consumed by concurrency tests. |
-| Active — next dispatch | Task 3 Neo4j/GDS Testcontainers harness | First genuinely unfinished implementation task. It owns the first live empty-to-latest/rerun/GDS proof and must not be claimed by Task 1. |
-| Queued | Task 4 concurrent RATED/WATCHLISTED proof | Consumes Tasks 1–3. |
+| Complete — review approved | Task 3 Neo4j/GDS Testcontainers harness | Initial implementation `e28c7b7`, hardening fix `07b6548`, and scoped re-review approved. It provides the live empty-db, GDS, current-migrator, and no-new-history rerun proof. |
+| Active — next dispatch | Task 4 concurrent RATED/WATCHLISTED proof | First genuinely unfinished implementation task; consumes the Task 3 Testcontainers/Cypher helper. |
 | Queued | Task 5 deterministic seed loaders | Consumes Tasks 1–2. |
 | Queued | Task 6 live acceptance/evidence/status | Last only; Batch 1 stays `[ ]` until every gate and review passes. |
 
