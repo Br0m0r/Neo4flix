@@ -1,0 +1,152 @@
+package com.neo4flix.platform.common.test;
+
+import org.neo4j.driver.AuthTokens;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.GraphDatabase;
+import org.neo4j.driver.Record;
+import org.testcontainers.containers.Neo4jContainer;
+import org.testcontainers.utility.DockerImageName;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+public final class Neo4jGdsContainer implements AutoCloseable {
+
+    private static final String USERNAME = "neo4j";
+    private static final String PASSWORD = "test-password";
+    private static final Duration MIGRATOR_TIMEOUT = Duration.ofMinutes(2);
+
+    private final Neo4jContainer<?> container;
+    private final Driver driver;
+
+    private Neo4jGdsContainer(Neo4jContainer<?> container, Driver driver) {
+        this.container = container;
+        this.driver = driver;
+    }
+
+    public static Neo4jGdsContainer start() {
+        Neo4jContainer<?> container = new Neo4jContainer<>(
+                DockerImageName.parse("neo4j:2026.07.1-community"))
+                .withAdminPassword(PASSWORD)
+                .withEnv("NEO4J_PLUGINS", "[\"graph-data-science\"]")
+                .waitingFor(Neo4jContainer.WAIT_FOR_BOLT)
+                .withStartupTimeout(Duration.ofMinutes(3));
+        container.start();
+
+        Driver driver = GraphDatabase.driver(container.getBoltUrl(), AuthTokens.basic(USERNAME, PASSWORD));
+        driver.verifyConnectivity();
+        return new Neo4jGdsContainer(container, driver);
+    }
+
+    public List<Record> runCypher(String query, Map<String, Object> parameters) {
+        return driver.executableQuery(query)
+                .withParameters(parameters)
+                .execute()
+                .records();
+    }
+
+    public void runMigrator(String mode) {
+        Path migratorJar = buildMigratorJar();
+        ProcessBuilder processBuilder = new ProcessBuilder(javaExecutable(), "-jar", migratorJar.toString(), mode)
+                .directory(repositoryRoot().toFile())
+                .redirectErrorStream(true);
+        Map<String, String> environment = processBuilder.environment();
+        environment.put("NEO4J_URI", container.getBoltUrl());
+        environment.put("NEO4J_USERNAME", USERNAME);
+        environment.put("NEO4J_PASSWORD", PASSWORD);
+
+        try {
+            Process process = processBuilder.start();
+            String output = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+            if (!process.waitFor(MIGRATOR_TIMEOUT.toSeconds(), TimeUnit.SECONDS)) {
+                process.destroyForcibly();
+                throw new IllegalStateException("Database migrator timed out");
+            }
+            if (process.exitValue() != 0) {
+                throw new IllegalStateException("Database migrator failed:\n" + output);
+            }
+        }
+        catch (IOException exception) {
+            throw new IllegalStateException("Could not start database migrator", exception);
+        }
+        catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while running database migrator", exception);
+        }
+    }
+
+    @Override
+    public void close() {
+        driver.close();
+        container.stop();
+    }
+
+    private static Path buildMigratorJar() {
+        Path root = repositoryRoot();
+        Path target = root.resolve("database/migrator/target");
+        try {
+            if (Files.isDirectory(target)) {
+                try (var files = Files.list(target)) {
+                    var existingJar = files.filter(path -> path.getFileName().toString()
+                                    .matches("database-migrator-.+\\.jar"))
+                            .findFirst();
+                    if (existingJar.isPresent()) {
+                        return existingJar.get();
+                    }
+                }
+            }
+
+            ProcessBuilder build = new ProcessBuilder(mavenWrapper(), "-pl", "database/migrator", "-am", "package", "-DskipTests")
+                    .directory(root.toFile())
+                    .redirectErrorStream(true);
+            Process process = build.start();
+            String output = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+            if (!process.waitFor(MIGRATOR_TIMEOUT.toSeconds(), TimeUnit.SECONDS)) {
+                process.destroyForcibly();
+                throw new IllegalStateException("Database migrator build timed out");
+            }
+            if (process.exitValue() != 0) {
+                throw new IllegalStateException("Could not build database migrator:\n" + output);
+            }
+            try (var files = Files.list(target)) {
+                return files.filter(path -> path.getFileName().toString()
+                                .matches("database-migrator-.+\\.jar"))
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalStateException("Database migrator JAR was not produced"));
+            }
+        }
+        catch (IOException exception) {
+            throw new IllegalStateException("Could not build database migrator", exception);
+        }
+        catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while building database migrator", exception);
+        }
+    }
+
+    private static Path repositoryRoot() {
+        Path current = Path.of(System.getProperty("user.dir")).toAbsolutePath();
+        while (current != null && !Files.exists(current.resolve("mvnw"))) {
+            current = current.getParent();
+        }
+        if (current == null) {
+            throw new IllegalStateException("Could not locate repository root");
+        }
+        return current;
+    }
+
+    private static String mavenWrapper() {
+        return System.getProperty("os.name").startsWith("Windows") ? "mvnw.cmd" : "./mvnw";
+    }
+
+    private static String javaExecutable() {
+        String executable = System.getProperty("os.name").startsWith("Windows") ? "java.exe" : "java";
+        return Path.of(System.getProperty("java.home"), "bin", executable).toString();
+    }
+}

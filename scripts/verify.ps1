@@ -1,6 +1,7 @@
 param(
     [switch] $WhatIf,
-    [switch] $TestOnly
+    [switch] $TestOnly,
+    [switch] $Integration
 )
 
 $ErrorActionPreference = 'Stop'
@@ -11,19 +12,30 @@ $windows = $env:OS -eq 'Windows_NT'
 $goal = if ($TestOnly) { 'test' } else { 'verify' }
 $maven = if ($windows) { './mvnw.cmd' } else { 'sh' }
 [string[]] $mavenArguments = if ($windows) { @($goal) } else { @('./mvnw', $goal) }
-$steps = @(
-    @{ Directory = '.'; Command = $maven; Arguments = $mavenArguments }
-    @{ Directory = 'frontend'; Command = 'npm'; Arguments = @('ci') }
-)
-if (-not $TestOnly) {
-    $steps += @{ Directory = 'frontend'; Command = 'npm'; Arguments = @('run', 'lint') }
+$integrationArguments = if ($windows) {
+    @('-pl', 'backend/platform-common', '-Dtest=Neo4jSchemaIntegrationTest', 'test')
+} else {
+    @('./mvnw', '-pl', 'backend/platform-common', '-Dtest=Neo4jSchemaIntegrationTest', 'test')
 }
-$steps += @{ Directory = 'frontend'; Command = 'npm'; Arguments = @('test', '--', '--run') }
-if (-not $TestOnly) {
-    $steps += @(
-        @{ Directory = 'frontend'; Command = 'npm'; Arguments = @('run', 'build') }
-        @{ Directory = '.'; Command = 'docker'; Arguments = @('compose', '--env-file', '.env.example', '-f', 'infra/compose.yml', 'config') }
+
+if ($Integration) {
+    $steps = @(@{ Directory = '.'; Command = $maven; Arguments = $integrationArguments })
+} else {
+    $steps = @(
+        @{ Directory = '.'; Command = $maven; Arguments = $mavenArguments }
+        @{ Directory = 'frontend'; Command = 'npm'; Arguments = @('ci') }
     )
+    if (-not $TestOnly) {
+        $steps += @{ Directory = 'frontend'; Command = 'npm'; Arguments = @('run', 'lint') }
+    }
+    $steps += @{ Directory = 'frontend'; Command = 'npm'; Arguments = @('test', '--', '--run') }
+    if (-not $TestOnly) {
+        $steps += @(
+            @{ Directory = 'frontend'; Command = 'npm'; Arguments = @('run', 'build') }
+            @{ Directory = '.'; Command = 'docker'; Arguments = @('compose', '--env-file', '.env.example', '-f', 'infra/compose.yml', 'config') }
+        )
+    }
+    $steps += @{ Directory = '.'; Command = $maven; Arguments = $integrationArguments }
 }
 
 foreach ($step in $steps) {
