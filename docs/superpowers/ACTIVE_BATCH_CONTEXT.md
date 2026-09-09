@@ -50,8 +50,8 @@ Do not add public API behavior, authentication flows, recommendation scoring, au
 
 | State | Workstream | Durable evidence |
 | --- | --- | --- |
-| Active — re-review required | Task 1 migration baseline fix round 1 | Brief: `task-1-brief.md`; report: `task-1-report.md`; original review found schema metadata/index-state validation, Java driver version, and image-wrapper issues. Fix commit `ec68e1f` adds `SchemaValidator`, 11 focused tests, strict metadata/ONLINE checks, `db.awaitIndexes(30)`, Java driver `6.2.0`, and the image wrapper. |
-| Queued | Task 2 service-owned persistence mappings | Do not dispatch until Task 1 re-review approves. |
+| Complete — review approved | Task 1 migration baseline | Brief: `task-1-brief.md`; report: `task-1-report.md`; initial implementation `a9c2e36`, fix `ec68e1f`, scoped re-review approved. Strict schema metadata/ONLINE validation, Java driver `6.2.0`, and final-image wrapper are complete. Live empty-db/GDS/rerun proof remains explicitly owned by Task 3. |
+| Active — next dispatch | Task 2 service-owned persistence mappings | First genuinely unfinished implementation task. It may consume Task 1 labels, constraint names, and deterministic relationship key contract. |
 | Queued | Task 3 Neo4j/GDS Testcontainers harness | Owns the first live empty-to-latest/rerun/GDS proof. It must not be claimed by Task 1. |
 | Queued | Task 4 concurrent RATED/WATCHLISTED proof | Consumes Tasks 1–3. |
 | Queued | Task 5 deterministic seed loaders | Consumes Tasks 1–2. |
@@ -68,7 +68,7 @@ The initial review reported:
 3. Neo4j-Migrations 4.1.2 ran with the BOM-selected Neo4j Java Driver 6.1.0.
 4. The legacy wrapper was not present in the final migration image.
 
-Controller ruling: item 2 is explicitly owned by Task 3's Testcontainers harness; do not duplicate that harness in Task 1. Its cost is that a live migrator defect may first be discovered in Task 3. Fix round 1 addresses items 1, 3, and 4. The next action is a **scoped re-review** of `a9c2e36..ec68e1f`, using the existing Task 1 brief/report and checking whether those three findings are addressed. If approved, append Task 1 completion to the SDD ledger and start Task 2.
+Controller ruling: item 2 is explicitly owned by Task 3's Testcontainers harness; do not duplicate that harness in Task 1. Its cost is that a live migrator defect may first be discovered in Task 3. Fix round 1 addressed items 1, 3, and 4, and scoped re-review approved `a9c2e36..ec68e1f`. Task 1 is complete; dispatch Task 2 next.
 
 ## Dispatch and review policy
 
