@@ -11,7 +11,8 @@ class Neo4jSchemaIntegrationTest {
     @Test
     void migratesAnEmptyDatabaseAndLeavesNoPendingMigrationsOnRerun() {
         try (Neo4jGdsContainer neo4j = Neo4jGdsContainer.start()) {
-            neo4j.runMigrator("migrate");
+            var initialMigration = neo4j.runMigrator("migrate");
+            assertThat(initialMigration.migrationHistorySize()).isPositive();
 
             assertThat(neo4j.runCypher(
                     "SHOW CONSTRAINTS YIELD name WHERE name IN $names RETURN name",
@@ -19,7 +20,9 @@ class Neo4jSchemaIntegrationTest {
                     .extracting(record -> record.get("name").asString())
                     .containsExactlyInAnyOrder("user_id_unique", "rated_key_unique");
 
-            neo4j.runMigrator("migrate");
+            var rerun = neo4j.runMigrator("migrate");
+            assertThat(rerun.addedMigrationHistoryEntries()).isZero();
+            assertThat(rerun.migrationHistorySize()).isEqualTo(initialMigration.migrationHistorySize());
             neo4j.runMigrator("verify");
         }
     }
