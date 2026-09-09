@@ -158,7 +158,7 @@ No automatic continuation across batch boundaries.
 
 ## Batch 0 — Repository Bootstrap and Reproducible Baseline
 
-**Status:** [ ]
+**Status:** [x]
 
 **Required reading:**
 
