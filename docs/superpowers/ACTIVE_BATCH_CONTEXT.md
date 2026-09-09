@@ -53,8 +53,8 @@ Do not add public API behavior, authentication flows, recommendation scoring, au
 | Complete — review approved | Task 1 migration baseline | Brief: `task-1-brief.md`; report: `task-1-report.md`; initial implementation `a9c2e36`, fix `ec68e1f`, scoped re-review approved. Strict schema metadata/ONLINE validation, Java driver `6.2.0`, and final-image wrapper are complete. Live empty-db/GDS/rerun proof remains explicitly owned by Task 3. |
 | Complete — review approved | Task 2 service-owned persistence mappings | Initial implementation `e778998`, relationship-mapping fix `d96fae1`, and scoped re-review approved. It may now be consumed by concurrency tests. |
 | Complete — review approved | Task 3 Neo4j/GDS Testcontainers harness | Initial implementation `e28c7b7`, hardening fix `07b6548`, and scoped re-review approved. It provides the live empty-db, GDS, current-migrator, and no-new-history rerun proof. |
-| Active — next dispatch | Task 4 concurrent RATED/WATCHLISTED proof | First genuinely unfinished implementation task; consumes the Task 3 Testcontainers/Cypher helper. |
-| Queued | Task 5 deterministic seed loaders | Consumes Tasks 1–2. |
+| Complete — review approved | Task 4 concurrent RATED/WATCHLISTED proof | Implementation `a19aa3f` and independent review approved. It proves one RATED edge from concurrent CREATE/constraint handling and one WATCHLISTED edge from two concurrent MERGEs. |
+| Active — next dispatch | Task 5 deterministic seed loaders | First genuinely unfinished implementation task; consumes Task 1 migrations and `MigrationCommand` seed modes. |
 | Queued | Task 6 live acceptance/evidence/status | Last only; Batch 1 stays `[ ]` until every gate and review passes. |
 
 Tasks 1 and 2 are complete and must not be redispatched. Do not repeat the Task 1 initial implementation (`a9c2e36`) or the Task 2 initial mapping pass (`e778998`); their approved fix commits are `ec68e1f` and `d96fae1`.
