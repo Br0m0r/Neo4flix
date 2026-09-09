@@ -51,13 +51,13 @@ Do not add public API behavior, authentication flows, recommendation scoring, au
 | State | Workstream | Durable evidence |
 | --- | --- | --- |
 | Complete — review approved | Task 1 migration baseline | Brief: `task-1-brief.md`; report: `task-1-report.md`; initial implementation `a9c2e36`, fix `ec68e1f`, scoped re-review approved. Strict schema metadata/ONLINE validation, Java driver `6.2.0`, and final-image wrapper are complete. Live empty-db/GDS/rerun proof remains explicitly owned by Task 3. |
-| Active — next dispatch | Task 2 service-owned persistence mappings | First genuinely unfinished implementation task. It may consume Task 1 labels, constraint names, and deterministic relationship key contract. |
-| Queued | Task 3 Neo4j/GDS Testcontainers harness | Owns the first live empty-to-latest/rerun/GDS proof. It must not be claimed by Task 1. |
+| Complete — review approved | Task 2 service-owned persistence mappings | Initial implementation `e778998`, relationship-mapping fix `d96fae1`, and scoped re-review approved. It may now be consumed by concurrency tests. |
+| Active — next dispatch | Task 3 Neo4j/GDS Testcontainers harness | First genuinely unfinished implementation task. It owns the first live empty-to-latest/rerun/GDS proof and must not be claimed by Task 1. |
 | Queued | Task 4 concurrent RATED/WATCHLISTED proof | Consumes Tasks 1–3. |
 | Queued | Task 5 deterministic seed loaders | Consumes Tasks 1–2. |
 | Queued | Task 6 live acceptance/evidence/status | Last only; Batch 1 stays `[ ]` until every gate and review passes. |
 
-No Batch 1 task has been marked complete. Do not repeat the Task 1 initial implementation (`a9c2e36`) or treat Task 1 as complete until its scoped fix re-review approves `ec68e1f`.
+Tasks 1 and 2 are complete and must not be redispatched. Do not repeat the Task 1 initial implementation (`a9c2e36`) or the Task 2 initial mapping pass (`e778998`); their approved fix commits are `ec68e1f` and `d96fae1`.
 
 ## Current Task 1 review disposition
 
@@ -68,7 +68,7 @@ The initial review reported:
 3. Neo4j-Migrations 4.1.2 ran with the BOM-selected Neo4j Java Driver 6.1.0.
 4. The legacy wrapper was not present in the final migration image.
 
-Controller ruling: item 2 is explicitly owned by Task 3's Testcontainers harness; do not duplicate that harness in Task 1. Its cost is that a live migrator defect may first be discovered in Task 3. Fix round 1 addressed items 1, 3, and 4, and scoped re-review approved `a9c2e36..ec68e1f`. Task 1 is complete; dispatch Task 2 next.
+Controller ruling: item 2 is explicitly owned by Task 3's Testcontainers harness; do not duplicate that harness in Task 1. Its cost is that a live migrator defect may first be discovered in Task 3. Fix round 1 addressed items 1, 3, and 4, and scoped re-review approved `a9c2e36..ec68e1f`. Task 1 is complete; Task 3 is the next dispatch.
 
 ## Dispatch and review policy
 
