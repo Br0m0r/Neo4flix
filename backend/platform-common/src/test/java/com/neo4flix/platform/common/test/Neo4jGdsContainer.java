@@ -4,6 +4,7 @@ import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Record;
+import org.neo4j.driver.Session;
 import org.testcontainers.containers.Neo4jContainer;
 import org.testcontainers.utility.DockerImageName;
 
@@ -57,6 +58,12 @@ public final class Neo4jGdsContainer implements AutoCloseable {
                 .withParameters(parameters)
                 .execute()
                 .records();
+    }
+
+    public List<Record> runWriteCypher(String query, Map<String, Object> parameters) {
+        try (Session session = driver.session()) {
+            return session.executeWrite(transaction -> transaction.run(query, parameters).list());
+        }
     }
 
     public MigrationRun runMigrator(String mode) {
