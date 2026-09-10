@@ -1,6 +1,254 @@
 # Batch 1 verification — 2026-09-10
 
-Acceptance status: **NOT PASSING — Compose authentication/environment gate blocked.**
+Acceptance status: **PASSING — fresh clean-volume live acceptance completed.**
+Batch 1 remains `[ ]` pending independent Task 6 and whole-branch review.
+
+## Successful clean rerun — current acceptance evidence
+
+At the user's explicit authorization, the controller provisioned an untracked,
+ignored local `.env` and removed only the verified old
+`neo4flix_neo4j-data` volume. The Task 6 implementer did not perform that reset.
+Fresh acceptance below supersedes the earlier environment blocker; the complete
+first-attempt evidence remains under **Historical blocked attempt**.
+
+Rerun base: `a38a25dd3d6e385c957928920ca1caa667130c5c`.
+Times are local ISO 8601, Europe/Athens (`+03:00`), except explicitly UTC Docker
+metadata and application log markers. All runtime commands used approved Docker
+access. No `.env` values were printed, copied into this audit, or committed.
+
+Bare `make` remains absent; the actual Makefile targets were executed with:
+
+```text
+C:\Users\User\AppData\Local\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.POSIX.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\bin\mingw32-make.exe
+```
+
+Host Maven/seed commands used process-local
+`JAVA_HOME=C:\Program Files\Java\jdk-26.0.1`. Their JDK 26 native-access,
+Unsafe, and reflective-final-field warnings remain host limitations; the actual
+Compose migrator and all four business services were separately observed on
+Java **21.0.11**, Temurin **21.0.11+10-LTS**.
+
+### Command results
+
+| Command | Start (+03:00, 2026-09-10) | End (+03:00, 2026-09-10) | Exit |
+| --- | --- | --- | --- |
+| `mingw32-make.exe test-integration` | 09:21:27.4252380 | 09:22:52.6218178 | 0 |
+| `pwsh -NoProfile -File scripts/test-smoke-compose.ps1` | 09:22:00.1584901 | 09:22:00.7802346 | 0 |
+| `pwsh -NoProfile -File scripts/test-compose-config.ps1` | 09:22:01.5051751 | 09:22:02.2039469 | 0 |
+| Pre-start volume/container queries below | 09:22:47.5046403 | 09:22:47.9493595 | 0 each |
+| `docker compose --env-file .env -f infra/compose.yml -f infra/compose.dev.yml up --build -d --wait --wait-timeout 600` | 09:23:03.0639941 | 09:24:45.5226655 | 0 |
+| `pwsh -File scripts/smoke-compose.ps1` (default invocation) | 09:25:01.8038407 | 09:25:18.6459102 | 0 |
+| Migration rerun/history, no-seed, volume/JRE checks below | 09:25:40.6223828 | 09:25:50.9143236 | 0 |
+| `mingw32-make.exe seed-audit`, first load plus snapshot | 09:26:40.0762495 | 09:26:50.6836946 | 0 |
+| `mingw32-make.exe seed-audit`, second load plus snapshot | 09:26:50.6839398 | 09:27:01.0918287 | 0 |
+| Seed score/key assertions | after second snapshot | 09:27:04.6697094 | 0 |
+| Filtered initial migrator logs | 09:27:12.4093065 | 09:27:12.7524101 | 0 |
+| `docker compose --env-file .env -f infra/compose.yml -f infra/compose.dev.yml down` and post-down checks | 09:27:29.2653977 | 09:27:42.3677096 | 0 each |
+
+The integration target ran the real Makefile recipe, not a WhatIf substitute:
+
+```text
+pwsh -NoProfile -File scripts/verify.ps1 -Integration
+Neo4jSchemaIntegrationTest: 2 tests, 0 failures, 0 errors, 0 skipped
+WatchlistedRelationshipConcurrencyIT: 1 test, 0 failures, 0 errors, 0 skipped
+RatedRelationshipConcurrencyIT: 1 test, 0 failures, 0 errors, 0 skipped
+BUILD SUCCESS
+CLEAN_INTEGRATION_EXIT=0
+```
+
+The seven smoke contract cases again passed. The Compose configuration contract
+also passed, with nonfatal sandbox Docker-config access warnings. These two
+checks are **controlled-boundary/static proof**, distinct from the fresh live
+Compose smoke and real Testcontainers results.
+
+### Empty volume, migration, GDS, and health
+
+Before startup, both commands returned no rows and exit 0:
+
+```powershell
+docker volume ls --filter 'name=^neo4flix_neo4j-data$' --format '{{.Name}}'
+docker compose --env-file .env -f infra/compose.yml -f infra/compose.dev.yml ps --all --format '{{.Service}} {{.State}}'
+```
+
+Compose then reported creation of `neo4flix_neo4j-data`. The initial migrator's
+filtered log markers (UTC) prove fresh application of all five migrations:
+
+```text
+2026-09-10T06:24:23.495Z Starting MigratorApplication using Java 21.0.11
+2026-09-10T06:24:24.197Z GDS verification succeeded for database=neo4j version=2026.07.0
+2026-09-10T06:24:25.830Z Applied migration 001 ("core node constraints").
+2026-09-10T06:24:26.016Z Applied migration 002 ("relationship uniqueness").
+2026-09-10T06:24:26.074Z Applied migration 003 ("search indexes").
+2026-09-10T06:24:26.218Z Applied migration 004 ("auth support constraints").
+2026-09-10T06:24:26.360Z Applied migration 005 ("share constraints").
+2026-09-10T06:24:26.790Z Database migrator completed mode=migrate database=neo4j versions=5
+```
+
+The default smoke returned the following live results:
+
+```text
+Service                State   Health  ExitCode
+database-migrator      exited                 0
+movie-service          running healthy        0
+neo4j                  running healthy        0
+rating-service         running healthy        0
+recommendation-service running healthy        0
+user-service           running healthy        0
+web                    running healthy        0
+
+Migrator exited 0; logs confirm GDS readiness and migration to latest (5 versions).
+Schema verified: 11 named constraints, 3 named ONLINE indexes; GDS="2026.07.0".
+user-service is UP (http://localhost:8081).
+movie-service is UP (http://localhost:8082).
+rating-service is UP (http://localhost:8083).
+recommendation-service is UP (http://localhost:8084).
+Compose runtime smoke passed: migrations/schema verified, four services UP, GDS ready, web reachable.
+CLEAN_DEFAULT_SMOKE_EXIT=0
+```
+
+The smoke discovers these existing published bindings; no new fixed mappings
+were added. The queries are the named constraint/index and GDS queries in
+`scripts/smoke-compose.ps1`, now executed successfully against live Neo4j.
+
+The additional live queries used the same container-side credential expansion
+as the smoke, with fixed Cypher and no credential output:
+
+```cypher
+MATCH (m:__Neo4jMigration) RETURN count(m) AS migrationHistoryCount;
+MATCH (n)
+WHERE n:User OR n:Movie OR n:Genre OR n:AuthSession OR n:AuthChallenge OR n:RecommendationShare
+RETURN count(n) AS businessNodeCount;
+```
+
+History contained **6** records before and after:
+
+```powershell
+docker compose --env-file .env -f infra/compose.yml -f infra/compose.dev.yml run --rm --no-deps database-migrator migrate
+```
+
+The rerun exited 0, logged `Skipping already applied migration` for 001–005,
+and completed with five versions. The history query returned 6 both times,
+with `MIGRATION_HISTORY_UNCHANGED=True`; six is the observed total history
+record count, not a claim of six versioned migration files. Before the explicit
+seed, `businessNodeCount` was **0**, proving startup did not load fixtures.
+
+For each of `user-service`, `movie-service`, `rating-service`, and
+`recommendation-service`, `docker compose --env-file .env -f infra/compose.yml
+-f infra/compose.dev.yml exec -T <service> java -version` exited 0 and printed
+OpenJDK 21.0.11 / Temurin-21.0.11+10-LTS.
+
+### Explicit deterministic audit seed
+
+Each `mingw32-make.exe seed-audit` executed
+`pwsh -NoProfile -File scripts/seed.ps1 audit`, rebuilt the host migrator, and
+logged `Database migrator completed mode=seed-audit database=neo4j versions=5`.
+Both target exits were 0.
+
+The seed script requires process environment variables. The invocation captured
+`docker compose ... config --format json` only in memory, parsed the migrator
+environment without printing it, and populated the three required seed variables.
+The host Bolt address came from `docker compose ... port neo4j 7687`.
+Resolved config objects were cleared before the seed, and the three variables
+were cleared in `finally`. No direct `.env` read or credential display occurred.
+
+Each load returned `users, movies, ratings = 3, 4, 10`. Snapshot queries were:
+
+```cypher
+MATCH (u:User) WITH count(u) AS users
+MATCH (m:Movie) WITH users, count(m) AS movies
+MATCH ()-[r:RATED]->() RETURN users, movies, count(r) AS ratings;
+
+MATCH (n) WHERE n:User OR n:Movie
+RETURN n.id AS id, properties(n) AS properties ORDER BY id;
+
+MATCH ()-[r:RATED]->()
+RETURN r.key AS key, properties(r) AS properties ORDER BY key;
+```
+
+The sorted node and relationship rows were joined with LF and hashed in memory
+as UTF-8 SHA-256. Both complete snapshots produced:
+
+```text
+CFE02DF9F435130962C503AB2EC3A858D223CF56F1A39F338C416EDD5468E426
+AUDIT_GRAPH_IDENTICAL_ON_RERUN=True
+```
+
+Additional fixed queries asserted Alice/Matrix's score equals **5** and no RATED
+key differs from `user.id + ':' + movie.id` (**0** invalid keys). This is actual
+explicit seed command execution and repeat-load verification against the
+fresh Compose database, not just the earlier loader integration test.
+
+### Ordinary shutdown and named-volume retention
+
+Before shutdown, `docker volume inspect neo4flix_neo4j-data --format '{{.Name}}
+{{.CreatedAt}}'` returned `neo4flix_neo4j-data 2026-09-10T06:24:07Z`.
+
+After the ordinary `down` command above (without `-v`), the same inspection
+and Compose status query returned:
+
+```text
+CLEAN_COMPOSE_DOWN_EXIT=0
+neo4flix_neo4j-data 2026-09-10T06:24:07Z
+CLEAN_VOLUME_INSPECT_EXIT=0
+CLEAN_POST_DOWN_STATUS_EXIT=0
+```
+
+The post-down container query had no rows. Ordinary shutdown removed the seven
+Compose containers and network and retained the newly seeded named volume with
+the same creation timestamp. It can be reused on next startup. No further volume
+deletion occurred in this rerun. Authenticated post-restart graph read-back was
+not part of this retention check.
+
+### Fresh git hygiene
+
+At `2026-09-10T09:27:55.9605276+03:00`, before the evidence edit, all requested
+commands exited 0. Full outputs, including empty status/path results:
+
+```text
+> git status --short
+
+> git ls-files .env '*.pem' '*.key' '*token*'
+
+> git log --oneline 9e10b26..HEAD
+a38a25d docs: record batch 1 acceptance blocker
+9de357f docs: record batch 1 verification
+dd8586a docs: advance active batch context
+bd72812 fix: align seed scaffolding with graph ID contract
+90e8296 feat: add deterministic graph seed loaders
+e5f85c2 docs: advance active batch context
+a19aa3f test: prove graph relationship uniqueness
+b636bf9 docs: advance active batch context
+07b6548 fix: harden Neo4j GDS integration harness
+e28c7b7 test: add Neo4j GDS integration harness
+e104d66 docs: advance active batch context
+d96fae1 fix: complete graph relationship mappings
+e778998 feat: add graph persistence mappings
+4817697 docs: advance active batch context
+4ca6fe4 docs: add active batch context
+ec68e1f fix: harden database migration verification
+a9c2e36 feat: add Neo4j migration baseline
+fca6db7 docs: add batch 1 implementation plan
+63a7103 docs: add batch 1 graph schema design
+```
+
+`git check-ignore .env` returned `.env`, exit 0.
+`git diff --exit-code -- 00_MASTER_EXECUTION_PLAN.md` returned no output, exit 0.
+The fresh evidence resolves the missing live Compose/GDS/schema/seed gate.
+Independent Task 6 and final whole-branch reviews are still required; no batch
+status was changed. Existing host-JDK warnings and later-batch public business
+flows remain outside this acceptance result.
+
+
+Final post-edit checks ran from `2026-09-10T09:30:06.9042472+03:00` to
+`2026-09-10T09:30:08.1764220+03:00`: seven smoke contract cases passed, static
+Compose contract passed, `git diff --check` exited 0, and the master-plan diff
+was empty (exit 0). Only `docs/audit/batch-1-verification.md` was modified in the
+tracked worktree. Static checks again emitted the nonfatal sandbox Docker-config
+warning; Git emitted only its local LF-to-CRLF conversion warning.
+
+## Historical blocked attempt — superseded by the clean rerun above
+
+Historical acceptance status: **NOT PASSING — Compose authentication/environment gate blocked.**
 Batch 1 remains `[ ]` pending independent Task 6 and whole-branch review. This
 report records fresh Task 6 evidence against base
 `dd8586a371222e68134555a58de07d828cf5939b` on
