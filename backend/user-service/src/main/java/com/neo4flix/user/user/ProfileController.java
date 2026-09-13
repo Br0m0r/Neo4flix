@@ -2,6 +2,11 @@ package com.neo4flix.user.user;
 
 import com.neo4flix.user.api.PublicUser;
 import com.neo4flix.user.api.UpdateProfileRequest;
+import com.neo4flix.user.api.ReauthenticationRequest;
+import com.neo4flix.user.auth.RefreshCookieFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import com.neo4flix.user.auth.AuthApplicationService;
 import com.neo4flix.user.security.JwtKeyConfiguration;
 import jakarta.validation.Valid;
@@ -20,9 +25,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProfileController {
 
     private final AuthApplicationService auth;
+    private final AccountDeletionService deletion;
+    private final RefreshCookieFactory cookies;
 
-    public ProfileController(AuthApplicationService auth) {
+    public ProfileController(AuthApplicationService auth, AccountDeletionService deletion, RefreshCookieFactory cookies) {
         this.auth = auth;
+        this.deletion = deletion;
+        this.cookies = cookies;
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> delete(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody ReauthenticationRequest request) {
+        deletion.delete(jwt.getSubject(), request.password(), request.code());
+        return ResponseEntity.noContent().header(HttpHeaders.SET_COOKIE, cookies.clear().toString()).build();
     }
 
     @GetMapping

@@ -48,6 +48,7 @@ public class AuthApplicationService {
     private final Duration refreshTtl;
     private final int refreshTokenBytes;
     private final String dummyPasswordHash;
+    private final TotpAuthenticationService twoFactor;
 
     public AuthApplicationService(
             UserRepository users,
@@ -58,7 +59,8 @@ public class AuthApplicationService {
             SecureRandom secureRandom,
             Clock clock,
             @Value("${neo4flix.security.refresh-token.ttl:P30D}") Duration refreshTtl,
-            @Value("${neo4flix.security.refresh-token.bytes:32}") int refreshTokenBytes) {
+            @Value("${neo4flix.security.refresh-token.bytes:32}") int refreshTokenBytes,
+            TotpAuthenticationService twoFactor) {
         this.users = Objects.requireNonNull(users);
         this.sessions = Objects.requireNonNull(sessions);
         this.passwordPolicy = Objects.requireNonNull(passwordPolicy);
@@ -66,6 +68,7 @@ public class AuthApplicationService {
         this.jwtTokenService = Objects.requireNonNull(jwtTokenService);
         this.secureRandom = Objects.requireNonNull(secureRandom);
         this.clock = Objects.requireNonNull(clock);
+        this.twoFactor = Objects.requireNonNull(twoFactor);
         if (refreshTtl == null || refreshTtl.compareTo(Duration.ofMinutes(1)) < 0
                 || refreshTtl.compareTo(Duration.ofDays(365)) > 0) {
             throw new IllegalArgumentException("Refresh token TTL is outside allowed bounds");
@@ -99,13 +102,14 @@ public class AuthApplicationService {
     public LoginOutcome login(LoginRequest request) {
         String normalizedEmail = normalizeEmail(boundedEmail(request.email()));
         UserNode user = users.findByNormalizedEmail(normalizedEmail).orElse(null);
+        if (user != null) user = twoFactor.lockUser(user.id());
         String candidateHash = user == null ? dummyPasswordHash : user.passwordHash();
         boolean passwordMatches = passwordEncoder.matches(request.password(), candidateHash);
         if (user == null || !user.enabled() || !passwordMatches) {
             throw new InvalidCredentialsException();
         }
         if (user.twoFactorEnabled()) {
-            return new RequiresTwoFactor(user.id());
+            return twoFactor.challenge(user);
         }
         return issueSession(user, clock.instant());
     }
@@ -145,18 +149,32 @@ public class AuthApplicationService {
 
     @Transactional
     public void changePassword(String subject, ChangePasswordRequest request) {
-        UserNode user = requireUser(subject);
-        if (!passwordEncoder.matches(request.currentPassword(), user.passwordHash())) {
-            throw new InvalidCredentialsException();
-        }
-        if (user.twoFactorEnabled()) {
-            throw new SecondFactorRequiredException();
-        }
+        UserNode user = reauthenticate(subject, request.currentPassword(), request.code());
         passwordPolicy.validate(request.newPassword());
         if (!users.updatePassword(user.id(), passwordEncoder.encode(request.newPassword()), clock.instant())) {
             throw new UserNotFoundException();
         }
     }
+
+    @Transactional
+    public UserNode reauthenticate(String subject, String password, String code) {
+        UserNode user = twoFactor.lockUser(requireSubject(subject));
+        if (password == null || !passwordEncoder.matches(password, user.passwordHash())) throw new InvalidCredentialsException();
+        twoFactor.requireCode(user, code);
+        return user;
+    }
+
+    @Transactional
+    public com.neo4flix.user.api.TotpSetupResponse setupTwoFactor(String subject) { return twoFactor.setup(requireSubject(subject)); }
+
+    @Transactional
+    public void confirmTwoFactor(String subject, String code) { twoFactor.confirm(requireSubject(subject), code); }
+
+    @Transactional
+    public Authenticated verifyTwoFactor(String token, String code) { return issueSession(twoFactor.verifyChallenge(token, code), clock.instant()); }
+
+    @Transactional
+    public void disableTwoFactor(String subject, String password, String code) { twoFactor.disable(reauthenticate(subject, password, code)); }
 
     private Authenticated issueSession(UserNode user, Instant now) {
         TokenMaterial refresh = newRefreshToken();
@@ -254,7 +272,7 @@ public class AuthApplicationService {
             Instant refreshExpiresAt) implements LoginOutcome {
     }
 
-    public record RequiresTwoFactor(String userId) implements LoginOutcome {
+    public record RequiresTwoFactor(String challengeToken, long expiresIn) implements LoginOutcome {
     }
 
     private record TokenMaterial(String raw, String hash) {

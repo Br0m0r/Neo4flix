@@ -45,6 +45,11 @@ class AuthApplicationServiceTest {
                 "neo4flix-user-service",
                 "neo4flix-api",
                 Duration.ofMinutes(15));
+        var twoFactor = org.mockito.Mockito.mock(TotpAuthenticationService.class);
+        org.mockito.Mockito.when(twoFactor.lockUser(org.mockito.ArgumentMatchers.anyString()))
+                .thenAnswer(invocation -> users.findById(invocation.getArgument(0)).orElseThrow());
+        org.mockito.Mockito.when(twoFactor.challenge(org.mockito.ArgumentMatchers.any()))
+                .thenReturn(new AuthApplicationService.RequiresTwoFactor("test-challenge", 300));
         service = new AuthApplicationService(
                 users,
                 sessions,
@@ -54,7 +59,7 @@ class AuthApplicationServiceTest {
                 new SecureRandom(),
                 Clock.fixed(NOW, ZoneOffset.UTC),
                 Duration.ofDays(30),
-                32);
+                32, twoFactor);
     }
 
     @Test

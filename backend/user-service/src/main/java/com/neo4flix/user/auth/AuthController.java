@@ -6,6 +6,10 @@ import com.neo4flix.user.api.LoginRequest;
 import com.neo4flix.user.api.PublicUser;
 import com.neo4flix.user.api.RegisterRequest;
 import com.neo4flix.user.api.TwoFactorChallenge;
+import com.neo4flix.user.api.TotpSetupResponse;
+import com.neo4flix.user.api.TotpCodeRequest;
+import com.neo4flix.user.api.VerifyTwoFactorRequest;
+import com.neo4flix.user.api.ReauthenticationRequest;
 import com.neo4flix.user.security.JwtKeyConfiguration;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -45,8 +49,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
         AuthApplicationService.LoginOutcome outcome = auth.login(request);
-        if (outcome instanceof AuthApplicationService.RequiresTwoFactor) {
-            return ResponseEntity.accepted().body(new TwoFactorChallenge(true, null, 0));
+        if (outcome instanceof AuthApplicationService.RequiresTwoFactor challenge) {
+            return ResponseEntity.accepted().body(new TwoFactorChallenge(true, challenge.challengeToken(), challenge.expiresIn()));
         }
         return authenticated((AuthApplicationService.Authenticated) outcome);
     }
@@ -54,6 +58,28 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refresh(HttpServletRequest request) {
         return authenticated(auth.refresh(refreshToken(request)));
+    }
+
+    @PostMapping("/2fa/setup")
+    public ResponseEntity<TotpSetupResponse> setup(@AuthenticationPrincipal Jwt jwt) {
+        return ResponseEntity.ok().header(HttpHeaders.CACHE_CONTROL, "no-store").body(auth.setupTwoFactor(jwt.getSubject()));
+    }
+
+    @PostMapping("/2fa/confirm")
+    public ResponseEntity<Void> confirm(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody TotpCodeRequest request) {
+        auth.confirmTwoFactor(jwt.getSubject(), request.code());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/2fa/verify")
+    public ResponseEntity<AuthResponse> verify(@Valid @RequestBody VerifyTwoFactorRequest request) {
+        return authenticated(auth.verifyTwoFactor(request.challengeToken(), request.code()));
+    }
+
+    @PostMapping("/2fa/disable")
+    public ResponseEntity<Void> disable(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody ReauthenticationRequest request) {
+        auth.disableTwoFactor(jwt.getSubject(), request.password(), request.code());
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/logout")

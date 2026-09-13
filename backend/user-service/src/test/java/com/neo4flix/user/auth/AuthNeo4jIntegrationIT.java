@@ -42,8 +42,7 @@ class AuthNeo4jIntegrationIT {
                         .execute();
                 driver.executableQuery("CREATE CONSTRAINT session_id IF NOT EXISTS FOR (s:AuthSession) REQUIRE s.id IS UNIQUE")
                         .execute();
-                var service = service(new UserRepository.Neo4j(Neo4jClient.create(driver)),
-                        new AuthSessionRepository.Neo4j(Neo4jClient.create(driver)));
+                var service = service(Neo4jClient.create(driver));
                 service.register(new RegisterRequest("race@example.com", "Race", "StrongPass1!"));
                 String token = ((AuthApplicationService.Authenticated) service.login(
                         new LoginRequest("race@example.com", "StrongPass1!"))).refreshToken();
@@ -83,8 +82,7 @@ class AuthNeo4jIntegrationIT {
                         .execute();
                 driver.executableQuery("CREATE CONSTRAINT session_hash IF NOT EXISTS FOR (s:AuthSession) REQUIRE s.refreshTokenHash IS UNIQUE")
                         .execute();
-                var service = service(new UserRepository.Neo4j(Neo4jClient.create(driver)),
-                        new AuthSessionRepository.Neo4j(Neo4jClient.create(driver)));
+                var service = service(Neo4jClient.create(driver));
 
                 service.register(new RegisterRequest("alice@example.com", "Alice", "StrongPass1!"));
                 var login = (AuthApplicationService.Authenticated) service.login(
@@ -118,17 +116,20 @@ class AuthNeo4jIntegrationIT {
         }
     }
 
-    private static AuthApplicationService service(
-            UserRepository users, AuthSessionRepository sessions) throws Exception {
+    private static AuthApplicationService service(Neo4jClient client) throws Exception {
         var generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(2048);
         var jwt = new JwtTokenService(
                 (RSAPrivateKey) generator.generateKeyPair().getPrivate(),
                 "neo4flix-user-service", "neo4flix-api", Duration.ofMinutes(15));
         Instant now = Instant.parse("2026-09-13T12:00:00Z");
+        var clock = Clock.fixed(now, ZoneOffset.UTC);
+        byte[] key = new byte[32]; new SecureRandom().nextBytes(key);
+        var twoFactor = new TotpAuthenticationService(client, new com.neo4flix.user.security.TotpService(),
+                new com.neo4flix.user.security.SecretEncryptionService(java.util.Base64.getEncoder().encodeToString(key)), clock, new SecureRandom());
         return new AuthApplicationService(
-                users, sessions, new PasswordPolicy(128), new BCryptPasswordEncoder(4), jwt,
-                new SecureRandom(), Clock.fixed(now, ZoneOffset.UTC), Duration.ofDays(30), 32);
+                new UserRepository.Neo4j(client), new AuthSessionRepository.Neo4j(client), new PasswordPolicy(128), new BCryptPasswordEncoder(4), jwt,
+                new SecureRandom(), clock, Duration.ofDays(30), 32, twoFactor);
     }
 
     private static boolean refreshOutcome(

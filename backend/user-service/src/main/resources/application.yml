@@ -18,6 +18,13 @@ management:
 
 neo4flix:
   security:
+    totp:
+      encryption-key: ${NEO4FLIX_TOTP_ENCRYPTION_KEY:}
+    allowed-origins: ${NEO4FLIX_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:8080}
+    rate-limit:
+      requests: ${NEO4FLIX_AUTH_RATE_LIMIT_REQUESTS:10}
+      window-seconds: ${NEO4FLIX_AUTH_RATE_LIMIT_WINDOW_SECONDS:60}
+      capacity: ${NEO4FLIX_AUTH_RATE_LIMIT_CAPACITY:10000}
     jwt:
       private-key: ${NEO4FLIX_JWT_PRIVATE_KEY:}
       public-key: ${NEO4FLIX_JWT_PUBLIC_KEY:}

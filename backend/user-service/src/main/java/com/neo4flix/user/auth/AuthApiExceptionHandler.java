@@ -19,6 +19,11 @@ import java.util.Map;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class AuthApiExceptionHandler {
 
+    @ExceptionHandler(TotpAuthenticationService.AlreadyEnabledException.class)
+    ProblemDetail twoFactorAlreadyEnabled(HttpServletRequest request) {
+        return problem(HttpStatus.CONFLICT, "Conflict", "TWO_FACTOR_ALREADY_ENABLED", "Two-factor authentication is already enabled", request, Map.of());
+    }
+
     @ExceptionHandler(PasswordPolicy.PasswordPolicyViolationException.class)
     ProblemDetail invalidPassword(HttpServletRequest request) {
         return problem(HttpStatus.BAD_REQUEST, "Validation failed", "VALIDATION_FAILED",

@@ -27,7 +27,7 @@ public class MigratorApplication implements CommandLineRunner {
     private static final Duration QUERY_TIMEOUT = Duration.ofSeconds(10);
     private static final String DEFAULT_DATABASE = "neo4j";
     private static final String DEFAULT_LOCATION = "classpath:database/migrations";
-    private static final List<String> EXPECTED_VERSIONS = List.of("001", "002", "003", "004", "005");
+    private static final List<String> EXPECTED_VERSIONS = List.of("001", "002", "003", "004", "005", "006");
     private static final List<SchemaValidator.SchemaObject> EXPECTED_CONSTRAINTS = List.of(
             nodeUniqueness("user_id_unique", "User", "id"),
             nodeUniqueness("user_normalized_email_unique", "User", "normalizedEmail"),
@@ -38,6 +38,8 @@ public class MigratorApplication implements CommandLineRunner {
             relationshipUniqueness("watchlisted_key_unique", "WATCHLISTED", "key"),
             nodeUniqueness("auth_session_id_unique", "AuthSession", "id"),
             nodeUniqueness("auth_challenge_id_unique", "AuthChallenge", "id"),
+            nodeUniqueness("auth_session_refresh_hash_unique", "AuthSession", "refreshTokenHash"),
+            nodeUniqueness("auth_challenge_token_hash_unique", "AuthChallenge", "tokenHash"),
             nodeUniqueness("recommendation_share_id_unique", "RecommendationShare", "id"),
             nodeUniqueness(
                     "recommendation_share_token_hash_unique", "RecommendationShare", "publicTokenHash"));
