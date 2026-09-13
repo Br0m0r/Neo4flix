@@ -34,6 +34,16 @@ public final class AuditSeedLoader {
                 movie.createdAt = datetime($createdAt),
                 movie.updatedAt = datetime($updatedAt)
             """;
+    private static final String MERGE_GENRE = """
+            MERGE (genre:Genre {id: $id})
+            SET genre.name = $name,
+                genre.normalizedName = $normalizedName
+            """;
+    private static final String MERGE_MOVIE_GENRE = """
+            MATCH (movie:Movie {id: $movieId})
+            MATCH (genre:Genre {id: $genreId})
+            MERGE (movie)-[:IN_GENRE]->(genre)
+            """;
     private static final String MERGE_RATING = """
             MATCH (user:User {id: $userId})
             MATCH (movie:Movie {id: $movieId})
@@ -48,6 +58,8 @@ public final class AuditSeedLoader {
         QueryConfig config = withDatabase(database);
         fixture.users().forEach(user -> execute(driver, MERGE_USER, user.parameters(fixture.timestamp()), config));
         fixture.movies().forEach(movie -> execute(driver, MERGE_MOVIE, movie.parameters(fixture.timestamp()), config));
+        fixture.genres().forEach(genre -> execute(driver, MERGE_GENRE, genre.parameters(), config));
+        fixture.movieGenres().forEach(movieGenre -> execute(driver, MERGE_MOVIE_GENRE, movieGenre.parameters(), config));
         fixture.ratings().forEach(rating -> execute(driver, MERGE_RATING, rating.parameters(fixture.timestamp()), config));
         return new SeedResult(
                 fixture.users().stream().map(FixtureUser::id).toList(),
@@ -88,7 +100,12 @@ public final class AuditSeedLoader {
     }
 
     private record AuditFixture(
-            String timestamp, List<FixtureUser> users, List<FixtureMovie> movies, List<FixtureRating> ratings) {
+            String timestamp,
+            List<FixtureUser> users,
+            List<FixtureMovie> movies,
+            List<FixtureGenre> genres,
+            List<FixtureMovieGenre> movieGenres,
+            List<FixtureRating> ratings) {
     }
 
     private record FixtureUser(String id, String slug, String displayName, String email) {
@@ -114,6 +131,18 @@ public final class AuditSeedLoader {
                     "releaseYear", releaseYear,
                     "createdAt", timestamp,
                     "updatedAt", timestamp);
+        }
+    }
+
+    private record FixtureGenre(String id, String name, String normalizedName) {
+        private Map<String, Object> parameters() {
+            return Map.of("id", id, "name", name, "normalizedName", normalizedName);
+        }
+    }
+
+    private record FixtureMovieGenre(String movieId, String genreId) {
+        private Map<String, Object> parameters() {
+            return Map.of("movieId", movieId, "genreId", genreId);
         }
     }
 

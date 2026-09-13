@@ -3,7 +3,49 @@
 Acceptance status: **PASSING — fresh clean-volume live acceptance completed.**
 Batch 1 remains `[ ]` pending independent Task 6 and whole-branch review.
 
-## Successful clean rerun — current acceptance evidence
+## Final fix wave — current audit-seed evidence (2026-09-13)
+
+This supplement updates only the explicit audit-seed graph evidence after the
+final-fix fixture extension. It is based on `a1dd28e` plus the uncommitted final
+fix wave. The earlier clean rerun remains historical evidence below, but its
+audit-seed counts and fingerprint describe the pre-Genre fixture and are not the
+current seed shape.
+
+The ignored local `.env` and existing named volume were retained. No environment
+value or credential was printed, copied here, or committed. The Neo4j Compose
+service was started normally against that retained volume; no reset or volume
+deletion occurred. The first host-JAR seed attempt used Compose's internal
+`bolt://neo4j` address and failed before any graph write because that Docker DNS
+name is not available to a host process. The successful retry resolved the
+published Bolt address in memory, then set the host process variables only for
+the command and cleared them in `finally`.
+
+At `2026-09-13T17:01:45+03:00`, two explicit
+`pwsh -NoProfile -File scripts/seed.ps1 audit` loads both exited 0. Fixed
+container-side queries after the second load returned:
+
+```text
+users=3, movies=4, genres=4, ratings=10, inGenre=6
+audit-alice -> audit-matrix score=5
+invalid RATED keys=0
+```
+
+The current snapshot includes all `User`, `Movie`, and `Genre` nodes plus every
+`RATED` and `IN_GENRE` relationship, sorted by stable application identifiers
+and hashed in memory as UTF-8 SHA-256:
+
+```text
+BECDD08883F6352FDBCD6B47C1D0FA8EF06083E4915E3002E8EEC9DE5BEB5CB3
+AUDIT_GRAPH_IDENTICAL_ON_RERUN=True
+```
+
+This fingerprint supersedes the earlier `CFE02...` audit-seed fingerprint,
+which intentionally omitted Genre nodes and `IN_GENRE` edges. The repeat-load
+result proves the four fixed UUID Genre nodes and six parameterized
+Movie-to-Genre relationships are idempotent while preserving the three users,
+four movies, ten ratings, fixed score, and `RATED.key` contract.
+
+## Historical clean rerun — 2026-09-10
 
 At the user's explicit authorization, the controller provisioned an untracked,
 ignored local `.env` and removed only the verified old
