@@ -1,0 +1,89 @@
+package com.neo4flix.user.auth;
+
+import com.neo4flix.user.api.LoginRequest;
+import com.neo4flix.user.api.RegisterRequest;
+import com.neo4flix.user.persistence.AuthSessionRepository;
+import com.neo4flix.user.persistence.UserRepository;
+import com.neo4flix.user.security.JwtTokenService;
+import org.junit.jupiter.api.Test;
+import org.neo4j.driver.AuthTokens;
+import org.neo4j.driver.GraphDatabase;
+import org.springframework.data.neo4j.core.Neo4jClient;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.testcontainers.containers.Neo4jContainer;
+import org.testcontainers.utility.DockerImageName;
+
+import java.security.KeyPairGenerator;
+import java.security.SecureRandom;
+import java.security.interfaces.RSAPrivateKey;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+class AuthNeo4jIntegrationIT {
+
+    @Test
+    void refreshTokensRotateOnceLogoutRevokesAndOnlyHashesReachTheGraph() throws Exception {
+        try (var neo4j = new Neo4jContainer<>(DockerImageName.parse("neo4j:2026.07.1-community"))
+                .withAdminPassword("test-password")) {
+            neo4j.start();
+            try (var driver = GraphDatabase.driver(
+                    neo4j.getBoltUrl(), AuthTokens.basic("neo4j", "test-password"))) {
+                driver.executableQuery("CREATE CONSTRAINT user_email IF NOT EXISTS FOR (u:User) REQUIRE u.normalizedEmail IS UNIQUE")
+                        .execute();
+                driver.executableQuery("CREATE CONSTRAINT session_hash IF NOT EXISTS FOR (s:AuthSession) REQUIRE s.refreshTokenHash IS UNIQUE")
+                        .execute();
+                var service = service(new UserRepository.Neo4j(Neo4jClient.create(driver)),
+                        new AuthSessionRepository.Neo4j(Neo4jClient.create(driver)));
+
+                service.register(new RegisterRequest("alice@example.com", "Alice", "StrongPass1!"));
+                var login = (AuthApplicationService.Authenticated) service.login(
+                        new LoginRequest("alice@example.com", "StrongPass1!"));
+                String tokenA = login.refreshToken();
+                var refreshB = service.refresh(tokenA);
+                String tokenB = refreshB.refreshToken();
+
+                assertThat(tokenB).isNotEqualTo(tokenA);
+                assertThatThrownBy(() -> service.refresh(tokenA))
+                        .isInstanceOf(AuthApplicationService.InvalidRefreshTokenException.class);
+
+                service.logout(tokenB);
+                assertThatThrownBy(() -> service.refresh(tokenB))
+                        .isInstanceOf(AuthApplicationService.InvalidRefreshTokenException.class);
+
+                List<Object> values = driver.executableQuery("MATCH (n) UNWIND keys(n) AS key RETURN n[key] AS value")
+                        .execute().records().stream()
+                        .map(record -> record.get("value").asObject())
+                        .toList();
+                assertThat(values)
+                        .doesNotContain("StrongPass1!", tokenA, tokenB)
+                        .anySatisfy(value -> assertThat(value.toString()).startsWith("$2"));
+                assertThat(driver.executableQuery("MATCH (s:AuthSession) RETURN s.refreshTokenHash AS hash")
+                        .execute().records())
+                        .isNotEmpty()
+                        .allSatisfy(record -> assertThat(record.get("hash").asString())
+                                .hasSize(43)
+                                .isNotIn(tokenA, tokenB));
+            }
+        }
+    }
+
+    private static AuthApplicationService service(
+            UserRepository users, AuthSessionRepository sessions) throws Exception {
+        var generator = KeyPairGenerator.getInstance("RSA");
+        generator.initialize(2048);
+        var jwt = new JwtTokenService(
+                (RSAPrivateKey) generator.generateKeyPair().getPrivate(),
+                "neo4flix-user-service", "neo4flix-api", Duration.ofMinutes(15));
+        Instant now = Instant.parse("2026-09-13T12:00:00Z");
+        return new AuthApplicationService(
+                users, sessions, new PasswordPolicy(128), new BCryptPasswordEncoder(4), jwt,
+                new SecureRandom(), Clock.fixed(now, ZoneOffset.UTC), Duration.ofDays(30), 32);
+    }
+}

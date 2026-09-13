@@ -30,3 +30,10 @@ neo4flix:
       http-only: true
       same-site: ${NEO4FLIX_REFRESH_COOKIE_SAME_SITE:Strict}
       path: ${NEO4FLIX_REFRESH_COOKIE_PATH:/api/v1/auth}
+    refresh-token:
+      ttl: ${NEO4FLIX_REFRESH_TOKEN_TTL:P30D}
+      bytes: ${NEO4FLIX_REFRESH_TOKEN_BYTES:32}
+    password:
+      minimum-length: 10
+      maximum-length: ${NEO4FLIX_PASSWORD_MAXIMUM_LENGTH:128}
+      bcrypt-strength: ${NEO4FLIX_BCRYPT_STRENGTH:12}
