@@ -6,10 +6,11 @@ import com.neo4flix.user.api.LoginRequest;
 import com.neo4flix.user.api.PublicUser;
 import com.neo4flix.user.api.RegisterRequest;
 import com.neo4flix.user.api.TwoFactorChallenge;
+import com.neo4flix.user.security.JwtKeyConfiguration;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ import java.util.Arrays;
 
 @RestController
 @RequestMapping("/api/v1/auth")
-@ConditionalOnBean(AuthApplicationService.class)
+@Conditional(JwtKeyConfiguration.PrivateKeyConfigured.class)
 public class AuthController {
 
     private final AuthApplicationService auth;

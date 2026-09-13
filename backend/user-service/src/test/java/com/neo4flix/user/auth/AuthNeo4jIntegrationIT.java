@@ -21,12 +21,56 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class AuthNeo4jIntegrationIT {
+
+    @Test
+    void concurrentRefreshOfOneTokenHasExactlyOneWinner() throws Exception {
+        try (var neo4j = new Neo4jContainer<>(DockerImageName.parse("neo4j:2026.07.1-community"))
+                .withAdminPassword("test-password")) {
+            neo4j.start();
+            try (var driver = GraphDatabase.driver(
+                    neo4j.getBoltUrl(), AuthTokens.basic("neo4j", "test-password"))) {
+                driver.executableQuery("CREATE CONSTRAINT user_email IF NOT EXISTS FOR (u:User) REQUIRE u.normalizedEmail IS UNIQUE")
+                        .execute();
+                driver.executableQuery("CREATE CONSTRAINT session_id IF NOT EXISTS FOR (s:AuthSession) REQUIRE s.id IS UNIQUE")
+                        .execute();
+                var service = service(new UserRepository.Neo4j(Neo4jClient.create(driver)),
+                        new AuthSessionRepository.Neo4j(Neo4jClient.create(driver)));
+                service.register(new RegisterRequest("race@example.com", "Race", "StrongPass1!"));
+                String token = ((AuthApplicationService.Authenticated) service.login(
+                        new LoginRequest("race@example.com", "StrongPass1!"))).refreshToken();
+                CountDownLatch ready = new CountDownLatch(2);
+                CountDownLatch start = new CountDownLatch(1);
+
+                List<Boolean> outcomes;
+                try (ExecutorService executor = Executors.newFixedThreadPool(2)) {
+                    var first = executor.submit(() -> refreshOutcome(service, token, ready, start));
+                    var second = executor.submit(() -> refreshOutcome(service, token, ready, start));
+                    assertThat(ready.await(10, TimeUnit.SECONDS)).isTrue();
+                    start.countDown();
+                    outcomes = List.of(first.get(30, TimeUnit.SECONDS), second.get(30, TimeUnit.SECONDS));
+                }
+
+                assertThat(outcomes).containsExactlyInAnyOrder(true, false);
+                long replacements = driver.executableQuery("""
+                                MATCH (:User {normalizedEmail: $email})-[:HAS_SESSION]->(s:AuthSession)
+                                WHERE s.rotatedFromSessionId IS NOT NULL
+                                RETURN count(s) AS count
+                                """)
+                        .withParameters(java.util.Map.of("email", "race@example.com"))
+                        .execute().records().getFirst().get("count").asLong();
+                assertThat(replacements).isEqualTo(1L);
+            }
+        }
+    }
 
     @Test
     void refreshTokensRotateOnceLogoutRevokesAndOnlyHashesReachTheGraph() throws Exception {
@@ -85,5 +129,20 @@ class AuthNeo4jIntegrationIT {
         return new AuthApplicationService(
                 users, sessions, new PasswordPolicy(128), new BCryptPasswordEncoder(4), jwt,
                 new SecureRandom(), Clock.fixed(now, ZoneOffset.UTC), Duration.ofDays(30), 32);
+    }
+
+    private static boolean refreshOutcome(
+            AuthApplicationService service,
+            String token,
+            CountDownLatch ready,
+            CountDownLatch start) throws InterruptedException {
+        ready.countDown();
+        assertThat(start.await(10, TimeUnit.SECONDS)).isTrue();
+        try {
+            service.refresh(token);
+            return true;
+        } catch (AuthApplicationService.InvalidRefreshTokenException exception) {
+            return false;
+        }
     }
 }

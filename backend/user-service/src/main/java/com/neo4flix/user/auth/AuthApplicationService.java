@@ -10,9 +10,10 @@ import com.neo4flix.user.persistence.AuthSessionNode;
 import com.neo4flix.user.persistence.AuthSessionRepository;
 import com.neo4flix.user.persistence.UserNode;
 import com.neo4flix.user.persistence.UserRepository;
+import com.neo4flix.user.security.JwtKeyConfiguration;
 import com.neo4flix.user.security.JwtTokenService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +32,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Service
-@ConditionalOnBean(JwtTokenService.class)
+@Conditional(JwtKeyConfiguration.PrivateKeyConfigured.class)
 public class AuthApplicationService {
 
     private static final String INVALID_CREDENTIALS = "Invalid email or password";

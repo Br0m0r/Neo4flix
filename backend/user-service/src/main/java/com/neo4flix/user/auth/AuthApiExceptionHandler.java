@@ -3,6 +3,8 @@ package com.neo4flix.user.auth;
 import com.neo4flix.platform.common.web.RequestId;
 import com.neo4flix.platform.common.web.RequestIdFilter;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,7 +16,15 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestControllerAdvice
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class AuthApiExceptionHandler {
+
+    @ExceptionHandler(PasswordPolicy.PasswordPolicyViolationException.class)
+    ProblemDetail invalidPassword(HttpServletRequest request) {
+        return problem(HttpStatus.BAD_REQUEST, "Validation failed", "VALIDATION_FAILED",
+                "One or more fields are invalid", request,
+                Map.of("password", "must satisfy the password policy"));
+    }
 
     @ExceptionHandler(AuthApplicationService.DuplicateEmailException.class)
     ProblemDetail duplicateEmail(HttpServletRequest request) {

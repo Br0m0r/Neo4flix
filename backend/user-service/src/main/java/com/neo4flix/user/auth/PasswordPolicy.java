@@ -36,7 +36,13 @@ public final class PasswordPolicy {
         }
     }
 
-    private static IllegalArgumentException invalid() {
-        return new IllegalArgumentException("Password does not satisfy the password policy");
+    private static PasswordPolicyViolationException invalid() {
+        return new PasswordPolicyViolationException();
+    }
+
+    public static final class PasswordPolicyViolationException extends IllegalArgumentException {
+        public PasswordPolicyViolationException() {
+            super("Password does not satisfy the password policy");
+        }
     }
 }

@@ -66,7 +66,7 @@ public class JwtKeyConfiguration {
         return value;
     }
 
-    static final class PrivateKeyConfigured implements Condition {
+    public static final class PrivateKeyConfigured implements Condition {
         @Override
         public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
             String value = context.getEnvironment().getProperty("neo4flix.security.jwt.private-key");

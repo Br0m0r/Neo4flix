@@ -30,7 +30,16 @@ public interface AuthSessionRepository {
                 """;
         private static final String ROTATE = """
                 MATCH (u:User)-[:HAS_SESSION]->(current:AuthSession {refreshTokenHash: $currentHash})
-                WHERE current.revokedAt IS NULL AND current.expiresAt > $now AND u.enabled = true
+                SET current.rotatedToSessionId = CASE
+                  WHEN current.rotatedToSessionId IS NULL
+                    AND current.revokedAt IS NULL
+                    AND current.expiresAt > $now
+                    AND u.enabled = true
+                  THEN $replacementId
+                  ELSE current.rotatedToSessionId
+                END
+                WITH u, current
+                WHERE current.rotatedToSessionId = $replacementId
                 SET current.revokedAt = $now
                 CREATE (u)-[:HAS_SESSION]->(:AuthSession {
                   id: $replacementId,
