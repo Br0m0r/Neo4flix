@@ -1,3 +1,31 @@
 import { Routes } from '@angular/router';
+import { anonymousOnlyGuard, authGuard } from './core/auth.guards';
 
-export const routes: Routes = [];
+export const routes: Routes = [
+  {
+    path: '',
+    pathMatch: 'full',
+    canActivate: [authGuard],
+    children: [],
+  },
+  {
+    path: 'auth/login',
+    canActivate: [anonymousOnlyGuard],
+    loadComponent: () => import('./features/auth/login.component').then((module) => module.LoginComponent),
+  },
+  {
+    path: 'auth/register',
+    canActivate: [anonymousOnlyGuard],
+    loadComponent: () =>
+      import('./features/auth/register.component').then((module) => module.RegisterComponent),
+  },
+  {
+    path: 'auth/2fa',
+    canActivate: [anonymousOnlyGuard],
+    loadComponent: () =>
+      import('./features/auth/two-factor-login.component').then(
+        (module) => module.TwoFactorLoginComponent,
+      ),
+  },
+  { path: '**', redirectTo: '' },
+];
