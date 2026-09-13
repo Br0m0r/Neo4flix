@@ -15,3 +15,10 @@ management:
     web:
       exposure:
         include: health
+
+neo4flix:
+  security:
+    jwt:
+      public-key: ${NEO4FLIX_JWT_PUBLIC_KEY:}
+      issuer: ${NEO4FLIX_JWT_ISSUER:neo4flix-user-service}
+      audience: ${NEO4FLIX_JWT_AUDIENCE:neo4flix-api}
