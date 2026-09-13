@@ -6,6 +6,9 @@ The external assignment and audit remain non-negotiable requirements. This canon
 
 ## Start Here
 
+For clean-checkout setup, verification, and the local stack, see
+[Local development](docs/DEVELOPMENT.md).
+
 1. Read this `README.md`.
 2. Read `00_MASTER_EXECUTION_PLAN.md`.
 3. Identify the first incomplete batch.

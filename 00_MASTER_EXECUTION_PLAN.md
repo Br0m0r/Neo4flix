@@ -158,7 +158,7 @@ No automatic continuation across batch boundaries.
 
 ## Batch 0 — Repository Bootstrap and Reproducible Baseline
 
-**Status:** [ ]
+**Status:** [x]
 
 **Required reading:**
 
@@ -197,7 +197,7 @@ No automatic continuation across batch boundaries.
 
 ## Batch 1 — Graph Schema, Migrations, Seeds, and Neo4j Test Harness
 
-**Status:** [ ]
+**Status:** [x]
 
 **Required reading:**
 
