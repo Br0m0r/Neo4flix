@@ -7,7 +7,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.server.PathContainer;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.ServletRequestPathUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.net.URI;
@@ -41,7 +43,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
     @Override protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        String path = request.getRequestURI().substring(request.getContextPath().length());
+        String path = normalizedPath(request);
+        if (path == null) { reject(response, 400, "Invalid request path"); return; }
         if (request.getMethod().equals("POST")) {
             if (path.equals("/api/v1/auth/refresh") || path.equals("/api/v1/auth/logout")) {
                 String supplied = request.getHeader("Origin");
@@ -58,6 +61,31 @@ public class RateLimitFilter extends OncePerRequestFilter {
             }
         }
         chain.doFilter(request, response);
+    }
+
+    private static String normalizedPath(HttpServletRequest request) {
+        try {
+            PathContainer path = ServletRequestPathUtils.parse(request).pathWithinApplication();
+            String raw = path.value();
+            if (raw.indexOf('\\') >= 0 || raw.contains("//")) return null;
+            StringBuilder normalized = new StringBuilder(raw.length());
+            for (PathContainer.Element element : path.elements()) {
+                if (element instanceof PathContainer.PathSegment segment) {
+                    String value = segment.valueToMatch();
+                    if (!segment.parameters().isEmpty() || value.equals(".") || value.equals("..")
+                            || value.indexOf('/') >= 0 || value.indexOf('\\') >= 0
+                            || value.chars().anyMatch(character -> character < 32 || character == 127)) return null;
+                    normalized.append(value);
+                } else if (element.value().equals("/")) {
+                    normalized.append('/');
+                } else {
+                    return null;
+                }
+            }
+            return normalized.toString();
+        } catch (IllegalArgumentException exception) {
+            return null;
+        }
     }
 
     private synchronized long acquire(String key) {

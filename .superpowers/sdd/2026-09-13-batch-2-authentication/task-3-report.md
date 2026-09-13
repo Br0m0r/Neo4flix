@@ -28,3 +28,14 @@ Complete. The resumed in-progress implementation was preserved and verified with
 
 - Verification used the installed JDK 26 because the requested Java 21 JDK was not present in `JAVA_HOME`; Maven emitted upstream deprecation/dynamic-agent warnings, but all builds and tests exited successfully.
 - The rate limiter is intentionally process-local. Horizontal deployments require a shared limiter at the gateway or a distributed backing store to enforce a cluster-wide quota.
+
+## Review Fix Round 1: Encoded Path Matching
+
+The review probe demonstrated that raw `HttpServletRequest.getRequestURI()` comparison allowed percent-encoded route characters to bypass both the login quota and refresh/logout Origin policy. The filter now uses Spring's parsed `RequestPath` and compares decoded path segments, so encoded spellings share the canonical endpoint key and cookie-route policy. Ambiguous path forms are rejected before dispatch: matrix parameters, dot segments, duplicate separators, decoded slash/backslash separators, and control characters return `400`.
+
+Regression evidence:
+
+- RED: the new MockMvc encoded login/2FA quota cases expected `429` but received `204`; encoded refresh/logout cases expected `403` but received `204`.
+- GREEN: `RateLimitFilterTest` passed all 6 tests, including encoded login, refresh, logout, 2FA, traversal, separator, duplicate-slash, and matrix-parameter cases.
+- Live HTTP/Neo4j: `AuthProductionContextIT` passed all 12 tests.
+- Full backend reactor: `mvn -q -f backend/pom.xml verify` passed across all backend modules.
