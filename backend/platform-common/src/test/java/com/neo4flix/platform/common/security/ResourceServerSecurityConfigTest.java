@@ -5,10 +5,8 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
@@ -29,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -73,31 +69,6 @@ class ResourceServerSecurityConfigTest {
     }
 
     @Test
-    void decoderRejectsWrongIssuerAudienceAndSignature() throws Exception {
-        ResourceServerSecurityConfig config = new ResourceServerSecurityConfig();
-        var decoder = config.jwtDecoder(publicKey, ISSUER, AUDIENCE);
-        Instant now = Instant.now();
-
-        assertThatThrownBy(() -> decoder.decode(
-                token(privateKey, publicKey, "other-issuer", AUDIENCE, now)))
-                .isInstanceOf(org.springframework.security.oauth2.jwt.JwtValidationException.class);
-        assertThatThrownBy(() -> decoder.decode(
-                token(privateKey, publicKey, ISSUER, "other-audience", now)))
-                .isInstanceOf(org.springframework.security.oauth2.jwt.JwtValidationException.class);
-
-        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
-        generator.initialize(2048);
-        KeyPair otherPair = generator.generateKeyPair();
-        assertThatThrownBy(() -> decoder.decode(token(
-                (RSAPrivateKey) otherPair.getPrivate(),
-                (RSAPublicKey) otherPair.getPublic(),
-                ISSUER,
-                AUDIENCE,
-                now)))
-                .isInstanceOf(org.springframework.security.oauth2.jwt.JwtException.class);
-    }
-
-    @Test
     void roleConverterMapsRolesClaimWithSpringRolePrefix() {
         Jwt jwt = Jwt.withTokenValue("token")
                 .header("alg", "RS256")
@@ -114,10 +85,10 @@ class ResourceServerSecurityConfigTest {
     }
 
     @Test
-    void publicRoutesDoNotCreateSessionsAndProtectedRoutesRequireAuthentication() throws Exception {
+    void productionFilterValidatesRealBearerTokensAndEnforcesRolesWithoutSessions() throws Exception {
         try (AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext()) {
             context.setServletContext(new org.springframework.mock.web.MockServletContext());
-            context.register(ResourceServerSecurityConfig.class, MethodSecurityConfig.class, TestEndpoints.class);
+            context.register(ResourceServerSecurityConfig.class, TestEndpoints.class);
             context.getEnvironment().getPropertySources().addFirst(
                     new org.springframework.core.env.MapPropertySource("jwt-test", Map.of(
                             "neo4flix.security.jwt.public-key", pem(publicKey),
@@ -131,29 +102,58 @@ class ResourceServerSecurityConfigTest {
                     .andReturn();
             assertThat(publicResult.getRequest().getSession(false)).isNull();
             mvc.perform(get("/protected")).andExpect(status().isUnauthorized());
-            mvc.perform(get("/admin").with(jwt().jwt(builder -> builder.claim("roles", List.of("USER")))
-                            .authorities(token -> new ResourceServerSecurityConfig()
-                                    .jwtAuthenticationConverter().convert(token).getAuthorities())))
-                    .andExpect(status().isForbidden());
-            mvc.perform(get("/admin").with(jwt().jwt(builder -> builder.claim("roles", List.of("ADMIN")))
-                            .authorities(token -> new ResourceServerSecurityConfig()
-                                    .jwtAuthenticationConverter().convert(token).getAuthorities())))
+            Instant now = Instant.now();
+            String validUser = token(privateKey, publicKey, ISSUER, AUDIENCE,
+                    now, now.plusSeconds(900), List.of("USER"));
+            String validAdmin = token(privateKey, publicKey, ISSUER, AUDIENCE,
+                    now, now.plusSeconds(900), List.of("ADMIN"));
+
+            mvc.perform(get("/protected").header("Authorization", "Bearer " + validUser))
                     .andExpect(status().isOk());
+            mvc.perform(get("/admin").header("Authorization", "Bearer " + validUser))
+                    .andExpect(status().isForbidden());
+            mvc.perform(get("/admin").header("Authorization", "Bearer " + validAdmin))
+                    .andExpect(status().isOk());
+
+            mvc.perform(get("/protected").header("Authorization", "Bearer " + token(
+                            privateKey, publicKey, "other-issuer", AUDIENCE,
+                            now, now.plusSeconds(900), List.of("USER"))))
+                    .andExpect(status().isUnauthorized());
+            mvc.perform(get("/protected").header("Authorization", "Bearer " + token(
+                            privateKey, publicKey, ISSUER, "other-audience",
+                            now, now.plusSeconds(900), List.of("USER"))))
+                    .andExpect(status().isUnauthorized());
+            mvc.perform(get("/protected").header("Authorization", "Bearer " + token(
+                            privateKey, publicKey, ISSUER, AUDIENCE,
+                            now.minusSeconds(1800), now.minusSeconds(900), List.of("USER"))))
+                    .andExpect(status().isUnauthorized());
+
+            KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+            generator.initialize(2048);
+            KeyPair otherPair = generator.generateKeyPair();
+            mvc.perform(get("/protected").header("Authorization", "Bearer " + token(
+                            (RSAPrivateKey) otherPair.getPrivate(),
+                            (RSAPublicKey) otherPair.getPublic(),
+                            ISSUER, AUDIENCE, now, now.plusSeconds(900), List.of("USER"))))
+                    .andExpect(status().isUnauthorized());
+            mvc.perform(get("/protected").header("Authorization", "Bearer malformed-token"))
+                    .andExpect(status().isUnauthorized());
         }
     }
 
     private static String token(RSAPrivateKey signingKey, RSAPublicKey publicKey,
-                                String issuer, String audience, Instant now) {
+                                String issuer, String audience, Instant issuedAt,
+                                Instant expiresAt, List<String> roles) {
         RSAKey rsaKey = new RSAKey.Builder(publicKey).privateKey(signingKey).build();
         NimbusJwtEncoder encoder = new NimbusJwtEncoder(new ImmutableJWKSet<>(new JWKSet(rsaKey)));
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .subject("user-42")
                 .issuer(issuer)
                 .audience(List.of(audience))
-                .issuedAt(now)
-                .expiresAt(now.plusSeconds(900))
+                .issuedAt(issuedAt)
+                .expiresAt(expiresAt)
                 .id("token-42")
-                .claim("roles", List.of("USER"))
+                .claim("roles", roles)
                 .build();
         return encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
@@ -182,10 +182,5 @@ class ResourceServerSecurityConfigTest {
         String admin() {
             return "admin";
         }
-    }
-
-    @Configuration(proxyBeanMethods = false)
-    @EnableMethodSecurity
-    static class MethodSecurityConfig {
     }
 }
