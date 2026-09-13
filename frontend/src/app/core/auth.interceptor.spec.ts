@@ -51,6 +51,51 @@ describe('authInterceptor', () => {
     outgoing.flush([]);
   });
 
+  it('does not send credentials to an external API or refresh after its 401', () => {
+    const error = vi.fn();
+    const externalUrl = 'https://example.test/api/v1/movies';
+    client.get(externalUrl).subscribe({ error });
+
+    const outgoing = http.expectOne(externalUrl);
+    expect(outgoing.request.headers.has('Authorization')).toBe(false);
+    outgoing.flush({}, { status: 401, statusText: 'Unauthorized' });
+
+    http.expectNone('/api/v1/auth/refresh');
+    expect(store.state().status).toBe('authenticated');
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
+    expect(error).toHaveBeenCalledOnce();
+  });
+
+  it('does not authenticate a same-origin non-API resource or refresh after its 401', () => {
+    const error = vi.fn();
+    const assetUrl = `${window.location.origin}/assets/runtime.json`;
+    client.get(assetUrl).subscribe({ error });
+
+    const outgoing = http.expectOne(assetUrl);
+    expect(outgoing.request.headers.has('Authorization')).toBe(false);
+    outgoing.flush({}, { status: 401, statusText: 'Unauthorized' });
+
+    http.expectNone('/api/v1/auth/refresh');
+    expect(store.state().status).toBe('authenticated');
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
+    expect(error).toHaveBeenCalledOnce();
+  });
+
+  it('authenticates and retries an absolute same-origin API request after one refresh', () => {
+    const apiUrl = `${window.location.origin}/api/v1/movies`;
+    client.get(apiUrl).subscribe();
+
+    const original = http.expectOne(apiUrl);
+    expect(original.request.headers.get('Authorization')).toBe('Bearer old-token');
+    original.flush({}, { status: 401, statusText: 'Unauthorized' });
+    http.expectOne('/api/v1/auth/refresh').flush(session('new-token'));
+
+    const retry = http.expectOne(apiUrl);
+    expect(retry.request.headers.get('Authorization')).toBe('Bearer new-token');
+    retry.flush({});
+    http.expectNone('/api/v1/auth/refresh');
+  });
+
   it('coordinates one refresh for concurrent 401 responses and retries both requests', () => {
     client.get('/api/v1/movies/one').subscribe();
     client.get('/api/v1/movies/two').subscribe();

@@ -1,8 +1,5 @@
-import {
-  HttpContextToken,
-  HttpErrorResponse,
-  HttpInterceptorFn,
-} from '@angular/common/http';
+import { DOCUMENT } from '@angular/common';
+import { HttpContextToken, HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import {
@@ -27,9 +24,16 @@ const NO_REFRESH_ENDPOINTS = [
   '/api/v1/auth/logout',
 ];
 
-function isRefreshExcluded(url: string): boolean {
-  const path = url.split('?', 1)[0];
-  return NO_REFRESH_ENDPOINTS.some((endpoint) => path.endsWith(endpoint));
+function sameOriginApiPath(url: string, baseUrl: string): string | null {
+  try {
+    const base = new URL(baseUrl);
+    const resolved = new URL(url, base);
+    const isApiPath =
+      resolved.pathname === '/api/v1' || resolved.pathname.startsWith('/api/v1/');
+    return resolved.origin === base.origin && isApiPath ? resolved.pathname : null;
+  } catch {
+    return null;
+  }
 }
 
 @Injectable({ providedIn: 'root' })
@@ -62,9 +66,13 @@ export class AuthRefreshCoordinator {
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const store = inject(AuthStore);
   const coordinator = inject(AuthRefreshCoordinator);
+  const document = inject(DOCUMENT);
+  const apiPath = sameOriginApiPath(request.url, document.baseURI);
+  const isEligibleApiRequest = apiPath !== null;
+  const isRefreshExcluded = apiPath !== null && NO_REFRESH_ENDPOINTS.includes(apiPath);
   const token = store.accessToken();
   const authenticatedRequest =
-    token && !isRefreshExcluded(request.url)
+    token && isEligibleApiRequest && !isRefreshExcluded
       ? request.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
       : request;
 
@@ -73,7 +81,8 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
       const isUnauthorized = error instanceof HttpErrorResponse && error.status === 401;
       if (
         !isUnauthorized ||
-        isRefreshExcluded(request.url) ||
+        !isEligibleApiRequest ||
+        isRefreshExcluded ||
         request.context.get(AUTH_RETRIED)
       ) {
         return throwError(() => error);

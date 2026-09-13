@@ -62,3 +62,28 @@ Executed from `frontend/` on the final implementation tree:
 - The existing worktree `node_modules` was incomplete (`semver` missing), so `npm install` restored packages from the pinned lockfile. Neither `package.json` nor `package-lock.json` changed.
 - Angular commands required execution outside the restricted filesystem sandbox because the builder resolves paths above the linked worktree; this is a harness/path-resolution constraint, not an application failure.
 - Browser-level refresh-cookie flag and storage inspection remain Task 5 acceptance work, along with profile/security UI. This task contains no profile editing, password change, TOTP enrollment/disable, or account deletion UI.
+
+## Review Fix Round 1 — Same-Origin API Interceptor Scope
+
+Review identified that the interceptor treated every URL except a small authentication exclusion list as eligible. As a result, an authenticated browser request to a third-party URL or a same-origin non-API resource could receive the access token, and its 401 response could trigger refresh and logout behavior.
+
+The interceptor now resolves request URLs against the browser document base and permits authentication behavior only when both conditions hold:
+
+- the resolved origin matches the application origin; and
+- the normalized pathname is exactly `/api/v1` or begins with `/api/v1/`.
+
+The same eligibility result gates bearer attachment and 401 refresh. Exact public/session auth paths remain excluded from recursive refresh.
+
+TDD evidence:
+
+- RED: targeted interceptor run reported 2 failures because both an external `/api/v1/...` URL and a same-origin `/assets/...` URL carried `Authorization`.
+- GREEN: targeted interceptor suite passed 8/8 after the single eligibility-boundary change.
+- Added positive coverage proving an absolute same-origin `/api/v1/...` request receives the token and retries once with the refreshed token.
+
+Fresh fix verification:
+
+- `npm test` — PASS: Docker pin check plus 10 Vitest files, 31 tests, 0 failures.
+- `npm run lint` — PASS: 0 errors and 0 warnings.
+- `npm run build` — PASS: 422.12 kB raw / 102.90 kB estimated-transfer initial bundle, within configured budgets.
+- Production storage scan — PASS: no `localStorage` or `sessionStorage` references outside specs.
+- `git diff --check` — PASS: no whitespace errors; only Windows LF-to-CRLF notices.
