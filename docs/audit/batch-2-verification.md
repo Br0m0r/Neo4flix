@@ -218,6 +218,13 @@ demonstrating cross-service JWT authentication before route dispatch. The stack
 was torn down afterward and the disposable user data was not retained in a
 running environment.
 
+Using the Codex in-app browser against the same local stack, a disposable user
+completed the rendered login form and reached the authenticated shell. A browser
+reload preserved the authenticated navigation, Profile rendered its guarded
+profile/security surface, and Logout returned to the sign-in screen. No browser
+storage or token contents were emitted. The temporary stack and key directory
+were removed after the check.
+
 `frontend/package.json` has no Playwright dependency or browser test command.
 The lockfile's `@vitest/browser-playwright` occurrence is optional peer metadata,
 not a pinned runnable Playwright suite. Deferred checks are:
