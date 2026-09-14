@@ -17,6 +17,16 @@ management:
         include: health
 
 neo4flix:
+  recommendation:
+    collaborative-weight: ${NEO4FLIX_RECOMMENDATION_COLLABORATIVE_WEIGHT:0.60}
+    content-weight: ${NEO4FLIX_RECOMMENDATION_CONTENT_WEIGHT:0.30}
+    popularity-weight: ${NEO4FLIX_RECOMMENDATION_POPULARITY_WEIGHT:0.10}
+    popularity-prior-count: ${NEO4FLIX_RECOMMENDATION_POPULARITY_PRIOR_COUNT:5.0}
+    minimum-overlap: ${NEO4FLIX_RECOMMENDATION_MINIMUM_OVERLAP:2}
+    peer-limit: ${NEO4FLIX_RECOMMENDATION_PEER_LIMIT:10}
+    candidate-limit: ${NEO4FLIX_RECOMMENDATION_CANDIDATE_LIMIT:50}
+    mature-rating-threshold: ${NEO4FLIX_RECOMMENDATION_MATURE_RATING_THRESHOLD:3}
+    max-page-size: ${NEO4FLIX_RECOMMENDATION_MAX_PAGE_SIZE:50}
   security:
     jwt:
       public-key: ${NEO4FLIX_JWT_PUBLIC_KEY:}
