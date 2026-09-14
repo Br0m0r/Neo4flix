@@ -54,8 +54,8 @@ public interface MovieCatalogRepository {
                     + "ORDER BY " + order + " SKIP " + ((long) query.page() * query.size()) + " LIMIT " + query.size();
             String count = "MATCH (m:Movie) " + where + " RETURN count(m) AS total";
             params.values().removeIf(java.util.Objects::isNull);
-            List<MovieSummary> content = client.query(rows).bindAll(params).fetch().all().stream()
-                    .map(record -> mapSummary((Record) record)).toList();
+            List<MovieSummary> content = new ArrayList<>(client.query(rows).bindAll(params).fetchAs(MovieSummary.class)
+                    .mappedBy((ts, record) -> mapSummary(record)).all());
             long total = client.query(count).bindAll(params).fetch().one()
                     .map(row -> ((Number) ((Map<?, ?>) row).get("total")).longValue()).orElse(0L);
             return new PageResult<>(content, query.page(), query.size(), total,
@@ -66,7 +66,7 @@ public interface MovieCatalogRepository {
         public Optional<MovieDetail> findMovie(String id) {
             return client.query("MATCH (m:Movie {id:$id}) OPTIONAL MATCH (m)-[:IN_GENRE]->(g:Genre) "
                             + "RETURN m AS movie, collect(CASE WHEN g IS NULL THEN null ELSE {id:g.id,name:g.name} END) AS genres")
-                    .bind("id").to(id).fetchAs(MovieDetail.class)
+                    .bind(id).to("id").fetchAs(MovieDetail.class)
                     .mappedBy((ts, record) -> mapDetail(record)).one();
         }
 
@@ -109,7 +109,7 @@ public interface MovieCatalogRepository {
         }
 
         @Override public boolean deleteMovie(String id) {
-            return client.query("MATCH (m:Movie {id:$id}) DETACH DELETE m RETURN count(m) AS deleted").bind("id").to(id).fetchAs(Long.class).mappedBy((ts, r) -> r.get("deleted").asLong()).one().orElse(0L) == 1;
+            return client.query("MATCH (m:Movie {id:$id}) DETACH DELETE m RETURN count(m) AS deleted").bind(id).to("id").fetchAs(Long.class).mappedBy((ts, r) -> r.get("deleted").asLong()).one().orElse(0L) == 1;
         }
 
         @Override public GenreSummary createGenre(String name) {
@@ -126,14 +126,14 @@ public interface MovieCatalogRepository {
         }
 
         @Override public DeleteGenreResult deleteGenre(String id) {
-            long references = client.query("MATCH (:Movie)-[r:IN_GENRE]->(:Genre {id:$id}) RETURN count(r) AS references").bind("id").to(id).fetchAs(Long.class).mappedBy((ts, r) -> r.get("references").asLong()).one().orElse(0L);
+            long references = client.query("MATCH (:Movie)-[r:IN_GENRE]->(:Genre {id:$id}) RETURN count(r) AS references").bind(id).to("id").fetchAs(Long.class).mappedBy((ts, r) -> r.get("references").asLong()).one().orElse(0L);
             if (references > 0) return new DeleteGenreResult(false, true);
-            boolean deleted = client.query("MATCH (g:Genre {id:$id}) DELETE g RETURN count(g) AS deleted").bind("id").to(id).fetchAs(Long.class).mappedBy((ts, r) -> r.get("deleted").asLong()).one().orElse(0L) == 1;
+            boolean deleted = client.query("MATCH (g:Genre {id:$id}) DELETE g RETURN count(g) AS deleted").bind(id).to("id").fetchAs(Long.class).mappedBy((ts, r) -> r.get("deleted").asLong()).one().orElse(0L) == 1;
             return new DeleteGenreResult(deleted, false);
         }
 
         private void replaceGenres(String movieId, List<String> genreIds) {
-            client.query("MATCH (m:Movie {id:$id})-[r:IN_GENRE]->() DELETE r").bind("id").to(movieId).run();
+            client.query("MATCH (m:Movie {id:$id})-[r:IN_GENRE]->() DELETE r").bind(movieId).to("id").run();
             if (genreIds == null || genreIds.isEmpty()) return;
             client.query("MATCH (m:Movie {id:$movieId}) MATCH (g:Genre) WHERE g.id IN $genreIds MERGE (m)-[:IN_GENRE]->(g)")
                     .bindAll(Map.of("movieId", movieId, "genreIds", genreIds)).run();
