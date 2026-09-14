@@ -1,6 +1,6 @@
-# Active Batch Context — Batch 2 Authentication
+# Active Batch Context — Batch 3 Catalog
 
-> **Status:** COMPLETE — Batch 2 acceptance gates pass
+> **Status:** IN PROGRESS — code verification pass; live Compose acceptance pending `.env`
 >
 > **Purpose:** Compact handoff for Batch 2 execution. This cache does not override canonical specifications, the approved plan, or the SDD ledger.
 
@@ -52,7 +52,7 @@ Final whole-branch review and consolidated fix `31f9fc3` are clean. The fix wire
 
 ## Current blocker
 
-Batch 2 is `[x]` in `00_MASTER_EXECUTION_PLAN.md`. The acceptance report is committed at `docs/audit/batch-2-verification.md`. Do not redispatch Tasks 1–6. Batch 3 is the next implementation scope.
+Batch 2 is complete. Batch 3 code verification is passing, but live Compose acceptance is pending the user-provided `.env`. Do not claim Batch 3 complete until live catalog/admin smoke and frontend catalog e2e pass.
 
 ## Dispatch policy
 
