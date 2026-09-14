@@ -1,6 +1,7 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
-import { Subject, of } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { AuthStore } from '../../core/auth.store';
 import { PublicUser } from '../../core/auth.models';
 import { ProfileApiService } from '../../core/profile-api.service';
@@ -63,6 +64,158 @@ describe('ProfileComponent', () => {
     (fixture.nativeElement.querySelector(selector) as HTMLFormElement).dispatchEvent(new Event('submit'));
     fixture.detectChanges();
   }
+
+  function recreateComponent(): void {
+    fixture.destroy();
+    fixture = TestBed.createComponent(ProfileComponent);
+    fixture.detectChanges();
+  }
+
+  function expectAccessibleError(message: string): void {
+    const alert = fixture.nativeElement.querySelector('[role="alert"].error') as HTMLElement | null;
+    expect(alert?.textContent).toContain(message);
+    expect(fixture.nativeElement.querySelector('[role="status"].error')).toBeNull();
+  }
+
+  function expectFieldError(inputSelector: string, message: string): void {
+    const input = fixture.nativeElement.querySelector(inputSelector) as HTMLInputElement;
+    expect(input.closest('mat-form-field')?.textContent).toContain(message);
+  }
+
+  it('announces profile loading, empty, and load-error states accessibly', () => {
+    const pendingProfile = new Subject<PublicUser>();
+    api.getProfile.mockReturnValue(pendingProfile.asObservable());
+    recreateComponent();
+
+    expect(
+      fixture.nativeElement.querySelector('[role="status"][aria-label="Loading profile"]'),
+    ).not.toBeNull();
+
+    pendingProfile.complete();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.empty[role="status"]')?.textContent).toContain(
+      'Profile information is unavailable.',
+    );
+
+    api.getProfile.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 503 })),
+    );
+    recreateComponent();
+    expectAccessibleError('The service is temporarily unavailable.');
+  });
+
+  it('renders profile edit API failures as errors instead of success statuses', () => {
+    api.updateProfile.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 409 })),
+    );
+    type('[data-testid="profile-display-name"]', 'Alice Updated');
+    submit('[data-testid="profile-form"]');
+
+    expectAccessibleError('Unable to update profile in its current state.');
+    expect(fixture.nativeElement.querySelector('[role="status"].status')).toBeNull();
+  });
+
+  it('renders password-change API failures in the security error region', () => {
+    api.changePassword.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 401 })),
+    );
+    type('[data-testid="current-password"]', 'OldPassword1!');
+    type('[data-testid="new-password"]', 'NewPassword1!');
+    type('[data-testid="confirm-new-password"]', 'NewPassword1!');
+    submit('[data-testid="password-form"]');
+
+    expectAccessibleError('Reauthentication failed.');
+    expect(fixture.nativeElement.querySelector('[role="status"].status')).toBeNull();
+  });
+
+  it('renders TOTP setup and confirmation API failures in the security error region', () => {
+    api.setupTwoFactor.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 503 })),
+    );
+    (fixture.nativeElement.querySelector('[data-testid="setup-2fa"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expectAccessibleError('The service is temporarily unavailable.');
+
+    api.setupTwoFactor.mockReturnValue(
+      of({
+        otpauthUri: 'otpauth://totp/Neo4flix:alice?secret=MEMORYONLY',
+        qrCodeDataUrl: 'data:image/png;base64,cXItY29kZQ==',
+        expiresAt: '2026-09-13T10:10:00Z',
+      }),
+    );
+    api.confirmTwoFactor.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 400 })),
+    );
+    (fixture.nativeElement.querySelector('[data-testid="setup-2fa"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    type('[data-testid="confirm-totp-code"]', '428193');
+    submit('[data-testid="confirm-totp-form"]');
+
+    expectAccessibleError('Check the entered values and try again.');
+    expect(fixture.nativeElement.querySelector('[role="status"].status')).toBeNull();
+  });
+
+  it('renders TOTP disable API failures in the security error region', () => {
+    api.getProfile.mockReturnValue(of({ ...user, twoFactorEnabled: true }));
+    recreateComponent();
+    api.disableTwoFactor.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 429 })),
+    );
+    type('[data-testid="disable-password"]', 'Password1!');
+    type('[data-testid="disable-totp-code"]', '428193');
+    submit('[data-testid="disable-2fa-form"]');
+
+    expectAccessibleError('Too many attempts.');
+    expect(fixture.nativeElement.querySelector('[role="status"].status')).toBeNull();
+  });
+
+  it('renders deletion API failures in an accessible account error region', () => {
+    api.deleteAccount.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 500 })),
+    );
+    type('[data-testid="delete-password"]', 'Password1!');
+    type('[data-testid="delete-confirmation"]', 'DELETE');
+    submit('[data-testid="delete-account-form"]');
+
+    expectAccessibleError('The service is temporarily unavailable.');
+    expect(authStore.clear).not.toHaveBeenCalled();
+  });
+
+  it('associates validation output with password and enrollment fields', () => {
+    submit('[data-testid="password-form"]');
+    expectFieldError('[data-testid="current-password"]', 'Enter your current password.');
+    expectFieldError('[data-testid="new-password"]', 'Use 10–128 characters');
+    expectFieldError('[data-testid="confirm-new-password"]', 'Confirm your new password.');
+
+    api.setupTwoFactor.mockReturnValue(
+      of({
+        otpauthUri: 'otpauth://totp/Neo4flix:alice?secret=MEMORYONLY',
+        qrCodeDataUrl: 'data:image/png;base64,cXItY29kZQ==',
+        expiresAt: '2026-09-13T10:10:00Z',
+      }),
+    );
+    (fixture.nativeElement.querySelector('[data-testid="setup-2fa"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    submit('[data-testid="confirm-totp-form"]');
+    expectFieldError('[data-testid="confirm-totp-code"]', 'Enter exactly six digits.');
+  });
+
+  it('associates validation output with active-2FA and deletion reauthentication fields', () => {
+    api.getProfile.mockReturnValue(of({ ...user, twoFactorEnabled: true }));
+    recreateComponent();
+
+    submit('[data-testid="password-form"]');
+    expectFieldError('[data-testid="password-totp-code"]', 'Enter exactly six digits.');
+
+    submit('[data-testid="disable-2fa-form"]');
+    expectFieldError('[data-testid="disable-password"]', 'Enter your current password.');
+    expectFieldError('[data-testid="disable-totp-code"]', 'Enter exactly six digits.');
+
+    submit('[data-testid="delete-account-form"]');
+    expectFieldError('[data-testid="delete-password"]', 'Enter your current password.');
+    expectFieldError('[data-testid="delete-totp-code"]', 'Enter exactly six digits.');
+    expectFieldError('[data-testid="delete-confirmation"]', 'Type DELETE exactly to confirm.');
+  });
 
   it('loads profile data, keeps email read-only, and saves only the display name', () => {
     api.updateProfile.mockReturnValue(of({ ...user, displayName: 'Alice Updated' }));

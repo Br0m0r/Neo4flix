@@ -21,8 +21,11 @@
           <mat-card-subtitle>Your display name is visible to you throughout Neo4flix.</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
-          @if (profileMessage()) {
-            <p class="status" role="status">{{ profileMessage() }}</p>
+          @if (profileStatus()) {
+            <p class="status" role="status">{{ profileStatus() }}</p>
+          }
+          @if (profileError()) {
+            <p class="error" role="alert">{{ profileError() }}</p>
           }
           <form data-testid="profile-form" [formGroup]="profileForm" (ngSubmit)="saveProfile()">
             <mat-form-field appearance="outline">
@@ -63,8 +66,11 @@
           <mat-card-subtitle>Change your password and manage two-factor authentication.</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
-          @if (securityMessage()) {
-            <p class="status" role="status">{{ securityMessage() }}</p>
+          @if (securityStatus()) {
+            <p class="status" role="status">{{ securityStatus() }}</p>
+          }
+          @if (securityError()) {
+            <p class="error" role="alert">{{ securityError() }}</p>
           }
 
           <section aria-labelledby="password-title">
@@ -73,6 +79,9 @@
               <mat-form-field appearance="outline">
                 <mat-label>Current password</mat-label>
                 <input matInput data-testid="current-password" type="password" formControlName="currentPassword" autocomplete="current-password" maxlength="128" />
+                @if (passwordForm.controls.currentPassword.touched && passwordForm.controls.currentPassword.invalid) {
+                  <mat-error>Enter your current password.</mat-error>
+                }
               </mat-form-field>
               <mat-form-field appearance="outline">
                 <mat-label>New password</mat-label>
@@ -84,7 +93,9 @@
               <mat-form-field appearance="outline">
                 <mat-label>Confirm new password</mat-label>
                 <input matInput data-testid="confirm-new-password" type="password" formControlName="confirmation" autocomplete="new-password" maxlength="128" />
-                @if (passwordForm.controls.confirmation.touched && passwordForm.hasError('passwordMismatch')) {
+                @if (passwordForm.controls.confirmation.touched && passwordForm.controls.confirmation.hasError('required')) {
+                  <mat-error>Confirm your new password.</mat-error>
+                } @else if (passwordForm.controls.confirmation.touched && passwordForm.hasError('passwordMismatch')) {
                   <mat-error>Passwords must match.</mat-error>
                 }
               </mat-form-field>
@@ -93,6 +104,9 @@
                   <mat-label>Authentication code</mat-label>
                   <input matInput data-testid="password-totp-code" formControlName="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" />
                   <mat-hint>Required when two-factor authentication is enabled.</mat-hint>
+                  @if (passwordForm.controls.code.touched && passwordForm.controls.code.invalid) {
+                    <mat-error>Enter exactly six digits.</mat-error>
+                  }
                 </mat-form-field>
               }
               <button mat-flat-button type="submit" [disabled]="passwordForm.invalid || passwordBusy()">
@@ -142,10 +156,16 @@
                 <mat-form-field appearance="outline">
                   <mat-label>Current password</mat-label>
                   <input matInput data-testid="disable-password" type="password" formControlName="password" autocomplete="current-password" maxlength="128" />
+                  @if (disableTwoFactorForm.controls.password.touched && disableTwoFactorForm.controls.password.invalid) {
+                    <mat-error>Enter your current password.</mat-error>
+                  }
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                   <mat-label>Authentication code</mat-label>
                   <input matInput data-testid="disable-totp-code" formControlName="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" />
+                  @if (disableTwoFactorForm.controls.code.touched && disableTwoFactorForm.controls.code.invalid) {
+                    <mat-error>Enter exactly six digits.</mat-error>
+                  }
                 </mat-form-field>
                 <button mat-stroked-button data-testid="disable-2fa" type="submit" [disabled]="disableTwoFactorForm.invalid || twoFactorBusy()">
                   {{ twoFactorBusy() ? 'Disabling…' : 'Disable 2FA' }}
@@ -176,19 +196,25 @@
           <mat-card-subtitle>Permanently delete your profile and Neo4flix activity.</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
-          @if (accountMessage()) {
-            <p class="error" role="alert">{{ accountMessage() }}</p>
+          @if (accountError()) {
+            <p class="error" role="alert">{{ accountError() }}</p>
           }
           <p>This action cannot be undone. Enter your password and type DELETE to confirm.</p>
           <form data-testid="delete-account-form" [formGroup]="deleteAccountForm" (ngSubmit)="deleteAccount()">
             <mat-form-field appearance="outline">
               <mat-label>Current password</mat-label>
               <input matInput data-testid="delete-password" type="password" formControlName="password" autocomplete="current-password" maxlength="128" />
+              @if (deleteAccountForm.controls.password.touched && deleteAccountForm.controls.password.invalid) {
+                <mat-error>Enter your current password.</mat-error>
+              }
             </mat-form-field>
             @if (profile()?.twoFactorEnabled) {
               <mat-form-field appearance="outline">
                 <mat-label>Authentication code</mat-label>
                 <input matInput data-testid="delete-totp-code" formControlName="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" />
+                @if (deleteAccountForm.controls.code.touched && deleteAccountForm.controls.code.invalid) {
+                  <mat-error>Enter exactly six digits.</mat-error>
+                }
               </mat-form-field>
             }
             <mat-form-field appearance="outline">

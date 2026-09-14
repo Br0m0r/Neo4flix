@@ -71,9 +71,11 @@ export class ProfileComponent implements OnInit {
   protected readonly passwordBusy = signal(false);
   protected readonly twoFactorBusy = signal(false);
   protected readonly deletionBusy = signal(false);
-  protected readonly profileMessage = signal<string | null>(null);
-  protected readonly securityMessage = signal<string | null>(null);
-  protected readonly accountMessage = signal<string | null>(null);
+  protected readonly profileStatus = signal<string | null>(null);
+  protected readonly profileError = signal<string | null>(null);
+  protected readonly securityStatus = signal<string | null>(null);
+  protected readonly securityError = signal<string | null>(null);
+  protected readonly accountError = signal<string | null>(null);
 
   protected readonly profileForm = this.formBuilder.nonNullable.group({
     displayName: ['', [Validators.required, Validators.maxLength(100)]],
@@ -127,7 +129,8 @@ export class ProfileComponent implements OnInit {
       this.profileForm.markAllAsTouched();
       return;
     }
-    this.profileMessage.set(null);
+    this.profileStatus.set(null);
+    this.profileError.set(null);
     this.profileBusy.set(true);
     this.api
       .updateProfile({ displayName: this.profileForm.controls.displayName.value })
@@ -135,9 +138,9 @@ export class ProfileComponent implements OnInit {
       .subscribe({
         next: (updated) => {
           this.profile.set(updated);
-          this.profileMessage.set('Profile updated.');
+          this.profileStatus.set('Profile updated.');
         },
-        error: (error: unknown) => this.profileMessage.set(this.mapError(error, 'profile')),
+        error: (error: unknown) => this.profileError.set(this.mapError(error, 'profile')),
       });
   }
 
@@ -147,7 +150,7 @@ export class ProfileComponent implements OnInit {
       return;
     }
     const value = this.passwordForm.getRawValue();
-    this.securityMessage.set(null);
+    this.clearSecurityFeedback();
     this.passwordBusy.set(true);
     this.api
       .changePassword({
@@ -159,9 +162,9 @@ export class ProfileComponent implements OnInit {
       .subscribe({
         next: () => {
           this.passwordForm.reset();
-          this.securityMessage.set('Password changed.');
+          this.securityStatus.set('Password changed.');
         },
-        error: (error: unknown) => this.securityMessage.set(this.mapError(error, 'password')),
+        error: (error: unknown) => this.securityError.set(this.mapError(error, 'password')),
       });
   }
 
@@ -170,7 +173,7 @@ export class ProfileComponent implements OnInit {
       return;
     }
     this.clearEnrollment();
-    this.securityMessage.set(null);
+    this.clearSecurityFeedback();
     this.twoFactorBusy.set(true);
     this.api
       .setupTwoFactor()
@@ -181,7 +184,7 @@ export class ProfileComponent implements OnInit {
       )
       .subscribe({
         next: (setup) => this.enrollment.set(setup),
-        error: (error: unknown) => this.securityMessage.set(this.mapError(error, '2FA setup')),
+        error: (error: unknown) => this.securityError.set(this.mapError(error, '2FA setup')),
       });
   }
 
@@ -190,7 +193,7 @@ export class ProfileComponent implements OnInit {
       this.confirmTotpForm.markAllAsTouched();
       return;
     }
-    this.securityMessage.set(null);
+    this.clearSecurityFeedback();
     this.twoFactorBusy.set(true);
     this.api
       .confirmTwoFactor({ code: this.confirmTotpForm.controls.code.value })
@@ -203,9 +206,9 @@ export class ProfileComponent implements OnInit {
           this.configureTwoFactorRequirements(true);
           this.confirmTotpForm.reset();
           this.clearEnrollment();
-          this.securityMessage.set('Two-factor authentication enabled.');
+          this.securityStatus.set('Two-factor authentication enabled.');
         },
-        error: (error: unknown) => this.securityMessage.set(this.mapError(error, '2FA code')),
+        error: (error: unknown) => this.securityError.set(this.mapError(error, '2FA code')),
       });
   }
 
@@ -220,7 +223,7 @@ export class ProfileComponent implements OnInit {
       return;
     }
     const value = this.disableTwoFactorForm.getRawValue();
-    this.securityMessage.set(null);
+    this.clearSecurityFeedback();
     this.twoFactorBusy.set(true);
     this.api
       .disableTwoFactor({ password: value.password, code: value.code })
@@ -232,9 +235,9 @@ export class ProfileComponent implements OnInit {
           );
           this.configureTwoFactorRequirements(false);
           this.disableTwoFactorForm.reset();
-          this.securityMessage.set('Two-factor authentication disabled.');
+          this.securityStatus.set('Two-factor authentication disabled.');
         },
-        error: (error: unknown) => this.securityMessage.set(this.mapError(error, '2FA')),
+        error: (error: unknown) => this.securityError.set(this.mapError(error, '2FA')),
       });
   }
 
@@ -244,7 +247,7 @@ export class ProfileComponent implements OnInit {
       return;
     }
     const value = this.deleteAccountForm.getRawValue();
-    this.accountMessage.set(null);
+    this.accountError.set(null);
     this.deletionBusy.set(true);
     this.api
       .deleteAccount({ password: value.password, code: value.code || null })
@@ -256,7 +259,7 @@ export class ProfileComponent implements OnInit {
           this.authStore.clear();
           void this.router.navigateByUrl('/auth/login');
         },
-        error: (error: unknown) => this.accountMessage.set(this.mapError(error, 'account')),
+        error: (error: unknown) => this.accountError.set(this.mapError(error, 'account')),
       });
   }
 
@@ -278,6 +281,11 @@ export class ProfileComponent implements OnInit {
 
   private clearEnrollment(): void {
     this.enrollment.set(null);
+  }
+
+  private clearSecurityFeedback(): void {
+    this.securityStatus.set(null);
+    this.securityError.set(null);
   }
 
   private configureTwoFactorRequirements(enabled: boolean): void {

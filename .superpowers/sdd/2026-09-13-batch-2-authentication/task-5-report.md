@@ -55,6 +55,17 @@ Refresh-cookie `Secure`, `HttpOnly`, `SameSite`, path, server-side challenge one
 - Browser-tooling pin scan — no Playwright dependency found; documented skip above.
 - `git diff --cached --check` and `git diff --check` — PASS.
 
+## Review Fix Round 1
+
+- Separated profile and security success/status signals from API error signals; failures now render in `.error` regions with `role="alert"`, while successful actions retain `.status` and `role="status"`.
+- Added associated `mat-error` output for required current-password, password-confirmation, and active-2FA code fields in password change; enrollment confirmation; 2FA disable; and account deletion forms.
+- Added `HttpErrorResponse` component contracts for profile load/edit, password change, TOTP setup/confirm/disable, and deletion, plus loading, empty, accessible-error, and field-validation states.
+- RED: the focused profile suite reported 6 failing and 10 passing tests because profile/security API failures had no alert/error element and required credential/code fields lacked validation output.
+- GREEN: focused profile suite PASS, 1 file and 16 tests; focused Task 5 contracts PASS, 4 files and 26 tests; full suite PASS, Docker contract 1/1 and Angular 12 files/52 tests.
+- `npm run lint` — PASS: zero warnings/errors.
+- `npm run build` — PASS: production bundle generated; initial bundle 423.15 kB.
+- Production storage scan and `git diff --check` — PASS.
+
 ## Concerns
 
 - A live Playwright/browser run is deferred until an exact browser toolchain is pinned and the local authentication stack is available. Cookie flags and server-side challenge replay must be rechecked in Task 6 acceptance.
