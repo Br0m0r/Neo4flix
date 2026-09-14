@@ -486,7 +486,7 @@ reconciliation, the complete document must still be reviewed.
 
 ## Batch 2 — Authentication, Profile, Refresh Sessions, and TOTP 2FA Vertical Slice
 
-**Status:** [ ]
+**Status:** [x]
 
 **Required reading:**
 

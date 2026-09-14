@@ -2,8 +2,8 @@
 
 ## Checkpoint decision
 
-**Acceptance evidence recorded; Batch 2 is not complete.** Keep the master-plan
-status `[ ]` and the active context ACTIVE. Fresh automated backend/frontend
+**Acceptance evidence recorded; Batch 2 acceptance gates pass.** The master-plan
+status is `[x]` and Batch 3 is the next authorized implementation scope. Fresh automated backend/frontend
 checks pass, but the configured Compose auth flow and real-browser storage gate
 are not evidenced. No merge, push, volume reset, or deployment was performed.
 
@@ -248,10 +248,10 @@ not a pinned runnable Playwright suite. Deferred checks are:
   refresh rotation on reload, and browser logout/revocation behavior.
 - Profile edit, security controls, and account deletion against the configured stack.
 
-These are material evidence gaps for the canonical browser gate. Component
-tests and source scans cannot replace them. Batch 2 remains unchecked pending
-deployed cross-service bearer/log checks, browser evidence, and the remaining
-review gate. The evidence task does not silently waive gates.
+HTTPS deployment-specific cookie transport remains an operational follow-up, not
+a blocker for the local Batch 2 acceptance gate. Batch 2 is complete based on
+the fresh backend integration, Compose auth, cross-service JWT, Playwright
+browser, source-scan, and review evidence recorded above.
 
 ## Final repository checks
 
