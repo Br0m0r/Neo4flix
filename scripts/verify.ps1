@@ -13,9 +13,9 @@ $goal = if ($TestOnly) { 'test' } else { 'verify' }
 $maven = if ($windows) { './mvnw.cmd' } else { 'sh' }
 [string[]] $mavenArguments = if ($windows) { @($goal) } else { @('./mvnw', $goal) }
 $integrationArguments = if ($windows) {
-    @('-pl', 'backend/platform-common,backend/rating-service,backend/user-service', '-am', '-Dtest=Neo4jSchemaIntegrationTest,*ConcurrencyIT', '-Dsurefire.failIfNoSpecifiedTests=false', 'test')
+    @('-pl', 'backend/platform-common,backend/rating-service,backend/user-service', '-am', '-Dtest=Neo4jSchemaIntegrationTest,*ConcurrencyIT,AuthNeo4jIntegrationIT,AuthProductionContextIT', '-Dsurefire.failIfNoSpecifiedTests=false', 'test')
 } else {
-    @('./mvnw', '-pl', 'backend/platform-common,backend/rating-service,backend/user-service', '-am', '-Dtest=Neo4jSchemaIntegrationTest,*ConcurrencyIT', '-Dsurefire.failIfNoSpecifiedTests=false', 'test')
+    @('./mvnw', '-pl', 'backend/platform-common,backend/rating-service,backend/user-service', '-am', '-Dtest=Neo4jSchemaIntegrationTest,*ConcurrencyIT,AuthNeo4jIntegrationIT,AuthProductionContextIT', '-Dsurefire.failIfNoSpecifiedTests=false', 'test')
 }
 
 if ($Integration) {

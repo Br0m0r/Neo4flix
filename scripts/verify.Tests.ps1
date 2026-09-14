@@ -1,4 +1,10 @@
 Describe 'Canonical verification wrapper' {
+    It 'includes live auth acceptance in integration mode' {
+        $output = (& (Join-Path $PSScriptRoot 'verify.ps1') -Integration -WhatIf) -join "`n"
+        if ($output -notmatch 'AuthNeo4jIntegrationIT,AuthProductionContextIT') {
+            throw 'Integration verification omitted live auth persistence or HTTP acceptance.'
+        }
+    }
     It 'previews every acceptance command in order without executing it' {
         $script = Join-Path $PSScriptRoot 'verify.ps1'
         if (-not (Test-Path $script)) { throw 'scripts/verify.ps1 is missing.' }
@@ -54,7 +60,7 @@ Describe 'Canonical verification wrapper' {
             $preview = & $shell -NoProfile -ExecutionPolicy Bypass -File $script -WhatIf 2>&1
             if ($LASTEXITCODE -ne 0 -or (Test-Path $env:VERIFY_TEST_LOG)) { throw 'Preview executed a command or failed.' }
 
-            $expected = @('mvnw verify', 'npm ci', 'npm run lint', 'npm test -- --run', 'npm run build', 'docker compose --env-file .env.example -f infra/compose.yml config')
+            $expected = @('mvnw verify', 'npm ci', 'npm run lint', 'npm test -- --run', 'npm run build', 'docker compose --env-file .env.example -f infra/compose.yml config', 'mvnw -pl backend/platform-common,backend/rating-service,backend/user-service -am -Dtest=Neo4jSchemaIntegrationTest,*ConcurrencyIT,AuthNeo4jIntegrationIT,AuthProductionContextIT -Dsurefire.failIfNoSpecifiedTests=false test')
             for ($failure = 0; $failure -le $expected.Count; $failure++) {
                 if (Test-Path $env:VERIFY_TEST_LOG) { Remove-Item -LiteralPath $env:VERIFY_TEST_LOG }
                 $env:VERIFY_TEST_FAIL = if ($failure -lt $expected.Count) { $expected[$failure] } else { '' }

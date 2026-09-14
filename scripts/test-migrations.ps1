@@ -32,6 +32,10 @@ $expected = [ordered]@{
         'recommendation_share_id_unique',
         'recommendation_share_token_hash_unique'
     )
+    'V006__auth_token_hash_constraints.cypher' = @(
+        'auth_session_refresh_hash_unique',
+        'auth_challenge_token_hash_unique'
+    )
 }
 
 Assert-Contract (Test-Path -LiteralPath $migrationRoot -PathType Container) 'Migration directory is missing.'
