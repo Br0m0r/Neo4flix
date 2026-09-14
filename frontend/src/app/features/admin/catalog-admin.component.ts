@@ -1,11 +1,18 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { CatalogApiService } from '../../core/catalog-api.service';
 import { GenreSummary, MovieDetail, MovieSummary, MovieWrite } from '../../core/catalog.models';
+
+const releaseYearDateValidator: ValidatorFn = (control: AbstractControl) => {
+  const year = control.get('releaseYear')?.value as number | null;
+  const date = control.get('releaseDate')?.value as string | null;
+  return year && date && Number(date.slice(0, 4)) !== year ? { releaseYearMismatch: true } : null;
+};
 
 @Component({
   selector: 'app-admin-catalog',
@@ -24,6 +31,7 @@ import { GenreSummary, MovieDetail, MovieSummary, MovieWrite } from '../../core/
             <mat-form-field appearance="outline"><mat-label>Overview</mat-label><textarea matInput formControlName="overview" required></textarea></mat-form-field>
             <mat-form-field appearance="outline"><mat-label>Release year</mat-label><input matInput type="number" formControlName="releaseYear" required /></mat-form-field>
             <mat-form-field appearance="outline"><mat-label>Release date</mat-label><input matInput type="date" formControlName="releaseDate" /></mat-form-field>
+            @if (movieForm.hasError('releaseYearMismatch')) { <p class="field-error" role="alert">Release date must match the release year.</p> }
             <mat-form-field appearance="outline"><mat-label>Runtime minutes</mat-label><input matInput type="number" formControlName="runtimeMinutes" /></mat-form-field>
             <mat-form-field appearance="outline"><mat-label>Poster URL</mat-label><input matInput type="url" formControlName="posterUrl" /></mat-form-field>
             @if (genres().length) {
@@ -44,7 +52,8 @@ import { GenreSummary, MovieDetail, MovieSummary, MovieWrite } from '../../core/
       <mat-card>
         <mat-card-header><mat-card-title>Movies</mat-card-title></mat-card-header>
         <mat-card-content>
-          @if (movies().length) {
+          @if (loadingMovies()) { <p role="status">Loading movies…</p>
+          } @else if (movies().length) {
             <ul aria-label="Current movies">
               @for (movie of movies(); track movie.id) {
                 <li><span>{{ movie.title }} ({{ movie.releaseYear }})</span>
@@ -75,7 +84,8 @@ import { GenreSummary, MovieDetail, MovieSummary, MovieWrite } from '../../core/
       <mat-card>
         <mat-card-header><mat-card-title>Genres</mat-card-title></mat-card-header>
         <mat-card-content>
-          @if (genres().length) {
+          @if (loadingGenres()) { <p role="status">Loading genres…</p>
+          } @else if (genres().length) {
             <ul aria-label="Current genres">
               @for (genre of genres(); track genre.id) {
                 <li><span>{{ genre.name }}</span>
@@ -98,6 +108,8 @@ export class AdminCatalogComponent implements OnInit {
   readonly status = signal('');
   readonly movies = signal<MovieSummary[]>([]);
   readonly genres = signal<GenreSummary[]>([]);
+  readonly loadingMovies = signal(true);
+  readonly loadingGenres = signal(true);
   readonly editingMovieId = signal<string | null>(null);
   readonly editingMovieDetails = signal<MovieDetail | null>(null);
   readonly editingGenreId = signal<string | null>(null);
@@ -109,7 +121,7 @@ export class AdminCatalogComponent implements OnInit {
     runtimeMinutes: new FormControl<number | null>(null),
     posterUrl: new FormControl('', { nonNullable: true }),
     genreIds: new FormControl<string[]>([], { nonNullable: true }),
-  });
+  }, { validators: releaseYearDateValidator });
   readonly genreForm = new FormGroup({
     name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
   });
@@ -117,8 +129,10 @@ export class AdminCatalogComponent implements OnInit {
   ngOnInit(): void { this.loadCatalog(); }
 
   private loadCatalog(): void {
-    this.api.movies().subscribe({ next: (page) => this.movies.set(page.content), error: () => this.status.set('Movies could not be loaded.') });
-    this.api.genres().subscribe({ next: (genres) => this.genres.set(genres), error: () => this.status.set('Genres could not be loaded.') });
+    this.loadingMovies.set(true);
+    this.loadingGenres.set(true);
+    this.api.movies().subscribe({ next: (page) => this.movies.set(page.content), error: () => { this.loadingMovies.set(false); this.status.set('Movies could not be loaded.'); }, complete: () => this.loadingMovies.set(false) });
+    this.api.genres().subscribe({ next: (genres) => this.genres.set(genres), error: () => { this.loadingGenres.set(false); this.status.set('Genres could not be loaded.'); }, complete: () => this.loadingGenres.set(false) });
   }
 
   private toMovieSummary(movie: MovieDetail): MovieSummary {
@@ -203,6 +217,9 @@ export class AdminCatalogComponent implements OnInit {
 
   removeGenre(genre: GenreSummary): void {
     if (!window.confirm(`Delete genre “${genre.name}”?`)) return;
-    this.api.deleteGenre(genre.id).subscribe({ next: () => { this.genres.update((current) => current.filter((item) => item.id !== genre.id)); this.status.set('Genre deleted.'); }, error: () => this.status.set('Genre could not be deleted.') });
+    this.api.deleteGenre(genre.id).subscribe({
+      next: () => { this.genres.update((current) => current.filter((item) => item.id !== genre.id)); this.status.set('Genre deleted.'); },
+      error: (error: HttpErrorResponse) => this.status.set(error.status === 409 ? 'Genre cannot be deleted while movies reference it.' : 'Genre could not be deleted.'),
+    });
   }
 }

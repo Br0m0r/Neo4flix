@@ -1,5 +1,6 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { CatalogApiService } from '../../core/catalog-api.service';
 import { AdminCatalogComponent } from './catalog-admin.component';
 
@@ -45,6 +46,8 @@ describe('AdminCatalogComponent', () => {
     fixture = TestBed.createComponent(AdminCatalogComponent);
     fixture.detectChanges();
   });
+
+  afterEach(() => vi.restoreAllMocks());
 
   it('loads current movies and genres with edit and delete controls', () => {
     expect(fixture.nativeElement.textContent).toContain('Arrival');
@@ -110,5 +113,26 @@ describe('AdminCatalogComponent', () => {
     vi.spyOn(window, 'confirm').mockReturnValue(false);
     (fixture.nativeElement.querySelector('[data-testid="delete-movie-movie-1"]') as HTMLButtonElement).click();
     expect(api.deleteMovie).not.toHaveBeenCalled();
+  });
+
+  it('rejects a release date whose year differs from the release year', () => {
+    fixture.componentInstance.movieForm.patchValue({
+      title: 'Mismatch', overview: 'Overview', releaseYear: 2026, releaseDate: '2025-12-31',
+    });
+    fixture.componentInstance.saveMovie();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.movieForm.hasError('releaseYearMismatch')).toBe(true);
+    expect(api.createMovie).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.textContent).toContain('Release date must match the release year.');
+  });
+
+  it('explains referenced genre deletion conflicts', () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    api.deleteGenre.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
+    (fixture.nativeElement.querySelector('[data-testid="delete-genre-genre-1"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Genre cannot be deleted while movies reference it.');
   });
 });
