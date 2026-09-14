@@ -530,7 +530,7 @@ reconciliation, the complete document must still be reviewed.
 
 ## Batch 3 — Movie/Genre Catalog, Search, Related Movies, and Admin Vertical Slice
 
-**Status:** [ ]
+**Status:** [x]
 
 **Required reading:**
 
