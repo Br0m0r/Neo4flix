@@ -1,6 +1,6 @@
 # Active Batch Context — Batch 2 Authentication
 
-> **Status:** ACTIVE
+> **Status:** ACTIVE — ACCEPTANCE BLOCKED
 >
 > **Purpose:** Compact handoff for Batch 2 execution. This cache does not override canonical specifications, the approved plan, or the SDD ledger.
 
@@ -10,7 +10,7 @@
 - Branch: `batch-2-authentication`
 - Batch 1 merged base: `b93ec22` (`merge: batch 1 graph schema and migrations`)
 - Plan: `docs/superpowers/plans/2026-09-13-batch-2-authentication.md`
-- SDD workspace/ledger: `.superpowers/sdd/2026-09-13-batch-2-authentication/` (create at execution start)
+- SDD workspace/ledger: `.superpowers/sdd/2026-09-13-batch-2-authentication/`
 - Main checkout remains on `main`; do not implement Batch 2 in `main`.
 
 ## Batch goal
@@ -40,12 +40,16 @@ Deliver User Service registration/login, BCrypt password policy, RS256 JWT issua
 
 | State | Workstream | Required handoff |
 | --- | --- | --- |
-| Queued | Task 1 security dependencies/key/JWT foundation | tests and commit before Task 2 |
-| Queued | Task 2 registration/login/refresh/profile backend | live Neo4j token-rotation proof |
-| Queued | Task 3 TOTP/challenges/rate limiting/deletion | no-secret and orphan-cleanup proof |
-| Queued | Task 4 Angular auth store/interceptor/routes | Vitest/lint/build evidence |
-| Queued | Task 5 Angular profile/security/browser contracts | storage/cookie/2FA browser evidence |
-| Queued | Task 6 acceptance/evidence/status | independent review before completion |
+| Complete | Task 1 security dependencies/key/JWT foundation | `4941506..fcf20da`, review clean |
+| Complete | Task 2 registration/login/refresh/profile backend | `46a278f..2b1f96a`, review clean |
+| Complete | Task 3 TOTP/challenges/rate limiting/deletion | `178821b..f6cced8`, review clean |
+| Complete | Task 4 Angular auth store/interceptor/routes | `c639e67..2c185f6`, review clean |
+| Complete | Task 5 Angular profile/security/browser contracts | `0c492ec..567434a`, review clean |
+| Complete — checkpoint blocked | Task 6 acceptance evidence/status | `723b373`; Compose key wiring and `/auth/me` runtime proof remain missing; Playwright/deployed gates deferred |
+
+## Current blocker
+
+Batch 2 remains `[ ]` in `00_MASTER_EXECUTION_PLAN.md`. The acceptance report is committed at `docs/audit/batch-2-verification.md`. Before marking the batch complete, wire JWT signing/public/TOTP encryption key environment into `infra/compose.yml`, fix and prove `/api/v1/auth/me`, then rerun the deferred deployed/browser/security gates. Do not redispatch Tasks 1–6.
 
 ## Dispatch policy
 
