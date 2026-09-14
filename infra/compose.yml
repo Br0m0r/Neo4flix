@@ -35,6 +35,7 @@ x-user-service-environment: &user-service-environment
   <<: *protected-service-environment
   NEO4FLIX_JWT_PRIVATE_KEY: ${NEO4FLIX_JWT_PRIVATE_KEY:?Set NEO4FLIX_JWT_PRIVATE_KEY}
   NEO4FLIX_TOTP_ENCRYPTION_KEY: ${NEO4FLIX_TOTP_ENCRYPTION_KEY:?Set NEO4FLIX_TOTP_ENCRYPTION_KEY}
+  NEO4FLIX_RATING_SERVICE_URL: http://rating-service:8083
 
 x-migrator-build: &migrator-build
   context: ..

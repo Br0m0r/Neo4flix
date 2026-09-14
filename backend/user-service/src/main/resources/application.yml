@@ -18,6 +18,8 @@ management:
         include: health
 
 neo4flix:
+  rating-service:
+    url: ${NEO4FLIX_RATING_SERVICE_URL:http://localhost:8083}
   security:
     totp:
       encryption-key: ${NEO4FLIX_TOTP_ENCRYPTION_KEY:}
