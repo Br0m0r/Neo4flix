@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { CatalogApiService } from '../../core/catalog-api.service';
 import { AdminCatalogComponent } from './catalog-admin.component';
 
@@ -74,6 +74,33 @@ describe('AdminCatalogComponent', () => {
     });
     expect(fixture.nativeElement.textContent).toContain('Movie updated.');
     expect(fixture.nativeElement.textContent).toContain('Arrival Updated');
+  });
+
+  it('disables movie submission while edit details are loading', () => {
+    const details = new Subject<typeof movieDetail>();
+    api.movie.mockReturnValue(details.asObservable());
+    (fixture.nativeElement.querySelector('[data-testid="edit-movie-movie-1"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement.querySelector('[data-testid="movie-form"] button[type="submit"]') as HTMLButtonElement).disabled).toBe(true);
+    details.next(movieDetail);
+    details.complete();
+    fixture.detectChanges();
+    expect((fixture.nativeElement.querySelector('[data-testid="movie-form"] button[type="submit"]') as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  it('ignores movie details that arrive after editing is cancelled', () => {
+    const details = new Subject<typeof movieDetail>();
+    api.movie.mockReturnValue(details.asObservable());
+    (fixture.nativeElement.querySelector('[data-testid="edit-movie-movie-1"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    (fixture.nativeElement.querySelector('[data-testid="movie-form"] button[type="button"]') as HTMLButtonElement).click();
+    details.next(movieDetail);
+    details.complete();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Create movie');
+    expect(fixture.nativeElement.textContent).not.toContain('Loading movie details');
   });
 
   it('submits poster and selected genre data when creating a movie', () => {

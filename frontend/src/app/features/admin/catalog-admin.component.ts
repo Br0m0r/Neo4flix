@@ -42,9 +42,10 @@ const releaseYearDateValidator: ValidatorFn = (control: AbstractControl) => {
               </fieldset>
             }
             <div class="actions">
-              <button mat-flat-button type="submit">{{ editingMovieId() ? 'Update movie' : 'Create movie' }}</button>
+              <button mat-flat-button type="submit" [disabled]="loadingMovieDetails()">{{ editingMovieId() ? 'Update movie' : 'Create movie' }}</button>
               @if (editingMovieId()) { <button mat-button type="button" (click)="cancelMovieEdit()">Cancel</button> }
             </div>
+            @if (loadingMovieDetails()) { <p role="status">Loading movie details…</p> }
           </form>
         </mat-card-content>
       </mat-card>
@@ -105,11 +106,13 @@ const releaseYearDateValidator: ValidatorFn = (control: AbstractControl) => {
 })
 export class AdminCatalogComponent implements OnInit {
   private readonly api = inject(CatalogApiService);
+  private movieEditRequestId = 0;
   readonly status = signal('');
   readonly movies = signal<MovieSummary[]>([]);
   readonly genres = signal<GenreSummary[]>([]);
   readonly loadingMovies = signal(true);
   readonly loadingGenres = signal(true);
+  readonly loadingMovieDetails = signal(false);
   readonly editingMovieId = signal<string | null>(null);
   readonly editingMovieDetails = signal<MovieDetail | null>(null);
   readonly editingGenreId = signal<string | null>(null);
@@ -144,8 +147,12 @@ export class AdminCatalogComponent implements OnInit {
   }
 
   beginMovieEdit(movie: MovieSummary): void {
+    const requestId = ++this.movieEditRequestId;
+    this.editingMovieId.set(movie.id);
+    this.loadingMovieDetails.set(true);
     this.api.movie(movie.id).subscribe({
       next: (detail) => {
+        if (requestId !== this.movieEditRequestId) return;
         this.editingMovieId.set(detail.id);
         this.editingMovieDetails.set(detail);
         this.movieForm.patchValue({
@@ -153,12 +160,18 @@ export class AdminCatalogComponent implements OnInit {
           releaseDate: detail.releaseDate, runtimeMinutes: detail.runtimeMinutes,
           posterUrl: detail.posterUrl ?? '', genreIds: detail.genres.map((genre) => genre.id),
         });
+        this.loadingMovieDetails.set(false);
       },
-      error: () => this.status.set('Movie could not be loaded for editing.'),
+      error: () => {
+        if (requestId !== this.movieEditRequestId) return;
+        this.loadingMovieDetails.set(false);
+        this.cancelMovieEdit();
+        this.status.set('Movie could not be loaded for editing.');
+      },
     });
   }
 
-  cancelMovieEdit(): void { this.editingMovieId.set(null); this.editingMovieDetails.set(null); this.movieForm.reset(); }
+  cancelMovieEdit(): void { this.movieEditRequestId++; this.loadingMovieDetails.set(false); this.editingMovieId.set(null); this.editingMovieDetails.set(null); this.movieForm.reset(); }
 
   movieGenreSelected(id: string): boolean { return this.movieForm.controls.genreIds.value.includes(id); }
 
