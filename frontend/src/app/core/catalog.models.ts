@@ -8,4 +8,9 @@ export interface MovieDetail extends MovieSummary {
   runtimeMinutes: number | null; externalSource: string | null; externalId: string | null;
   createdAt: string; updatedAt: string;
 }
+export interface MovieWrite {
+  title: string; overview: string; releaseYear: number; releaseDate: string | null;
+  runtimeMinutes: number | null; posterUrl: string | null; externalSource: string | null;
+  externalId: string | null; genreIds: string[];
+}
 export interface PageResult<T> { content: T[]; page: number; size: number; totalElements: number; totalPages: number; }

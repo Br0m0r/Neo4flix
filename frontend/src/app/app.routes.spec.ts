@@ -1,9 +1,10 @@
-import { anonymousOnlyGuard, authGuard } from './core/auth.guards';
+import { adminGuard, anonymousOnlyGuard, authGuard } from './core/auth.guards';
 import { LoginComponent } from './features/auth/login.component';
 import { RegisterComponent } from './features/auth/register.component';
 import { TwoFactorLoginComponent } from './features/auth/two-factor-login.component';
 import { ProfileComponent } from './features/profile/profile.component';
 import { routes } from './app.routes';
+import { AdminCatalogComponent } from './features/admin/catalog-admin.component';
 
 describe('auth routes', () => {
   it('registers the three lazy auth pages with anonymous-only protection', async () => {
@@ -31,5 +32,12 @@ describe('auth routes', () => {
 
     expect(profile?.canActivate).toContain(authGuard);
     expect(await profile?.loadComponent?.()).toBe(ProfileComponent);
+  });
+
+  it('protects the catalog admin page with the admin guard', async () => {
+    const admin = routes.find((route) => route.path === 'admin/catalog');
+
+    expect(admin?.canActivate).toContain(adminGuard);
+    expect(await admin?.loadComponent?.()).toBe(AdminCatalogComponent);
   });
 });

@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { anonymousOnlyGuard, authGuard } from './core/auth.guards';
+import { adminGuard, anonymousOnlyGuard, authGuard } from './core/auth.guards';
 
 export const routes: Routes = [
   {
@@ -35,5 +35,6 @@ export const routes: Routes = [
   },
   { path: 'movies', loadComponent: () => import('./features/catalog/catalog.component').then((m) => m.CatalogComponent) },
   { path: 'movies/:id', loadComponent: () => import('./features/catalog/movie-detail.component').then((m) => m.MovieDetailComponent) },
+  { path: 'admin/catalog', canActivate: [adminGuard], loadComponent: () => import('./features/admin/catalog-admin.component').then((m) => m.AdminCatalogComponent) },
   { path: '**', redirectTo: '' },
 ];
