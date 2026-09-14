@@ -83,7 +83,7 @@ public class ResourceServerSecurityConfig {
                                 "/api/v1/auth/logout",
                                 "/api/v1/auth/2fa/verify")
                         .permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/movies/**", "/api/v1/genres/**")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/movies", "/api/v1/movies/**", "/api/v1/genres", "/api/v1/genres/**")
                         .permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(resourceServer -> resourceServer
