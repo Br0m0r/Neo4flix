@@ -15,10 +15,11 @@ Batch 3 remains in progress. Code-level and live Compose infrastructure/catalog-
 - Live catalog probes: `GET /api/v1/movies` 200, `GET /api/v1/genres` 200, anonymous `POST /api/v1/movies` 401.
 - Live non-empty catalog probes with disposable Neo4j fixtures: collection/detail/related reads returned 200; combined title, genre, year, sort, and direction filters returned the expected two rows; fixtures were removed after verification.
 - Repository regression fixes verified by focused `MovieCatalogRepositoryTest`: 2 tests, 0 failures; search row mapping now uses typed Neo4j mapping and scalar bindings use value-then-parameter order.
+- Live authenticated mutation probes with disposable accounts: USER movie mutation returned 403; ADMIN movie create/update/delete returned 201/200/204; referenced genre deletion returned 409, then 204 after movie cleanup; deleted movie lookup returned 404. Disposable users and fixtures were removed afterward.
 
 ## Pending live gate
 
-Run the remaining authenticated USER/ADMIN CRUD, deletion cleanup, and frontend catalog e2e. No Batch 3 completion claim is made until those gates pass.
+Run the remaining frontend catalog e2e and browser-level admin acceptance. No Batch 3 completion claim is made until those gates pass.
 
 ## Commits
 
