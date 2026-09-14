@@ -57,7 +57,7 @@ public interface MovieCatalogRepository {
             List<MovieSummary> content = client.query(rows).bindAll(params).fetch().all().stream()
                     .map(record -> mapSummary((Record) record)).toList();
             long total = client.query(count).bindAll(params).fetch().one()
-                    .map(record -> ((Record) record).get("total").asLong()).orElse(0L);
+                    .map(row -> ((Number) ((Map<?, ?>) row).get("total")).longValue()).orElse(0L);
             return new PageResult<>(content, query.page(), query.size(), total,
                     (int) Math.ceil((double) total / query.size()));
         }
