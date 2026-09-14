@@ -210,6 +210,14 @@ in memory, started the stack, and observed all services healthy. User Service
 is present. The containers were then stopped; no key material was committed or
 printed.
 
+A second clean-stack flow registered a disposable user (HTTP 201), logged in
+(HTTP 200), read User Service `/api/v1/auth/me` with the issued bearer token
+(HTTP 200), and sent the same token to Movie Service. Movie Service returned 401
+without a token and 404 with the valid token on an intentionally undefined route,
+demonstrating cross-service JWT authentication before route dispatch. The stack
+was torn down afterward and the disposable user data was not retained in a
+running environment.
+
 `frontend/package.json` has no Playwright dependency or browser test command.
 The lockfile's `@vitest/browser-playwright` occurrence is optional peer metadata,
 not a pinned runnable Playwright suite. Deferred checks are:
