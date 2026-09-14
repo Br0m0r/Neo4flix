@@ -42,7 +42,7 @@
 - `RecommendationScoringService.selectStrategy(int ratingCount, boolean qualifyingPeer)`, `preferenceFor(int score)`, `popularityScore(double averageRating, long ratingCount, double priorCount)`, and `score(Strategy, SignalRow, RecommendationWeights)` are pure methods.
 
 - [ ] **Step 1: Write failing tests** for invalid weight sums/negatives, all three strategy boundaries, `preferenceFor` mapping, popularity confidence, final score clamping, and reason selection.
-- [ ] **Step 2: Run the focused tests red** with `./mvnw.cmd -pl backend/recommendation-service -am -Dtest=RecommendationWeightsTest,RecommendationScoringServiceTest test`; confirm failures are missing contracts/services.
+- [ ] **Step 2: Run the focused tests red** with `./mvnw.cmd -pl backend/recommendation-service -am -Dtest=RecommendationWeightsTest,RecommendationScoringServiceTest -Dsurefire.failIfNoSpecifiedTests=false test`; confirm failures are missing contracts/services.
 - [ ] **Step 3: Implement the records, validation, signal normalization, strategy selection, score formula, clamp helper, and exact canonical reason strings.** Keep the service independent of Spring and Neo4j.
 - [ ] **Step 4: Run the focused tests green** with the same Maven command; verify helper and score outputs are within `[0,1]`.
 - [ ] **Step 5: Commit** `git add backend/recommendation-service/src/main/java/com/neo4flix/recommendation/core backend/recommendation-service/src/test/java/com/neo4flix/recommendation/core && git commit -m "feat: define recommendation scoring contracts"`.
@@ -60,7 +60,7 @@
 - The implementation receives `Neo4jClient` through its constructor and uses separate constant Cypher statements for profile count, GDS peer similarity, genre preferences, and bounded candidate rows.
 
 - [ ] **Step 1: Write failing repository tests** asserting every query contains `$userId`, `$minimumOverlap`, `$peerLimit`, `$candidateLimit`, `$skip`/`$limit` equivalents where applicable, calls `gds.similarity.cosine`, excludes `alreadyRated` movies, and maps nullable movie fields safely.
-- [ ] **Step 2: Run the focused repository tests red** with `./mvnw.cmd -pl backend/recommendation-service -am -Dtest=RecommendationRepositoryTest test`.
+- [ ] **Step 2: Run the focused repository tests red** with `./mvnw.cmd -pl backend/recommendation-service -am -Dtest=RecommendationRepositoryTest -Dsurefire.failIfNoSpecifiedTests=false test`.
 - [ ] **Step 3: Implement the repository.** Align each peer's score vector by `movie.id` ordering before calling `gds.similarity.cosine`; require `commonMovies >= $minimumOverlap`; bound peers and candidates; compute popularity as normalized average multiplied by `count/(count+priorCount)`; aggregate mapped genre preferences; apply genre/year/min-average filters through parameters; order final rows by score inputs and movie ID, never by interpolated request text.
 - [ ] **Step 4: Run repository tests green** and add mapper assertions for missing overview/poster/year and deterministic empty results.
 - [ ] **Step 5: Commit** `git add backend/recommendation-service/src/main/java/com/neo4flix/recommendation/persistence backend/recommendation-service/src/test/java/com/neo4flix/recommendation/persistence && git commit -m "feat: add recommendation neo4j gds repository"`.
@@ -79,7 +79,7 @@
 - `RecommendationApplicationService.recommend(RecommendationDtos.Query query): List<RecommendationDtos.Result>` validates/bounds the query, calls `RecommendationRepository.snapshot`, selects the strategy, scores rows, assigns only evidence-backed reasons, sorts score descending then movie ID ascending, and returns at most the configured limit.
 
 - [ ] **Step 1: Write failing service tests** for default config, invalid config startup validation, query limit clamping/rejection, strategy delegation, deterministic ranking, and no peer identity leakage.
-- [ ] **Step 2: Run the focused service tests red** with `./mvnw.cmd -pl backend/recommendation-service -am -Dtest=RecommendationApplicationServiceTest test`.
+- [ ] **Step 2: Run the focused service tests red** with `./mvnw.cmd -pl backend/recommendation-service -am -Dtest=RecommendationApplicationServiceTest -Dsurefire.failIfNoSpecifiedTests=false test`.
 - [ ] **Step 3: Implement configuration binding, application orchestration, bounded query normalization, scoring delegation, evidence-backed reason selection, and deterministic sorting (score descending, movie ID ascending).** Do not add an HTTP controller in this task.
 - [ ] **Step 4: Run the focused service tests green**, then run the complete Recommendation Service unit suite.
 - [ ] **Step 5: Commit** `git add backend/recommendation-service/src/main backend/recommendation-service/src/test/java/com/neo4flix/recommendation/core backend/recommendation-service/src/main/resources/application.yml && git commit -m "feat: add recommendation application service"`.
