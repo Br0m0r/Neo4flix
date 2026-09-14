@@ -145,6 +145,8 @@ class ResourceServerSecurityConfigTest {
                     .andReturn();
             assertThat(publicResult.getRequest().getSession(false)).isNull();
             mvc.perform(get("/protected")).andExpect(status().isUnauthorized());
+            mvc.perform(get("/api/v1/movies")).andExpect(status().isOk());
+            mvc.perform(post("/api/v1/movies")).andExpect(status().isUnauthorized());
             Instant now = Instant.now();
             String validUser = token(privateKey, publicKey, ISSUER, AUDIENCE,
                     now, now.plusSeconds(900), List.of("USER"));
@@ -218,6 +220,11 @@ class ResourceServerSecurityConfigTest {
         @GetMapping("/protected")
         String protectedEndpoint() {
             return "protected";
+        }
+
+        @GetMapping("/api/v1/movies")
+        String publicMovies() {
+            return "movies";
         }
 
         @GetMapping("/admin")
