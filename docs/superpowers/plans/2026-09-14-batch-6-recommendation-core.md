@@ -114,4 +114,4 @@
 - [x] **Step 2: Run the query-plan test green** with the focused integration command and ensure no secrets or full user vectors are written to output.
 - [x] **Step 3: Run final verification:** full Maven reactor tests, full Recommendation Service/GDS integration selection, frontend regression suite, `npm run lint`, `npm run build`, Compose rebuild/smoke, `git diff --check`, and the existing serial Playwright suite.
 - [x] **Step 4: Record exact commands, test counts, GDS evidence, fixture cleanup, query-plan notes, and any non-blocking review findings** in `docs/audit/batch-6-verification.md`.
-- [ ] **Step 5: Self-review for Critical/Important findings, change only Batch 6 status to `[x]`, update active context to Batch 7, commit, push `main`, and verify local `HEAD` equals `origin/main`.
+- [x] **Step 5: Self-review for Critical/Important findings, change only Batch 6 status to `[x]`, update active context to Batch 7, commit, push `main`, and verify local `HEAD` equals `origin/main`.
