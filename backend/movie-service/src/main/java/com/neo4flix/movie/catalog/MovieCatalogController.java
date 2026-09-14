@@ -27,26 +27,26 @@ public class MovieCatalogController {
 
     @GetMapping("/movies")
     public PageResult<MovieSummary> movies(
-            @RequestParam(required = false) String title,
-            @RequestParam(required = false) String genre,
-            @RequestParam(required = false) Integer minYear,
-            @RequestParam(required = false) Integer maxYear,
-            @RequestParam(required = false) LocalDate fromDate,
-            @RequestParam(required = false) String sort,
-            @RequestParam(required = false, defaultValue = "desc") String direction,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "24") int size) {
+            @RequestParam(name = "title", required = false) String title,
+            @RequestParam(name = "genre", required = false) String genre,
+            @RequestParam(name = "minYear", required = false) Integer minYear,
+            @RequestParam(name = "maxYear", required = false) Integer maxYear,
+            @RequestParam(name = "fromDate", required = false) LocalDate fromDate,
+            @RequestParam(name = "sort", required = false) String sort,
+            @RequestParam(name = "direction", required = false, defaultValue = "desc") String direction,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "24") int size) {
         return repository.search(MovieQuery.from(title, genre, minYear, maxYear, fromDate, sort, direction, page, size));
     }
 
     @GetMapping("/movies/{id}")
-    public ResponseEntity<MovieDetail> movie(@PathVariable String id) {
+    public ResponseEntity<MovieDetail> movie(@PathVariable(name = "id") String id) {
         return ResponseEntity.of(repository.findMovie(id));
     }
 
     @GetMapping("/movies/{id}/related")
-    public java.util.List<MovieSummary> related(@PathVariable String id,
-                                                @RequestParam(defaultValue = "12") int limit) {
+    public java.util.List<MovieSummary> related(@PathVariable(name = "id") String id,
+                                                @RequestParam(name = "limit", defaultValue = "12") int limit) {
         return repository.findRelated(id, limit);
     }
 
@@ -63,31 +63,31 @@ public class MovieCatalogController {
 
     @PatchMapping("/movies/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<MovieDetail> updateMovie(@PathVariable String id, @RequestBody MovieWrite movie) {
+    public ResponseEntity<MovieDetail> updateMovie(@PathVariable(name = "id") String id, @RequestBody MovieWrite movie) {
         return ResponseEntity.of(repository.updateMovie(id, movie));
     }
 
     @DeleteMapping("/movies/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteMovie(@PathVariable String id) {
+    public ResponseEntity<Void> deleteMovie(@PathVariable(name = "id") String id) {
         return repository.deleteMovie(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 
     @PostMapping("/genres")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<GenreSummary> createGenre(@RequestParam String name) {
+    public ResponseEntity<GenreSummary> createGenre(@RequestParam(name = "name") String name) {
         return ResponseEntity.status(201).body(repository.createGenre(name));
     }
 
     @PatchMapping("/genres/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<GenreSummary> renameGenre(@PathVariable String id, @RequestParam String name) {
+    public ResponseEntity<GenreSummary> renameGenre(@PathVariable(name = "id") String id, @RequestParam(name = "name") String name) {
         return ResponseEntity.of(repository.renameGenre(id, name));
     }
 
     @DeleteMapping("/genres/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteGenre(@PathVariable String id) {
+    public ResponseEntity<Void> deleteGenre(@PathVariable(name = "id") String id) {
         MovieCatalogRepository.DeleteGenreResult result = repository.deleteGenre(id);
         if (result.referenced()) return ResponseEntity.status(409).build();
         return result.deleted() ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
