@@ -1,11 +1,11 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { CatalogApiService } from '../../core/catalog-api.service';
-import { MovieWrite } from '../../core/catalog.models';
+import { GenreSummary, MovieSummary, MovieWrite } from '../../core/catalog.models';
 
 @Component({
   selector: 'app-admin-catalog',
@@ -15,35 +15,83 @@ import { MovieWrite } from '../../core/catalog.models';
     <section class="admin-catalog" aria-labelledby="admin-catalog-title">
       <h1 id="admin-catalog-title">Catalog administration</h1>
       <p class="status" role="status">{{ status() }}</p>
+
       <mat-card>
-        <mat-card-header><mat-card-title>Create movie</mat-card-title></mat-card-header>
+        <mat-card-header><mat-card-title>{{ editingMovieId() ? 'Edit movie' : 'Create movie' }}</mat-card-title></mat-card-header>
         <mat-card-content>
-          <form [formGroup]="movieForm" (ngSubmit)="saveMovie()" aria-label="Create movie form">
-            <mat-form-field appearance="outline"><mat-label>Title</mat-label><input matInput formControlName="title" required /></mat-form-field>
+          <form [formGroup]="movieForm" (ngSubmit)="saveMovie()" aria-label="Movie form" data-testid="movie-form">
+            <mat-form-field appearance="outline"><mat-label>Title</mat-label><input matInput data-testid="movie-title" formControlName="title" required /></mat-form-field>
             <mat-form-field appearance="outline"><mat-label>Overview</mat-label><textarea matInput formControlName="overview" required></textarea></mat-form-field>
             <mat-form-field appearance="outline"><mat-label>Release year</mat-label><input matInput type="number" formControlName="releaseYear" required /></mat-form-field>
             <mat-form-field appearance="outline"><mat-label>Release date</mat-label><input matInput type="date" formControlName="releaseDate" /></mat-form-field>
             <mat-form-field appearance="outline"><mat-label>Runtime minutes</mat-label><input matInput type="number" formControlName="runtimeMinutes" /></mat-form-field>
-            <button mat-flat-button type="submit">Create movie</button>
+            <div class="actions">
+              <button mat-flat-button type="submit">{{ editingMovieId() ? 'Update movie' : 'Create movie' }}</button>
+              @if (editingMovieId()) { <button mat-button type="button" (click)="cancelMovieEdit()">Cancel</button> }
+            </div>
           </form>
         </mat-card-content>
       </mat-card>
+
       <mat-card>
-        <mat-card-header><mat-card-title>Create genre</mat-card-title></mat-card-header>
+        <mat-card-header><mat-card-title>Movies</mat-card-title></mat-card-header>
         <mat-card-content>
-          <form [formGroup]="genreForm" (ngSubmit)="saveGenre()" aria-label="Create genre form">
+          @if (movies().length) {
+            <ul aria-label="Current movies">
+              @for (movie of movies(); track movie.id) {
+                <li><span>{{ movie.title }} ({{ movie.releaseYear }})</span>
+                  <span class="actions">
+                    <button mat-button type="button" [attr.data-testid]="'edit-movie-' + movie.id" (click)="beginMovieEdit(movie)">Edit</button>
+                    <button mat-button type="button" [attr.data-testid]="'delete-movie-' + movie.id" (click)="removeMovie(movie)">Delete</button>
+                  </span>
+                </li>
+              }
+            </ul>
+          } @else { <p>No movies found.</p> }
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header><mat-card-title>{{ editingGenreId() ? 'Rename genre' : 'Create genre' }}</mat-card-title></mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="genreForm" (ngSubmit)="saveGenre()" aria-label="Genre form">
             <mat-form-field appearance="outline"><mat-label>Genre name</mat-label><input matInput formControlName="name" required /></mat-form-field>
-            <button mat-flat-button type="submit">Create genre</button>
+            <div class="actions">
+              <button mat-flat-button type="submit">{{ editingGenreId() ? 'Rename genre' : 'Create genre' }}</button>
+              @if (editingGenreId()) { <button mat-button type="button" (click)="cancelGenreEdit()">Cancel</button> }
+            </div>
           </form>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header><mat-card-title>Genres</mat-card-title></mat-card-header>
+        <mat-card-content>
+          @if (genres().length) {
+            <ul aria-label="Current genres">
+              @for (genre of genres(); track genre.id) {
+                <li><span>{{ genre.name }}</span>
+                  <span class="actions">
+                    <button mat-button type="button" [attr.data-testid]="'edit-genre-' + genre.id" (click)="beginGenreEdit(genre)">Rename</button>
+                    <button mat-button type="button" [attr.data-testid]="'delete-genre-' + genre.id" (click)="removeGenre(genre)">Delete</button>
+                  </span>
+                </li>
+              }
+            </ul>
+          } @else { <p>No genres found.</p> }
         </mat-card-content>
       </mat-card>
     </section>
   `,
-  styles: [`.admin-catalog{max-width:52rem;margin:0 auto}.admin-catalog mat-card{margin-block:1rem}.admin-catalog form{display:grid;gap:1rem}.status{min-height:1.5rem}`],
+  styles: [`.admin-catalog{max-width:52rem;margin:0 auto}.admin-catalog mat-card{margin-block:1rem}.admin-catalog form{display:grid;gap:1rem}.admin-catalog ul{list-style:none;padding:0}.admin-catalog li{align-items:center;display:flex;justify-content:space-between;padding:.5rem 0}.actions{display:flex;gap:.5rem}.status{min-height:1.5rem}`],
 })
-export class AdminCatalogComponent {
+export class AdminCatalogComponent implements OnInit {
   private readonly api = inject(CatalogApiService);
   readonly status = signal('');
+  readonly movies = signal<MovieSummary[]>([]);
+  readonly genres = signal<GenreSummary[]>([]);
+  readonly editingMovieId = signal<string | null>(null);
+  readonly editingGenreId = signal<string | null>(null);
   readonly movieForm = new FormGroup({
     title: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     overview: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -55,6 +103,20 @@ export class AdminCatalogComponent {
     name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
   });
 
+  ngOnInit(): void { this.loadCatalog(); }
+
+  private loadCatalog(): void {
+    this.api.movies().subscribe({ next: (page) => this.movies.set(page.content), error: () => this.status.set('Movies could not be loaded.') });
+    this.api.genres().subscribe({ next: (genres) => this.genres.set(genres), error: () => this.status.set('Genres could not be loaded.') });
+  }
+
+  beginMovieEdit(movie: MovieSummary): void {
+    this.editingMovieId.set(movie.id);
+    this.movieForm.patchValue({ title: movie.title, overview: movie.overview, releaseYear: movie.releaseYear, releaseDate: movie.releaseDate, runtimeMinutes: null });
+  }
+
+  cancelMovieEdit(): void { this.editingMovieId.set(null); this.movieForm.reset(); }
+
   saveMovie(): void {
     if (this.movieForm.invalid) { this.status.set('Enter the required movie fields.'); return; }
     const value = this.movieForm.getRawValue();
@@ -63,17 +125,33 @@ export class AdminCatalogComponent {
       releaseDate: value.releaseDate || null, runtimeMinutes: value.runtimeMinutes,
       posterUrl: null, externalSource: null, externalId: null, genreIds: [],
     };
-    this.api.createMovie(movie).subscribe({
-      next: () => { this.status.set('Movie created.'); this.movieForm.reset(); },
-      error: () => this.status.set('Movie could not be created.'),
+    const id = this.editingMovieId();
+    const request = id ? this.api.updateMovie(id, movie) : this.api.createMovie(movie);
+    request.subscribe({
+      next: () => { this.status.set(id ? 'Movie updated.' : 'Movie created.'); this.cancelMovieEdit(); this.loadCatalog(); },
+      error: () => this.status.set(id ? 'Movie could not be updated.' : 'Movie could not be created.'),
     });
   }
 
+  removeMovie(movie: MovieSummary): void {
+    this.api.deleteMovie(movie.id).subscribe({ next: () => { this.status.set('Movie deleted.'); this.loadCatalog(); }, error: () => this.status.set('Movie could not be deleted.') });
+  }
+
+  beginGenreEdit(genre: GenreSummary): void { this.editingGenreId.set(genre.id); this.genreForm.setValue({ name: genre.name }); }
+  cancelGenreEdit(): void { this.editingGenreId.set(null); this.genreForm.reset(); }
+
   saveGenre(): void {
     if (this.genreForm.invalid) { this.status.set('Enter a genre name.'); return; }
-    this.api.createGenre(this.genreForm.controls.name.value.trim()).subscribe({
-      next: () => { this.status.set('Genre created.'); this.genreForm.reset(); },
-      error: () => this.status.set('Genre could not be created.'),
+    const name = this.genreForm.controls.name.value.trim();
+    const id = this.editingGenreId();
+    const request = id ? this.api.renameGenre(id, name) : this.api.createGenre(name);
+    request.subscribe({
+      next: () => { this.status.set(id ? 'Genre renamed.' : 'Genre created.'); this.cancelGenreEdit(); this.loadCatalog(); },
+      error: () => this.status.set(id ? 'Genre could not be renamed.' : 'Genre could not be created.'),
     });
+  }
+
+  removeGenre(genre: GenreSummary): void {
+    this.api.deleteGenre(genre.id).subscribe({ next: () => { this.status.set('Genre deleted.'); this.loadCatalog(); }, error: () => this.status.set('Genre could not be deleted.') });
   }
 }
