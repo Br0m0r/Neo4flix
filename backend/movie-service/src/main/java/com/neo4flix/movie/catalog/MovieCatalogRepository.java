@@ -39,10 +39,13 @@ public interface MovieCatalogRepository {
 
         @Override
         public PageResult<MovieSummary> search(MovieQuery query) {
-            String where = "WHERE ($title IS NULL OR toLower(m.normalizedTitle) CONTAINS toLower($title)) "
-                    + "AND ($genre IS NULL OR EXISTS { MATCH (m)-[:IN_GENRE]->(:Genre {normalizedName: toLower($genre)}) }) "
-                    + "AND ($minYear IS NULL OR m.releaseYear >= $minYear) "
-                    + "AND ($maxYear IS NULL OR m.releaseYear <= $maxYear)";
+            Map<String, Object> params = new HashMap<>(query.parameters());
+            List<String> predicates = new ArrayList<>();
+            if (query.title() != null) { predicates.add("toLower(m.normalizedTitle) CONTAINS toLower($title)"); params.put("title", query.title()); }
+            if (query.genre() != null) { predicates.add("EXISTS { MATCH (m)-[:IN_GENRE]->(:Genre {normalizedName: toLower($genre)}) }"); params.put("genre", query.genre()); }
+            if (query.minYear() != null) { predicates.add("m.releaseYear >= $minYear"); params.put("minYear", query.minYear()); }
+            if (query.maxYear() != null) { predicates.add("m.releaseYear <= $maxYear"); params.put("maxYear", query.maxYear()); }
+            String where = predicates.isEmpty() ? "" : "WHERE " + String.join(" AND ", predicates);
             String order = query.sortCypher() + ("asc".equals(query.direction()) ? " ASC" : " DESC");
             String rows = "MATCH (m:Movie) " + where + " "
                     + "OPTIONAL MATCH (m)-[:IN_GENRE]->(g:Genre) "
@@ -50,7 +53,7 @@ public interface MovieCatalogRepository {
                     + "RETURN m AS movie, genres "
                     + "ORDER BY " + order + " SKIP $skip LIMIT $limit";
             String count = "MATCH (m:Movie) " + where + " RETURN count(m) AS total";
-            Map<String, Object> params = query.parameters();
+            params.values().removeIf(java.util.Objects::isNull);
             List<MovieSummary> content = new ArrayList<>(client.query(rows).bindAll(params).fetchAs(MovieSummary.class)
                     .mappedBy((ts, record) -> mapSummary(record)).all());
             long total = client.query(count).bindAll(params).fetchAs(Long.class)

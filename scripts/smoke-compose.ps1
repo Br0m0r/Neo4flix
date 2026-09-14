@@ -45,10 +45,10 @@ try {
     if ($logText -notmatch 'GDS verification succeeded for database=neo4j version=2026\.07\.[0-9]+') {
         throw 'Migrator logs do not confirm the pinned GDS check.'
     }
-    if ($logText -notmatch 'Database migrator completed mode=migrate database=neo4j versions=5(?:\s|$)') {
-        throw 'Migrator logs do not confirm migration to latest (five versions).'
+    if ($logText -notmatch 'Database migrator completed mode=migrate database=neo4j versions=6(?:\s|$)') {
+        throw 'Migrator logs do not confirm migration to latest (six versions).'
     }
-    Write-Host 'Migrator exited 0; logs confirm GDS readiness and migration to latest (5 versions).'
+    Write-Host 'Migrator exited 0; logs confirm GDS readiness and migration to latest (6 versions).'
 
     $constraints = Invoke-SmokeQuery "SHOW CONSTRAINTS YIELD name WHERE name IN ['user_id_unique','user_normalized_email_unique','movie_id_unique','genre_id_unique','genre_normalized_name_unique','rated_key_unique','watchlisted_key_unique','auth_session_id_unique','auth_challenge_id_unique','recommendation_share_id_unique','recommendation_share_token_hash_unique'] RETURN count(*) AS constraintCount;"
     if ($constraints.Count -ne 2 -or $constraints[0] -cne 'constraintCount' -or $constraints[1] -cne '11') {
