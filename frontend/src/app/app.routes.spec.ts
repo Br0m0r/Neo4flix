@@ -2,6 +2,7 @@ import { anonymousOnlyGuard, authGuard } from './core/auth.guards';
 import { LoginComponent } from './features/auth/login.component';
 import { RegisterComponent } from './features/auth/register.component';
 import { TwoFactorLoginComponent } from './features/auth/two-factor-login.component';
+import { ProfileComponent } from './features/profile/profile.component';
 import { routes } from './app.routes';
 
 describe('auth routes', () => {
@@ -23,5 +24,12 @@ describe('auth routes', () => {
     const root = routes.find((route) => route.path === '');
 
     expect(root?.canActivate).toContain(authGuard);
+  });
+
+  it('protects the lazy profile page for authenticated users', async () => {
+    const profile = routes.find((route) => route.path === 'profile');
+
+    expect(profile?.canActivate).toContain(authGuard);
+    expect(await profile?.loadComponent?.()).toBe(ProfileComponent);
   });
 });

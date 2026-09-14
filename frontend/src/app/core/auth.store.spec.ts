@@ -114,4 +114,20 @@ describe('AuthStore', () => {
       pendingChallenge: null,
     });
   });
+
+  it('does not replay a consumed two-factor challenge from client memory', () => {
+    api.loginResponse = {
+      requiresTwoFactor: true,
+      challengeToken: 'challenge-token',
+      expiresIn: 300,
+    };
+    store.login({ email: 'alice@example.com', password: 'StrongPassword1!' }).subscribe();
+    store.verifyTwoFactor('428193').subscribe();
+    const replayError = vi.fn();
+
+    store.verifyTwoFactor('428193').subscribe({ error: replayError });
+
+    expect(replayError).toHaveBeenCalledOnce();
+    expect(replayError.mock.calls[0][0]).toEqual(new Error('No active two-factor challenge'));
+  });
 });

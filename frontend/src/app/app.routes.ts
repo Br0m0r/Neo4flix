@@ -27,5 +27,11 @@ export const routes: Routes = [
         (module) => module.TwoFactorLoginComponent,
       ),
   },
+  {
+    path: 'profile',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/profile/profile.component').then((module) => module.ProfileComponent),
+  },
   { path: '**', redirectTo: '' },
 ];
