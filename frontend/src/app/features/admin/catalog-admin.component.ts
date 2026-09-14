@@ -5,7 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { CatalogApiService } from '../../core/catalog-api.service';
-import { GenreSummary, MovieSummary, MovieWrite } from '../../core/catalog.models';
+import { GenreSummary, MovieDetail, MovieSummary, MovieWrite } from '../../core/catalog.models';
 
 @Component({
   selector: 'app-admin-catalog',
@@ -25,6 +25,14 @@ import { GenreSummary, MovieSummary, MovieWrite } from '../../core/catalog.model
             <mat-form-field appearance="outline"><mat-label>Release year</mat-label><input matInput type="number" formControlName="releaseYear" required /></mat-form-field>
             <mat-form-field appearance="outline"><mat-label>Release date</mat-label><input matInput type="date" formControlName="releaseDate" /></mat-form-field>
             <mat-form-field appearance="outline"><mat-label>Runtime minutes</mat-label><input matInput type="number" formControlName="runtimeMinutes" /></mat-form-field>
+            <mat-form-field appearance="outline"><mat-label>Poster URL</mat-label><input matInput type="url" formControlName="posterUrl" /></mat-form-field>
+            @if (genres().length) {
+              <fieldset><legend>Genres</legend>
+                @for (genre of genres(); track genre.id) {
+                  <label><input type="checkbox" [checked]="movieGenreSelected(genre.id)" (change)="toggleMovieGenre(genre.id, $event)" /> {{ genre.name }}</label>
+                }
+              </fieldset>
+            }
             <div class="actions">
               <button mat-flat-button type="submit">{{ editingMovieId() ? 'Update movie' : 'Create movie' }}</button>
               @if (editingMovieId()) { <button mat-button type="button" (click)="cancelMovieEdit()">Cancel</button> }
@@ -41,8 +49,8 @@ import { GenreSummary, MovieSummary, MovieWrite } from '../../core/catalog.model
               @for (movie of movies(); track movie.id) {
                 <li><span>{{ movie.title }} ({{ movie.releaseYear }})</span>
                   <span class="actions">
-                    <button mat-button type="button" [attr.data-testid]="'edit-movie-' + movie.id" (click)="beginMovieEdit(movie)">Edit</button>
-                    <button mat-button type="button" [attr.data-testid]="'delete-movie-' + movie.id" (click)="removeMovie(movie)">Delete</button>
+                    <button mat-button type="button" [attr.data-testid]="'edit-movie-' + movie.id" [attr.aria-label]="'Edit ' + movie.title" (click)="beginMovieEdit(movie)">Edit</button>
+                    <button mat-button type="button" [attr.data-testid]="'delete-movie-' + movie.id" [attr.aria-label]="'Delete ' + movie.title" (click)="removeMovie(movie)">Delete</button>
                   </span>
                 </li>
               }
@@ -72,8 +80,8 @@ import { GenreSummary, MovieSummary, MovieWrite } from '../../core/catalog.model
               @for (genre of genres(); track genre.id) {
                 <li><span>{{ genre.name }}</span>
                   <span class="actions">
-                    <button mat-button type="button" [attr.data-testid]="'edit-genre-' + genre.id" (click)="beginGenreEdit(genre)">Rename</button>
-                    <button mat-button type="button" [attr.data-testid]="'delete-genre-' + genre.id" (click)="removeGenre(genre)">Delete</button>
+                    <button mat-button type="button" [attr.data-testid]="'edit-genre-' + genre.id" [attr.aria-label]="'Rename ' + genre.name" (click)="beginGenreEdit(genre)">Rename</button>
+                    <button mat-button type="button" [attr.data-testid]="'delete-genre-' + genre.id" [attr.aria-label]="'Delete ' + genre.name" (click)="removeGenre(genre)">Delete</button>
                   </span>
                 </li>
               }
@@ -83,7 +91,7 @@ import { GenreSummary, MovieSummary, MovieWrite } from '../../core/catalog.model
       </mat-card>
     </section>
   `,
-  styles: [`.admin-catalog{max-width:52rem;margin:0 auto}.admin-catalog mat-card{margin-block:1rem}.admin-catalog form{display:grid;gap:1rem}.admin-catalog ul{list-style:none;padding:0}.admin-catalog li{align-items:center;display:flex;justify-content:space-between;padding:.5rem 0}.actions{display:flex;gap:.5rem}.status{min-height:1.5rem}`],
+  styles: [`.admin-catalog{max-width:52rem;margin:0 auto}.admin-catalog mat-card{margin-block:1rem}.admin-catalog form{display:grid;gap:1rem}.admin-catalog fieldset{border:0;display:flex;flex-wrap:wrap;gap:.75rem;padding:0}.admin-catalog ul{list-style:none;padding:0}.admin-catalog li{align-items:center;display:flex;justify-content:space-between;padding:.5rem 0}.actions{display:flex;gap:.5rem}.status{min-height:1.5rem}`],
 })
 export class AdminCatalogComponent implements OnInit {
   private readonly api = inject(CatalogApiService);
@@ -91,6 +99,7 @@ export class AdminCatalogComponent implements OnInit {
   readonly movies = signal<MovieSummary[]>([]);
   readonly genres = signal<GenreSummary[]>([]);
   readonly editingMovieId = signal<string | null>(null);
+  readonly editingMovieDetails = signal<MovieDetail | null>(null);
   readonly editingGenreId = signal<string | null>(null);
   readonly movieForm = new FormGroup({
     title: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -98,6 +107,8 @@ export class AdminCatalogComponent implements OnInit {
     releaseYear: new FormControl<number | null>(null, Validators.required),
     releaseDate: new FormControl<string | null>(null),
     runtimeMinutes: new FormControl<number | null>(null),
+    posterUrl: new FormControl('', { nonNullable: true }),
+    genreIds: new FormControl<string[]>([], { nonNullable: true }),
   });
   readonly genreForm = new FormGroup({
     name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -110,12 +121,38 @@ export class AdminCatalogComponent implements OnInit {
     this.api.genres().subscribe({ next: (genres) => this.genres.set(genres), error: () => this.status.set('Genres could not be loaded.') });
   }
 
-  beginMovieEdit(movie: MovieSummary): void {
-    this.editingMovieId.set(movie.id);
-    this.movieForm.patchValue({ title: movie.title, overview: movie.overview, releaseYear: movie.releaseYear, releaseDate: movie.releaseDate, runtimeMinutes: null });
+  private toMovieSummary(movie: MovieDetail): MovieSummary {
+    return {
+      id: movie.id, title: movie.title, overview: movie.overview, releaseYear: movie.releaseYear,
+      releaseDate: movie.releaseDate, posterUrl: movie.posterUrl, genres: movie.genres ?? [],
+      averageRating: movie.averageRating ?? 0, ratingCount: movie.ratingCount ?? 0,
+    };
   }
 
-  cancelMovieEdit(): void { this.editingMovieId.set(null); this.movieForm.reset(); }
+  beginMovieEdit(movie: MovieSummary): void {
+    this.api.movie(movie.id).subscribe({
+      next: (detail) => {
+        this.editingMovieId.set(detail.id);
+        this.editingMovieDetails.set(detail);
+        this.movieForm.patchValue({
+          title: detail.title, overview: detail.overview, releaseYear: detail.releaseYear,
+          releaseDate: detail.releaseDate, runtimeMinutes: detail.runtimeMinutes,
+          posterUrl: detail.posterUrl ?? '', genreIds: detail.genres.map((genre) => genre.id),
+        });
+      },
+      error: () => this.status.set('Movie could not be loaded for editing.'),
+    });
+  }
+
+  cancelMovieEdit(): void { this.editingMovieId.set(null); this.editingMovieDetails.set(null); this.movieForm.reset(); }
+
+  movieGenreSelected(id: string): boolean { return this.movieForm.controls.genreIds.value.includes(id); }
+
+  toggleMovieGenre(id: string, event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    const current = this.movieForm.controls.genreIds.value;
+    this.movieForm.controls.genreIds.setValue(checked ? [...new Set([...current, id])] : current.filter((genreId) => genreId !== id));
+  }
 
   saveMovie(): void {
     if (this.movieForm.invalid) { this.status.set('Enter the required movie fields.'); return; }
@@ -123,18 +160,27 @@ export class AdminCatalogComponent implements OnInit {
     const movie: MovieWrite = {
       title: value.title.trim(), overview: value.overview.trim(), releaseYear: value.releaseYear!,
       releaseDate: value.releaseDate || null, runtimeMinutes: value.runtimeMinutes,
-      posterUrl: null, externalSource: null, externalId: null, genreIds: [],
+      posterUrl: value.posterUrl.trim() || null,
+      externalSource: this.editingMovieDetails()?.externalSource ?? null,
+      externalId: this.editingMovieDetails()?.externalId ?? null,
+      genreIds: value.genreIds,
     };
     const id = this.editingMovieId();
     const request = id ? this.api.updateMovie(id, movie) : this.api.createMovie(movie);
     request.subscribe({
-      next: () => { this.status.set(id ? 'Movie updated.' : 'Movie created.'); this.cancelMovieEdit(); this.loadCatalog(); },
+      next: (saved) => {
+        const summary = this.toMovieSummary(saved);
+        this.movies.update((current) => id ? current.map((item) => item.id === id ? summary : item) : [summary, ...current]);
+        this.status.set(id ? 'Movie updated.' : 'Movie created.');
+        this.cancelMovieEdit();
+      },
       error: () => this.status.set(id ? 'Movie could not be updated.' : 'Movie could not be created.'),
     });
   }
 
   removeMovie(movie: MovieSummary): void {
-    this.api.deleteMovie(movie.id).subscribe({ next: () => { this.status.set('Movie deleted.'); this.loadCatalog(); }, error: () => this.status.set('Movie could not be deleted.') });
+    if (!window.confirm(`Delete movie “${movie.title}”?`)) return;
+    this.api.deleteMovie(movie.id).subscribe({ next: () => { this.movies.update((current) => current.filter((item) => item.id !== movie.id)); this.status.set('Movie deleted.'); }, error: () => this.status.set('Movie could not be deleted.') });
   }
 
   beginGenreEdit(genre: GenreSummary): void { this.editingGenreId.set(genre.id); this.genreForm.setValue({ name: genre.name }); }
@@ -146,12 +192,17 @@ export class AdminCatalogComponent implements OnInit {
     const id = this.editingGenreId();
     const request = id ? this.api.renameGenre(id, name) : this.api.createGenre(name);
     request.subscribe({
-      next: () => { this.status.set(id ? 'Genre renamed.' : 'Genre created.'); this.cancelGenreEdit(); this.loadCatalog(); },
+      next: (saved) => {
+        this.genres.update((current) => id ? current.map((item) => item.id === id ? saved : item) : [saved, ...current]);
+        this.status.set(id ? 'Genre renamed.' : 'Genre created.');
+        this.cancelGenreEdit();
+      },
       error: () => this.status.set(id ? 'Genre could not be renamed.' : 'Genre could not be created.'),
     });
   }
 
   removeGenre(genre: GenreSummary): void {
-    this.api.deleteGenre(genre.id).subscribe({ next: () => { this.status.set('Genre deleted.'); this.loadCatalog(); }, error: () => this.status.set('Genre could not be deleted.') });
+    if (!window.confirm(`Delete genre “${genre.name}”?`)) return;
+    this.api.deleteGenre(genre.id).subscribe({ next: () => { this.genres.update((current) => current.filter((item) => item.id !== genre.id)); this.status.set('Genre deleted.'); }, error: () => this.status.set('Genre could not be deleted.') });
   }
 }
