@@ -13,7 +13,7 @@
 - Batch 5 plan: `docs/superpowers/plans/2026-09-14-batch-5-watchlist.md`
 - Batch 3 audit: `docs/audit/batch-3-verification.md` (Batch 3 remains complete and preserved)
 - Batch 4 audit: `docs/audit/batch-4-verification.md` (Batch 4 gates passed and pushed)
-- Batch 5 audit: `docs/audit/batch-5-verification.md` (all gates passed; push pending this context checkpoint)
+- Batch 5 audit: `docs/audit/batch-5-verification.md` (all gates passed and pushed)
 - Local `.env` is ignored and must never be committed or printed.
 
 ## Batch 5 completed contracts
