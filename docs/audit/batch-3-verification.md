@@ -12,6 +12,7 @@ Batch 3 remains in progress. Code-level and live Compose infrastructure/catalog-
 - Frontend tests: 52 tests, 0 failures.
 - Existing Playwright authentication browser contract: 1 test passed against the healthy Compose web stack.
 - Frontend catalog browse/detail routes and typed API client are pushed to `main`.
+- Angular catalog admin entry point is now guarded at `/admin/catalog`; typed movie/genre mutation methods and accessible create forms are covered by 6 focused route/client tests.
 - Fresh Compose smoke: migrator exited 0, 11 constraints, 3 ONLINE indexes, GDS `2026.07.0`, four services healthy, and web reachable.
 - Live catalog probes: `GET /api/v1/movies` 200, `GET /api/v1/genres` 200, anonymous `POST /api/v1/movies` 401.
 - Live non-empty catalog probes with disposable Neo4j fixtures: collection/detail/related reads returned 200; combined title, genre, year, sort, and direction filters returned the expected two rows; fixtures were removed after verification.
@@ -20,7 +21,7 @@ Batch 3 remains in progress. Code-level and live Compose infrastructure/catalog-
 
 ## Pending live gate
 
-Run the remaining frontend catalog e2e and browser-level admin acceptance. The existing authentication browser contract is green, but no Batch 3 completion claim is made until catalog/admin browser gates pass.
+Run the remaining frontend catalog e2e and browser-level admin acceptance. The existing authentication browser contract and focused admin entry-point tests are green, but no Batch 3 completion claim is made until catalog/admin browser gates pass.
 
 ## Commits
 

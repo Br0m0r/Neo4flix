@@ -8,7 +8,7 @@
 
 - Worktree: `C:\Users\User\Desktop\Neo4flix`
 - Branch: `main` (direct-main execution; do not create new worktrees)
-- Current head: `9a1b459` (`docs: record browser contract verification`)
+- Current head: `53df73b` (`feat: add angular catalog admin entry point`)
 - Batch 3 plan: `docs/superpowers/plans/2026-09-14-batch-3-catalog.md`
 - Batch 3 audit: `docs/audit/batch-3-verification.md`
 - Existing SDD ledger: `.superpowers/sdd/2026-09-13-batch-2-authentication/` (Batch 2 remains complete and preserved)
@@ -30,7 +30,7 @@ Deliver the Movie Service catalog vertical slice: anonymous movie/genre reads, a
 | --- | --- | --- |
 | Complete for current scope | Tasks 1–3 persistence, REST, Neo4j wiring | `ec15c47..9a1b459`; focused Java tests, live non-empty reads, combined filters, related reads, and authenticated API CRUD recorded in `docs/audit/batch-3-verification.md` |
 | Complete | Existing auth/browser baseline | Frontend 52 tests pass; existing Playwright auth contract 1/1 passes against Compose |
-| First unfinished | Task 4 Angular catalog/admin browser surface | Public browse/detail exists; admin component/route and catalog Playwright coverage are not yet implemented |
+| In progress | Task 4 Angular catalog/admin browser surface | Public browse/detail and guarded admin create entry point exist; catalog Playwright coverage and richer edit/delete controls remain |
 | After Task 4 | Task 5 checkpoint | Run full verification, independent review, update only Batch 3 status in `00_MASTER_EXECUTION_PLAN.md` |
 
 ## Verified commands and live evidence
@@ -39,13 +39,14 @@ Deliver the Movie Service catalog vertical slice: anonymous movie/genre reads, a
 - Movie Service focused tests: compile/package green; `MovieCatalogRepositoryTest` 2/2 green.
 - Frontend: `npm test` 12 files / 52 tests green with elevated workspace access.
 - Browser: `npx playwright test e2e/auth.spec.ts` 1/1 passed.
+- Angular Task 4 focused tests: 6/6 route and mutation-client assertions passed; full frontend suite is 13 files / 55 tests green, lint and production build green.
 - Live anonymous reads: movies 200, genres 200, anonymous movie POST 401.
 - Live disposable catalog fixture: collection/detail/related 200; combined title/genre/year/sort/direction filter returned expected rows.
 - Live disposable auth fixture: USER movie POST 403; ADMIN movie create/update/delete 201/200/204; referenced genre delete 409 then 204; deleted movie 404. Fixtures/accounts were removed.
 
 ## Current blocker / acceptance gap
 
-Do not mark Batch 3 complete. The remaining acceptance gap is Angular admin movie/genre controls plus catalog/admin Playwright coverage. The plan also calls for unknown-sort rejection and full clean-checkout verification before changing Batch 3 status.
+Do not mark Batch 3 complete. The remaining acceptance gap is catalog/admin Playwright coverage plus richer edit/delete controls. The plan also calls for unknown-sort rejection and full clean-checkout verification before changing Batch 3 status.
 
 ## Dispatch policy
 
