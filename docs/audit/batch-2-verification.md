@@ -197,12 +197,18 @@ and JSON status UP. A read-only probe of
 is not evidence of the reviewed authentication slice. No user data was written
 to that stack; no existing volume was stopped, reset, or deleted.
 
-The committed `infra/compose.yml` passes only Neo4j environment settings to
-business services. It does not supply the `NEO4FLIX_JWT_*` or
-`NEO4FLIX_TOTP_ENCRYPTION_KEY` settings used by the code. The legacy names in
-`.env.example` do not configure them. Consequently, no Compose auth smoke was
-claimed, and no ephemeral `.env` was created for an unsupported startup recipe.
-Isolated HTTP Testcontainers tests generate keys in memory instead.
+The committed `infra/compose.yml` now supplies the canonical `NEO4FLIX_*`
+settings: User Service receives the signing private key and TOTP encryption key,
+while protected services receive the matching public key, issuer, audience, and
+allowed origins (`6d53d32`).
+
+After the persisted `neo4flix_neo4j-data` volume was reset under explicit user
+authorization, a clean local Compose smoke generated ephemeral RSA/AES material
+in memory, started the stack, and observed all services healthy. User Service
+`/actuator/health` returned HTTP 200 and unauthenticated
+`/api/v1/auth/me` returned HTTP 401 (not 404), proving the configured auth route
+is present. The containers were then stopped; no key material was committed or
+printed.
 
 `frontend/package.json` has no Playwright dependency or browser test command.
 The lockfile's `@vitest/browser-playwright` occurrence is optional peer metadata,
@@ -218,8 +224,8 @@ not a pinned runnable Playwright suite. Deferred checks are:
 
 These are material evidence gaps for the canonical browser gate. Component
 tests and source scans cannot replace them. Batch 2 remains unchecked pending
-runtime wiring/proof, deployed cross-service bearer/log checks, browser evidence,
-and the remaining review gate. The evidence task does not silently waive gates.
+deployed cross-service bearer/log checks, browser evidence, and the remaining
+review gate. The evidence task does not silently waive gates.
 
 ## Final repository checks
 

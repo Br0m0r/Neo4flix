@@ -46,13 +46,13 @@ Deliver User Service registration/login, BCrypt password policy, RS256 JWT issua
 | Complete | Task 3 TOTP/challenges/rate limiting/deletion | `178821b..f6cced8`, review clean |
 | Complete | Task 4 Angular auth store/interceptor/routes | `c639e67..2c185f6`, review clean |
 | Complete | Task 5 Angular profile/security/browser contracts | `0c492ec..567434a`, review clean |
-| Complete — checkpoint blocked | Task 6 acceptance evidence/status | `723b373`; Compose key wiring is now committed as `6d53d32`, but `/auth/me` runtime proof and Playwright/deployed gates remain deferred |
+| Complete — checkpoint blocked | Task 6 acceptance evidence/status | `723b373`; Compose wiring and clean-volume `/auth/me` runtime proof are recorded, but Playwright/deployed gates remain deferred |
 
 Final whole-branch review and consolidated fix `31f9fc3` are clean. The fix wires CORS, trusted-proxy rate identity, shared Problem Details errors, and immediate profile-name synchronization without changing the acceptance blockers.
 
 ## Current blocker
 
-Batch 2 remains `[ ]` in `00_MASTER_EXECUTION_PLAN.md`. The acceptance report is committed at `docs/audit/batch-2-verification.md`. Compose now wires JWT signing/public/TOTP encryption key environment (commit `6d53d32`). Before marking the batch complete, run a valid-key Compose smoke, prove `/api/v1/auth/me`, then rerun the deferred deployed/browser/security gates. Do not redispatch Tasks 1–6.
+Batch 2 remains `[ ]` in `00_MASTER_EXECUTION_PLAN.md`. The acceptance report is committed at `docs/audit/batch-2-verification.md`. Compose wiring and a clean-volume valid-key smoke proving `/api/v1/auth/me` are now recorded. Before marking the batch complete, rerun the deferred deployed/browser/security gates. Do not redispatch Tasks 1–6.
 
 ## Dispatch policy
 
