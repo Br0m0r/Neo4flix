@@ -229,7 +229,12 @@ After restoring dependencies from `frontend/package-lock.json`, fresh frontend
 verification passed: `npm test -- --run` reported 52/52 tests across 12 files,
 `npm run lint` exited 0 with no warnings, and `npm run build` completed with the
 production bundle generated. The repository still has no pinned Playwright
-command, so deployed HTTPS cookie/storage assertions remain deferred.
+bundle generated. The new pinned Playwright contract (`npm run e2e`) passed 1/1
+against a clean local Compose stack, asserting empty `localStorage` and
+`sessionStorage`, login, reload, guarded Profile navigation, logout, and
+disposable-account cleanup. `NEO4FLIX_E2E_BASE_URL` can target staging; no
+staging URL is configured in this repository, so HTTPS deployment-specific
+cookie transport remains deferred.
 
 `frontend/package.json` has no Playwright dependency or browser test command.
 The lockfile's `@vitest/browser-playwright` occurrence is optional peer metadata,

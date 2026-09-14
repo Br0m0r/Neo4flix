@@ -90,9 +90,21 @@ key, issuer, audience, and allowed origins. Key values may be PEM/base64
 material or readable file paths. Runtime Compose auth acceptance still requires
 valid local values and a live smoke run; see `docs/audit/batch-2-verification.md`.
 
-Playwright is not installed or pinned as a runnable repository suite. The Vitest
-storage/interceptor/profile checks are component evidence; real-browser storage,
-cookie transport, reload, and navigation checks remain deferred.
+The Vitest storage/interceptor/profile checks remain component evidence; the
+repository's pinned Playwright contract covers local real-browser storage,
+reload, navigation, and logout behavior.
+
+The repository now includes a pinned Playwright contract in `frontend/e2e`.
+With an auth-configured Compose stack running, execute:
+
+```powershell
+npm.cmd --prefix frontend run e2e
+```
+
+The suite creates and removes a disposable user, verifies that access-token
+state is absent from `localStorage` and `sessionStorage`, exercises login,
+reload, guarded profile navigation, and logout, and accepts
+`NEO4FLIX_E2E_BASE_URL` for a staging URL.
 
 ## Start and check the stack
 
