@@ -91,4 +91,12 @@ export class AuthStore {
   clear(): void {
     this.mutableState.set({ ...INITIAL_STATE, status: 'anonymous' });
   }
+
+  updateUser(user: PublicUser): void {
+    this.mutableState.update((current) =>
+      current.status === 'authenticated' && current.user?.id === user.id
+        ? { ...current, user }
+        : current,
+    );
+  }
 }

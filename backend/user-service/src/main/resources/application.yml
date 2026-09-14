@@ -9,6 +9,7 @@ spring:
 
 server:
   port: 8081
+  forward-headers-strategy: none
 
 management:
   endpoints:
@@ -22,6 +23,7 @@ neo4flix:
       encryption-key: ${NEO4FLIX_TOTP_ENCRYPTION_KEY:}
     allowed-origins: ${NEO4FLIX_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:8080}
     rate-limit:
+      trusted-proxies: ${NEO4FLIX_AUTH_TRUSTED_PROXIES:}
       requests: ${NEO4FLIX_AUTH_RATE_LIMIT_REQUESTS:10}
       window-seconds: ${NEO4FLIX_AUTH_RATE_LIMIT_WINDOW_SECONDS:60}
       capacity: ${NEO4FLIX_AUTH_RATE_LIMIT_CAPACITY:10000}

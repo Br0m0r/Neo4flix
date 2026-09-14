@@ -34,6 +34,49 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class ResourceServerSecurityConfigTest {
 
+    @Test
+    void productionCorsAllowsConfiguredCredentialedRequestsAndRejectsHostileOrigins() throws Exception {
+        try (var context = new AnnotationConfigWebApplicationContext()) {
+            context.setServletContext(new org.springframework.mock.web.MockServletContext());
+            context.register(ResourceServerSecurityConfig.class, TestEndpoints.class);
+            context.getEnvironment().getPropertySources().addFirst(
+                    new org.springframework.core.env.MapPropertySource("cors-test", Map.of(
+                            "neo4flix.security.allowed-origins", "https://dev.example,http://localhost:4200")));
+            context.refresh();
+            MockMvc mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+            mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options("/api/v1/users/me")
+                            .header("Origin", "https://dev.example")
+                            .header("Access-Control-Request-Method", "PATCH")
+                            .header("Access-Control-Request-Headers", "authorization,content-type"))
+                    .andExpect(status().isOk())
+                    .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header()
+                            .string("Access-Control-Allow-Origin", "https://dev.example"))
+                    .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header()
+                            .string("Access-Control-Allow-Credentials", "true"));
+            mvc.perform(post("/api/v1/auth/login").header("Origin", "http://localhost:4200"))
+                    .andExpect(status().isOk())
+                    .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header()
+                            .string("Access-Control-Allow-Origin", "http://localhost:4200"));
+            mvc.perform(get("/protected").header("Origin", "https://dev.example"))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header()
+                            .string("Access-Control-Allow-Origin", "https://dev.example"));
+            mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options("/api/v1/auth/login")
+                            .header("Origin", "https://evil.example")
+                            .header("Access-Control-Request-Method", "POST"))
+                    .andExpect(status().isForbidden())
+                    .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath("$.type").value("about:blank"))
+                    .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath("$.title").value("Forbidden"))
+                    .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath("$.status").value(403))
+                    .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath("$.detail").isNotEmpty())
+                    .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath("$.instance").value("/api/v1/auth/login"))
+                    .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath("$.code").value("ORIGIN_REJECTED"))
+                    .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath("$.traceId").isNotEmpty())
+                    .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header()
+                            .doesNotExist("Access-Control-Allow-Origin"));
+        }
+    }
+
     private static final String ISSUER = "neo4flix-user-service";
     private static final String AUDIENCE = "neo4flix-api";
 

@@ -89,6 +89,27 @@ class AuthProductionContextIT {
     }
 
     @Test
+    void productionFilterOrderingPreservesCorsAndCorrelationOnFailures() {
+        var headers = new HttpHeaders();
+        headers.setOrigin("https://app.example");
+        headers.set("X-Request-Id", "cors-error-42");
+        var response = restTemplate.exchange("/api/v1/auth/refresh", HttpMethod.POST,
+                new HttpEntity<>(headers), Map.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(response.getHeaders().getFirst("Access-Control-Allow-Origin")).isEqualTo("https://app.example");
+        assertThat(response.getHeaders().getFirst("Access-Control-Allow-Credentials")).isEqualTo("true");
+        assertThat(response.getBody()).containsEntry("traceId", "cors-error-42");
+
+        headers.remove(HttpHeaders.ORIGIN);
+        var rejected = restTemplate.exchange("/api/v1/auth/refresh", HttpMethod.POST,
+                new HttpEntity<>(headers), Map.class);
+        assertThat(rejected.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(rejected.getHeaders().getFirst("X-Request-Id")).isEqualTo("cors-error-42");
+        assertThat(rejected.getBody()).containsEntry("type", "about:blank")
+                .containsEntry("code", "ORIGIN_REJECTED").containsEntry("traceId", "cors-error-42");
+    }
+
+    @Test
     @Order(1)
     void configuredProductionContextMapsAndServesCoreAuthAndProfileRoutes() {
         var registration = restTemplate.postForEntity(

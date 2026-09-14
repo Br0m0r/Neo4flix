@@ -15,14 +15,25 @@ import java.io.IOException;
 import java.net.URI;
 import java.time.Clock;
 import java.util.*;
+import com.neo4flix.platform.common.web.ProblemDetails;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.web.util.matcher.IpAddressMatcher;
 
 @Component
-@Order(Ordered.HIGHEST_PRECEDENCE + 20)
+@Order(Ordered.LOWEST_PRECEDENCE - 10)
 public class RateLimitFilter extends OncePerRequestFilter {
     private final Clock clock;
     private final int limit, windowSeconds, capacity;
     private final Set<String> origins;
     private final Map<String, Window> windows = new HashMap<>();
+    private List<IpAddressMatcher> trustedProxies = List.of();
+
+    @org.springframework.beans.factory.annotation.Autowired
+    void configureTrustedProxies(
+            @Value("${neo4flix.security.rate-limit.trusted-proxies:}") String proxies) {
+        trustedProxies = Arrays.stream(proxies.split(",")).map(String::trim)
+                .filter(value -> !value.isEmpty()).map(IpAddressMatcher::new).toList();
+    }
 
     public RateLimitFilter(Clock clock,
             @Value("${neo4flix.security.rate-limit.requests:10}") int limit,
@@ -44,23 +55,38 @@ public class RateLimitFilter extends OncePerRequestFilter {
     @Override protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
         String path = normalizedPath(request);
-        if (path == null) { reject(response, 400, "Invalid request path"); return; }
+        if (path == null) { reject(request, response, 400, "INVALID_REQUEST_PATH", "Invalid request path"); return; }
         if (request.getMethod().equals("POST")) {
             if (path.equals("/api/v1/auth/refresh") || path.equals("/api/v1/auth/logout")) {
                 String supplied = request.getHeader("Origin");
                 String actual = supplied != null ? origin(supplied, false) : origin(request.getHeader("Referer"), true);
-                if (actual == null || !origins.contains(actual)) { reject(response, 403, "Origin rejected"); return; }
+                if (actual == null || !origins.contains(actual)) { reject(request, response, 403, "ORIGIN_REJECTED", "Origin rejected"); return; }
             }
             String endpoint = endpoint(path);
             if (endpoint != null) {
-                long retry = acquire(endpoint + "|" + request.getRemoteAddr());
+                long retry = acquire(endpoint + "|" + clientIdentity(request));
                 if (retry > 0) {
                     response.setHeader("Retry-After", Long.toString(retry));
-                    reject(response, 429, "Too many requests"); return;
+                    reject(request, response, 429, "RATE_LIMITED", "Too many requests"); return;
                 }
             }
         }
         chain.doFilter(request, response);
+    }
+
+    private String clientIdentity(HttpServletRequest request) {
+        String peer = request.getRemoteAddr();
+        if (trustedProxies.stream().noneMatch(proxy -> proxy.matches(peer))) return peer;
+        // Nginx overwrites this header with its socket peer; never trust a supplied X-Forwarded-For chain.
+        String client = request.getHeader("X-Real-IP");
+        if (client == null || Collections.list(request.getHeaders("X-Real-IP")).size() != 1
+                || !client.matches("[0-9a-fA-F:.]+")
+                || (!client.contains(":") && !client.matches("(?:[0-9]{1,3}\\.){3}[0-9]{1,3}"))) return peer;
+        try {
+            return java.net.InetAddress.getByName(client).getHostAddress();
+        } catch (java.net.UnknownHostException exception) {
+            return peer;
+        }
     }
 
     private static String normalizedPath(HttpServletRequest request) {
@@ -121,9 +147,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
         } catch (IllegalArgumentException exception) { return null; }
     }
 
-    private static void reject(HttpServletResponse response, int status, String detail) throws IOException {
-        response.setStatus(status); response.setContentType("application/problem+json");
-        response.getWriter().write("{\"status\":" + status + ",\"title\":\"" + detail + "\"}");
+    private static void reject(HttpServletRequest request, HttpServletResponse response, int status, String code, String detail) throws IOException {
+        ProblemDetails.write(response, request, HttpStatus.valueOf(status), code, detail);
     }
     private static final class Window {
         final long expiresAt; int count;

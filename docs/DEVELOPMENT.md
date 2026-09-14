@@ -158,6 +158,26 @@ pwsh -NoProfile -File scripts/seed.ps1 -WhatIf audit
 `make reset-db` is intentionally deferred to the deployment batch. No destructive
 reset target is available in this batch.
 
+## Authentication CORS and trusted proxy identity
+
+`NEO4FLIX_ALLOWED_ORIGINS` configures the explicit HTTP(S) origin allowlist used
+by Spring Security CORS and the User Service refresh/logout origin checks.
+The defaults are `http://localhost:4200,http://localhost:8080`; credentialed
+requests never use a wildcard origin.
+
+For rate limiting behind Nginx, set `NEO4FLIX_AUTH_TRUSTED_PROXIES` in the User
+Service environment to the exact Nginx peer IP or a dedicated, restricted proxy
+CIDR. The default is empty, so direct requests cannot select their rate bucket
+through headers. The repository Nginx configuration overwrites `X-Real-IP` with
+its socket peer; only a configured trusted peer may supply that identity.
+`X-Forwarded-For` is ignored. Keep `server.forward-headers-strategy=none` so the
+socket peer remains available for this trust check. Missing/malformed client
+headers fall back to that peer. Do not trust a shared network containing
+untrusted clients or enable general forwarding-header rewriting.
+
+Compose currently requires explicit environment overrides for this trust setting;
+it remains subject to the documented JWT/TOTP key-wiring and auth acceptance blockers.
+
 ## Stop the stack
 
 ```powershell

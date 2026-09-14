@@ -138,6 +138,7 @@ export class ProfileComponent implements OnInit {
       .subscribe({
         next: (updated) => {
           this.profile.set(updated);
+          this.authStore.updateUser(updated);
           this.profileStatus.set('Profile updated.');
         },
         error: (error: unknown) => this.profileError.set(this.mapError(error, 'profile')),

@@ -161,4 +161,3 @@
 - [ ] Run secret scan, dependency checks, executable-jar checks, and browser storage/cookie assertions; capture outputs in `docs/audit/batch-2-verification.md` without secrets.
 - [ ] Have one independent reviewer inspect the complete Batch 2 range against the listed canonical sections and record separate spec-compliance/task-quality verdicts.
 - [ ] Mark Batch 2 complete only after review/fix/re-review gates pass; commit `docs: record batch 2 authentication evidence`.
-

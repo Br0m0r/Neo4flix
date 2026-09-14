@@ -3,9 +3,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 import { Subject, of, throwError } from 'rxjs';
 import { AuthStore } from '../../core/auth.store';
+import { AuthApiService } from '../../core/auth-api.service';
 import { PublicUser } from '../../core/auth.models';
 import { ProfileApiService } from '../../core/profile-api.service';
 import { ProfileComponent } from './profile.component';
+import { AppComponent } from '../../app.component';
 
 const user: PublicUser = {
   id: 'user-1',
@@ -34,22 +36,24 @@ describe('ProfileComponent', () => {
     disableTwoFactor: vi.fn(),
     deleteAccount: vi.fn(),
   };
-  const authStore = { clear: vi.fn() };
+  let authStore: AuthStore;
 
   beforeEach(async () => {
     Object.values(api).forEach((mock) => mock.mockReset());
     api.getProfile.mockReturnValue(of(user));
     router.navigateByUrl.mockClear();
-    authStore.clear.mockClear();
     await TestBed.configureTestingModule({
-      imports: [ProfileComponent],
+      imports: [ProfileComponent, AppComponent],
       providers: [
         { provide: ProfileApiService, useValue: api },
-        { provide: AuthStore, useValue: authStore },
+        { provide: AuthApiService, useValue: {} },
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: {} },
       ],
     }).compileComponents();
+    authStore = TestBed.inject(AuthStore);
+    authStore.acceptAuthenticatedSession({ accessToken: 'token', tokenType: 'Bearer', expiresIn: 900, user });
+    vi.spyOn(authStore, 'clear');
     fixture = TestBed.createComponent(ProfileComponent);
     fixture.detectChanges();
   });
@@ -218,6 +222,8 @@ describe('ProfileComponent', () => {
   });
 
   it('loads profile data, keeps email read-only, and saves only the display name', () => {
+    const shell = TestBed.createComponent(AppComponent);
+    shell.detectChanges();
     api.updateProfile.mockReturnValue(of({ ...user, displayName: 'Alice Updated' }));
     const email = fixture.nativeElement.querySelector('[data-testid="profile-email"]') as HTMLInputElement;
     expect(email.readOnly).toBe(true);
@@ -227,6 +233,10 @@ describe('ProfileComponent', () => {
     submit('[data-testid="profile-form"]');
 
     expect(api.updateProfile).toHaveBeenCalledWith({ displayName: 'Alice Updated' });
+    expect(authStore.user()?.displayName).toBe('Alice Updated');
+    expect(authStore.accessToken()).toBe('token');
+    shell.detectChanges();
+    expect(shell.nativeElement.querySelector('mat-toolbar').textContent).toContain('Alice Updated');
     expect(fixture.nativeElement.textContent).toContain('Profile updated.');
   });
 

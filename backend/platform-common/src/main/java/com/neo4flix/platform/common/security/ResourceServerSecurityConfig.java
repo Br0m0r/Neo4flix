@@ -1,10 +1,14 @@
 package com.neo4flix.platform.common.security;
 
+import com.neo4flix.platform.common.web.ProblemDetails;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -22,6 +26,12 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.DefaultCorsProcessor;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -30,7 +40,9 @@ import java.nio.file.Path;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 
 @Configuration(proxyBeanMethods = false)
 @EnableWebSecurity
@@ -43,8 +55,22 @@ public class ResourceServerSecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(
             HttpSecurity http,
+            @Qualifier("corsConfigurationSource") CorsConfigurationSource corsConfigurationSource,
             Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter) throws Exception {
+        CorsFilter corsFilter = new CorsFilter(corsConfigurationSource);
+        var processor = new DefaultCorsProcessor() {
+            @Override protected void rejectRequest(ServerHttpResponse ignored) {
+                // The shared writer below supplies the complete API error contract.
+            }
+        };
+        corsFilter.setCorsProcessor((configuration, request, response) -> {
+            boolean accepted = processor.processRequest(configuration, request, response);
+            if (!accepted) ProblemDetails.write(response, request, HttpStatus.FORBIDDEN,
+                    "ORIGIN_REJECTED", "Cross-origin request rejected");
+            return accepted;
+        });
         return http
+                .addFilterBefore(corsFilter, CsrfFilter.class)
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
@@ -61,6 +87,21 @@ public class ResourceServerSecurityConfig {
                 .oauth2ResourceServer(resourceServer -> resourceServer
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)))
                 .build();
+    }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource(
+            @Value("${neo4flix.security.allowed-origins:${NEO4FLIX_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:8080}}") String origins) {
+        var configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.stream(origins.split(",")).map(String::trim).toList());
+        configuration.setAllowCredentials(true);
+        configuration.validateAllowCredentials();
+        configuration.setAllowedMethods(List.of("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Request-Id"));
+        configuration.setExposedHeaders(List.of("X-Request-Id", "Retry-After"));
+        var source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     @Bean
