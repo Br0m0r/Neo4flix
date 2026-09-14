@@ -182,7 +182,26 @@
           <mat-card-subtitle>Review and update the movies you have rated.</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
-          <p class="empty">Rating history is managed on the ratings page.</p>
+          @if (ratingsLoading()) {
+            <p class="empty" role="status">Loading rating history…</p>
+          } @else if (ratingsError()) {
+            <p class="error" role="alert">{{ ratingsError() }}</p>
+          } @else if (!ratingHistory()?.content?.length) {
+            <p class="empty" role="status">You have not rated any movies yet.</p>
+          } @else {
+            <ul data-testid="rating-history">
+              @for (entry of ratingHistory()?.content; track entry.movieId) {
+                <li>
+                  <a [routerLink]="['/movies', entry.movieId]">{{ entry.movieTitle }}</a>
+                  <span aria-label="Your score">{{ entry.score }} / 5</span>
+                  <a [routerLink]="['/movies', entry.movieId, 'rate']">Edit</a>
+                  <button type="button" [disabled]="ratingsBusy() === entry.movieId" (click)="removeRating(entry)">
+                    {{ ratingsBusy() === entry.movieId ? 'Removing…' : 'Remove' }}
+                  </button>
+                </li>
+              }
+            </ul>
+          }
           <div class="actions">
             <a mat-flat-button data-testid="ratings-link" href="/ratings" routerLink="/ratings">View rating history</a>
             <a mat-button data-testid="watchlist-link" href="/watchlist" routerLink="/watchlist">Open watchlist</a>

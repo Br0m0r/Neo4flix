@@ -6,6 +6,7 @@ import { AuthStore } from '../../core/auth.store';
 import { AuthApiService } from '../../core/auth-api.service';
 import { PublicUser } from '../../core/auth.models';
 import { ProfileApiService } from '../../core/profile-api.service';
+import { RatingApiService } from '../../core/rating-api.service';
 import { ProfileComponent } from './profile.component';
 import { AppComponent } from '../../app.component';
 
@@ -36,16 +37,23 @@ describe('ProfileComponent', () => {
     disableTwoFactor: vi.fn(),
     deleteAccount: vi.fn(),
   };
+  const ratingApi = {
+    history: vi.fn().mockReturnValue(of({ content: [], page: 0, size: 24, totalElements: 0, totalPages: 0 })),
+    remove: vi.fn(),
+  };
   let authStore: AuthStore;
 
   beforeEach(async () => {
     Object.values(api).forEach((mock) => mock.mockReset());
+    Object.values(ratingApi).forEach((mock) => mock.mockReset());
     api.getProfile.mockReturnValue(of(user));
+    ratingApi.history.mockReturnValue(of({ content: [], page: 0, size: 24, totalElements: 0, totalPages: 0 }));
     router.navigateByUrl.mockClear();
     await TestBed.configureTestingModule({
       imports: [ProfileComponent, AppComponent],
       providers: [
         { provide: ProfileApiService, useValue: api },
+        { provide: RatingApiService, useValue: ratingApi },
         { provide: AuthApiService, useValue: {} },
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: {} },
@@ -381,5 +389,20 @@ describe('ProfileComponent', () => {
 
     expect(ratingLink.getAttribute('href')).toBe('/ratings');
     expect(watchlistLink.getAttribute('href')).toBe('/watchlist');
+  });
+
+  it('renders rating history and removes an entry through the shared rating API', () => {
+    ratingApi.history.mockReturnValue(of({
+      content: [{ movieId: 'movie-1', movieTitle: 'Arrival', score: 5, createdAt: '', updatedAt: '' }],
+      page: 0, size: 24, totalElements: 1, totalPages: 1,
+    }));
+    ratingApi.remove.mockReturnValue(of(void 0));
+    recreateComponent();
+
+    expect(fixture.nativeElement.querySelector('[data-testid="rating-history"]')?.textContent).toContain('Arrival');
+    (fixture.nativeElement.querySelector('[data-testid="rating-history"] button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(ratingApi.remove).toHaveBeenCalledWith('movie-1');
+    expect(fixture.nativeElement.querySelector('[data-testid="rating-history"]')).toBeNull();
   });
 });

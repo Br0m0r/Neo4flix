@@ -19,6 +19,8 @@ import { filter, finalize, Subject, takeUntil } from 'rxjs';
 import { AuthStore } from '../../core/auth.store';
 import { PublicUser } from '../../core/auth.models';
 import { ProfileApiService } from '../../core/profile-api.service';
+import { RatingApiService } from '../../core/rating-api.service';
+import { RatingHistoryEntry, RatingPage } from '../../core/rating.models';
 import { TotpSetupResponse } from '../../core/totp.models';
 
 function satisfiesPasswordPolicy(control: AbstractControl) {
@@ -57,6 +59,7 @@ function newPasswordsMatch(control: AbstractControl) {
 })
 export class ProfileComponent implements OnInit {
   private readonly api = inject(ProfileApiService);
+  private readonly ratingApi = inject(RatingApiService);
   private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
   private readonly formBuilder = inject(FormBuilder);
@@ -76,6 +79,10 @@ export class ProfileComponent implements OnInit {
   protected readonly securityStatus = signal<string | null>(null);
   protected readonly securityError = signal<string | null>(null);
   protected readonly accountError = signal<string | null>(null);
+  protected readonly ratingHistory = signal<RatingPage | null>(null);
+  protected readonly ratingsLoading = signal(true);
+  protected readonly ratingsError = signal<string | null>(null);
+  protected readonly ratingsBusy = signal<string | null>(null);
 
   protected readonly profileForm = this.formBuilder.nonNullable.group({
     displayName: ['', [Validators.required, Validators.maxLength(100)]],
@@ -122,6 +129,18 @@ export class ProfileComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadProfile();
+    this.loadRatings();
+  }
+
+  protected removeRating(entry: RatingHistoryEntry): void {
+    if (this.ratingsBusy()) return;
+    this.ratingsBusy.set(entry.movieId);
+    this.ratingApi.remove(entry.movieId).pipe(finalize(() => this.ratingsBusy.set(null))).subscribe({
+      next: () => this.ratingHistory.update((page) => page
+        ? { ...page, content: page.content.filter((item) => item.movieId !== entry.movieId), totalElements: Math.max(0, page.totalElements - 1) }
+        : page),
+      error: () => this.ratingsError.set('Unable to remove this rating. Please try again.'),
+    });
   }
 
   protected saveProfile(): void {
@@ -278,6 +297,15 @@ export class ProfileComponent implements OnInit {
         },
         error: (error: unknown) => this.loadError.set(this.mapError(error, 'profile')),
       });
+  }
+
+  private loadRatings(): void {
+    this.ratingsLoading.set(true);
+    this.ratingsError.set(null);
+    this.ratingApi.history().pipe(finalize(() => this.ratingsLoading.set(false))).subscribe({
+      next: (history) => this.ratingHistory.set(history),
+      error: () => this.ratingsError.set('Unable to load rating history. Please try again.'),
+    });
   }
 
   private clearEnrollment(): void {
