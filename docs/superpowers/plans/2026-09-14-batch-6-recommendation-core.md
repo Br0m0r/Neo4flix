@@ -41,11 +41,11 @@
 - `RecommendationWeights(double collaborative, double content, double popularity, double popularityPriorCount)` validates non-negative weights, a positive prior count, and a sum within `1e-9` of `1.0`.
 - `RecommendationScoringService.selectStrategy(int ratingCount, boolean qualifyingPeer)`, `preferenceFor(int score)`, `popularityScore(double averageRating, long ratingCount, double priorCount)`, and `score(Strategy, SignalRow, RecommendationWeights)` are pure methods.
 
-- [ ] **Step 1: Write failing tests** for invalid weight sums/negatives, all three strategy boundaries, `preferenceFor` mapping, popularity confidence, final score clamping, and reason selection.
-- [ ] **Step 2: Run the focused tests red** with `./mvnw.cmd -pl backend/recommendation-service -am -Dtest=RecommendationWeightsTest,RecommendationScoringServiceTest -Dsurefire.failIfNoSpecifiedTests=false test`; confirm failures are missing contracts/services.
-- [ ] **Step 3: Implement the records, validation, signal normalization, strategy selection, score formula, clamp helper, and exact canonical reason strings.** Keep the service independent of Spring and Neo4j.
-- [ ] **Step 4: Run the focused tests green** with the same Maven command; verify helper and score outputs are within `[0,1]`.
-- [ ] **Step 5: Commit** `git add backend/recommendation-service/src/main/java/com/neo4flix/recommendation/core backend/recommendation-service/src/test/java/com/neo4flix/recommendation/core && git commit -m "feat: define recommendation scoring contracts"`.
+- [x] **Step 1: Write failing tests** for invalid weight sums/negatives, all three strategy boundaries, `preferenceFor` mapping, popularity confidence, final score clamping, and reason selection.
+- [x] **Step 2: Run the focused tests red** with `./mvnw.cmd -pl backend/recommendation-service -am -Dtest=RecommendationWeightsTest,RecommendationScoringServiceTest -Dsurefire.failIfNoSpecifiedTests=false test`; confirm failures are missing contracts/services.
+- [x] **Step 3: Implement the records, validation, signal normalization, strategy selection, score formula, clamp helper, and exact canonical reason strings.** Keep the service independent of Spring and Neo4j.
+- [x] **Step 4: Run the focused tests green** with the same Maven command; verify helper and score outputs are within `[0,1]`.
+- [x] **Step 5: Commit** `git add backend/recommendation-service/src/main/java/com/neo4flix/recommendation/core backend/recommendation-service/src/test/java/com/neo4flix/recommendation/core && git commit -m "feat: define recommendation scoring contracts"`.
 
 ### Task 2: Add the parameterized Neo4j/GDS repository boundary
 
@@ -59,11 +59,11 @@
 - `Snapshot` contains `int ratingCount`, `boolean qualifyingPeer`, and `List<RecommendationDtos.SignalRow> rows`; it exposes no peer IDs or vectors.
 - The implementation receives `Neo4jClient` through its constructor and uses separate constant Cypher statements for profile count, GDS peer similarity, genre preferences, and bounded candidate rows.
 
-- [ ] **Step 1: Write failing repository tests** asserting every query contains `$userId`, `$minimumOverlap`, `$peerLimit`, `$candidateLimit`, `$skip`/`$limit` equivalents where applicable, calls `gds.similarity.cosine`, excludes `alreadyRated` movies, and maps nullable movie fields safely.
-- [ ] **Step 2: Run the focused repository tests red** with `./mvnw.cmd -pl backend/recommendation-service -am -Dtest=RecommendationRepositoryTest -Dsurefire.failIfNoSpecifiedTests=false test`.
-- [ ] **Step 3: Implement the repository.** Align each peer's score vector by `movie.id` ordering before calling `gds.similarity.cosine`; require `commonMovies >= $minimumOverlap`; bound peers and candidates; compute popularity as normalized average multiplied by `count/(count+priorCount)`; aggregate mapped genre preferences; apply genre/year/min-average filters through parameters; order final rows by score inputs and movie ID, never by interpolated request text.
-- [ ] **Step 4: Run repository tests green** and add mapper assertions for missing overview/poster/year and deterministic empty results.
-- [ ] **Step 5: Commit** `git add backend/recommendation-service/src/main/java/com/neo4flix/recommendation/persistence backend/recommendation-service/src/test/java/com/neo4flix/recommendation/persistence && git commit -m "feat: add recommendation neo4j gds repository"`.
+- [x] **Step 1: Write failing repository tests** asserting every query contains `$userId`, `$minimumOverlap`, `$peerLimit`, `$candidateLimit`, `$skip`/`$limit` equivalents where applicable, calls `gds.similarity.cosine`, excludes `alreadyRated` movies, and maps nullable movie fields safely.
+- [x] **Step 2: Run the focused repository tests red** with `./mvnw.cmd -pl backend/recommendation-service -am -Dtest=RecommendationRepositoryTest -Dsurefire.failIfNoSpecifiedTests=false test`.
+- [x] **Step 3: Implement the repository.** Align each peer's score vector by `movie.id` ordering before calling `gds.similarity.cosine`; require `commonMovies >= $minimumOverlap`; bound peers and candidates; compute popularity as normalized average multiplied by `count/(count+priorCount)`; aggregate mapped genre preferences; apply genre/year/min-average filters through parameters; order final rows by score inputs and movie ID, never by interpolated request text.
+- [x] **Step 4: Run repository tests green** and add mapper assertions for missing overview/poster/year and deterministic empty results.
+- [x] **Step 5: Commit** `git add backend/recommendation-service/src/main/java/com/neo4flix/recommendation/persistence backend/recommendation-service/src/test/java/com/neo4flix/recommendation/persistence && git commit -m "feat: add recommendation neo4j gds repository"`.
 
 ### Task 3: Wire the recommendation application service and configuration
 
@@ -78,27 +78,29 @@
 - `RecommendationConfiguration` is a validated `@ConfigurationProperties(prefix = "neo4flix.recommendation")` record with defaults for weights, prior count, minimum overlap `2`, peer limit `10`, candidate limit `50`, mature threshold `3`, and max page size `50`.
 - `RecommendationApplicationService.recommend(RecommendationDtos.Query query): List<RecommendationDtos.Result>` validates/bounds the query, calls `RecommendationRepository.snapshot`, selects the strategy, scores rows, assigns only evidence-backed reasons, sorts score descending then movie ID ascending, and returns at most the configured limit.
 
-- [ ] **Step 1: Write failing service tests** for default config, invalid config startup validation, query limit clamping/rejection, strategy delegation, deterministic ranking, and no peer identity leakage.
-- [ ] **Step 2: Run the focused service tests red** with `./mvnw.cmd -pl backend/recommendation-service -am -Dtest=RecommendationApplicationServiceTest -Dsurefire.failIfNoSpecifiedTests=false test`.
-- [ ] **Step 3: Implement configuration binding, application orchestration, bounded query normalization, scoring delegation, evidence-backed reason selection, and deterministic sorting (score descending, movie ID ascending).** Do not add an HTTP controller in this task.
-- [ ] **Step 4: Run the focused service tests green**, then run the complete Recommendation Service unit suite.
-- [ ] **Step 5: Commit** `git add backend/recommendation-service/src/main backend/recommendation-service/src/test/java/com/neo4flix/recommendation/core backend/recommendation-service/src/main/resources/application.yml && git commit -m "feat: add recommendation application service"`.
+- [x] **Step 1: Write failing service tests** for default config, invalid config startup validation, query limit clamping/rejection, strategy delegation, deterministic ranking, and no peer identity leakage.
+- [x] **Step 2: Run the focused service tests red** with `./mvnw.cmd -pl backend/recommendation-service -am -Dtest=RecommendationApplicationServiceTest -Dsurefire.failIfNoSpecifiedTests=false test`.
+- [x] **Step 3: Implement configuration binding, application orchestration, bounded query normalization, scoring delegation, evidence-backed reason selection, and deterministic sorting (score descending, movie ID ascending).** Do not add an HTTP controller in this task.
+- [x] **Step 4: Run the focused service tests green**, then run the complete Recommendation Service unit suite.
+- [x] **Step 5: Commit** `git add backend/recommendation-service/src/main backend/recommendation-service/src/test/java/com/neo4flix/recommendation/core backend/recommendation-service/src/main/resources/application.yml && git commit -m "feat: add recommendation application service"`.
 
 ### Task 4: Expand the deterministic audit fixture and prove golden behavior in Neo4j/GDS
 
 **Files:**
 - Modify: `database/seeds/audit/audit-fixture.json`
+- Modify: `database/migrator/src/test/java/com/neo4flix/migrator/seed/AuditSeedLoaderIT.java`
+- Modify: `backend/recommendation-service/pom.xml`
 - Create: `backend/recommendation-service/src/test/java/com/neo4flix/recommendation/RecommendationGoldenFixtureIT.java`
 
 **Interfaces:**
 - The fixture keeps the existing Alice/Bob/Carol audit IDs and adds sparse/fresh users plus enough action, romance/drama, sci-fi, mixed, and candidate movies to prove every strategy without changing production seed behavior.
 - `RecommendationGoldenFixtureIT` starts `Neo4jGdsContainer`, applies migrations, loads the audit JSON through the existing loader, constructs the repository/service with the container driver, and calls `recommend` directly.
 
-- [ ] **Step 1: Add failing golden tests** for Alice/Bob similarity ordering, Bob-only candidate discovery, already-rated exclusion, low-rated genre negativity, zero/sparse/mature strategy selection, filters, canonical reasons, score bounds, and deterministic repeated ranking.
-- [ ] **Step 2: Run the focused Testcontainers test red** with `$env:JAVA_HOME='C:\Program Files\Java\jdk-26.0.1'; ./mvnw.cmd -pl backend/recommendation-service,backend/platform-common -am -Dtest=RecommendationGoldenFixtureIT -Dsurefire.failIfNoSpecifiedTests=false test`; confirm failures identify missing recommendation behavior or insufficient fixture data.
-- [ ] **Step 3: Extend only the audit JSON data needed by the failing assertions.** Preserve existing IDs and make every new ID deterministic; do not add watchlist relationships or recommendation-specific production properties.
-- [ ] **Step 4: Run the golden test green** and assert the query path executes `gds.similarity.cosine` by checking its returned collaborative signal and a direct GDS smoke query against the same container.
-- [ ] **Step 5: Commit** `git add database/seeds/audit/audit-fixture.json backend/recommendation-service/src/test/java/com/neo4flix/recommendation/RecommendationGoldenFixtureIT.java && git commit -m "test: prove recommendation golden fixture"`.
+- [x] **Step 1: Add failing golden tests** for Alice/Bob similarity ordering, Bob-only candidate discovery, already-rated exclusion, low-rated genre negativity, zero/sparse/mature strategy selection, filters, canonical reasons, score bounds, and deterministic repeated ranking.
+- [x] **Step 2: Run the focused Testcontainers test red** with `$env:JAVA_HOME='C:\Program Files\Java\jdk-26.0.1'; ./mvnw.cmd -pl backend/recommendation-service,database/migrator -am -Dtest=RecommendationGoldenFixtureIT -Dsurefire.failIfNoSpecifiedTests=false test`; confirm failures identify missing recommendation behavior or insufficient fixture data.
+- [x] **Step 3: Extend only the audit JSON data needed by the failing assertions.** Preserve existing IDs and make every new ID deterministic; do not add watchlist relationships or recommendation-specific production properties.
+- [x] **Step 4: Run the golden test green** and assert the query path executes `gds.similarity.cosine` by checking its returned collaborative signal and a direct GDS smoke query against the same container.
+- [x] **Step 5: Commit** `git add database/seeds/audit/audit-fixture.json database/migrator/src/test/java/com/neo4flix/migrator/seed/AuditSeedLoaderIT.java backend/recommendation-service/pom.xml backend/recommendation-service/src/test/java/com/neo4flix/recommendation/RecommendationGoldenFixtureIT.java && git commit -m "test: prove recommendation golden fixture"`.
 
 ### Task 5: Capture query plans and complete Batch 6 audit evidence
 

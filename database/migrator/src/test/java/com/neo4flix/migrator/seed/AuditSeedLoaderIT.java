@@ -36,22 +36,22 @@ class AuditSeedLoaderIT {
                 new AuditSeedLoader().load(driver, DATABASE);
 
                 assertThat(count(driver, "MATCH (:User) RETURN count(*) AS count"))
-                        .isEqualTo(3L);
+                        .isEqualTo(6L);
                 assertThat(count(driver, "MATCH (:Movie) RETURN count(*) AS count"))
-                        .isEqualTo(4L);
+                        .isEqualTo(8L);
                 assertThat(count(driver, "MATCH (:Genre) RETURN count(*) AS count"))
                         .isEqualTo(4L);
                 assertThat(count(driver, "MATCH ()-[inGenre:IN_GENRE]->() RETURN count(inGenre) AS count"))
-                        .isEqualTo(6L);
+                        .isEqualTo(11L);
                 assertThat(score(driver, "audit-alice", "audit-matrix"))
                         .isEqualTo(5L);
 
                 new AuditSeedLoader().load(driver, DATABASE);
 
                 assertThat(count(driver, "MATCH ()-[rated:RATED]->() RETURN count(rated) AS count"))
-                        .isEqualTo(10L);
+                        .isEqualTo(14L);
                 assertThat(count(driver, "MATCH ()-[inGenre:IN_GENRE]->() RETURN count(inGenre) AS count"))
-                        .isEqualTo(6L);
+                        .isEqualTo(11L);
                 assertThat(count(driver, """
                                 MATCH (user:User)-[rated:RATED]->(movie:Movie)
                                 WHERE rated.key <> user.id + ':' + movie.id
