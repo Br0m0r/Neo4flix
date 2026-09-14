@@ -1,65 +1,52 @@
 # Active Batch Context — Batch 3 Catalog
 
-> **Status:** IN PROGRESS — code verification pass; live Compose acceptance pending `.env`
+> **Status:** IN PROGRESS — backend catalog and live authenticated API gates pass; Angular admin/catalog browser gates remain.
 >
-> **Purpose:** Compact handoff for Batch 2 execution. This cache does not override canonical specifications, the approved plan, or the SDD ledger.
+> **Purpose:** Compact handoff for direct-main Batch 3 execution. This cache does not override canonical specifications, the approved Batch 3 plan, or the existing SDD ledger.
 
 ## Repository state
 
 - Worktree: `C:\Users\User\Desktop\Neo4flix`
 - Branch: `main` (direct-main execution; do not create new worktrees)
-- Batch 1 merged base: `b93ec22` (`merge: batch 1 graph schema and migrations`)
-- Current Batch 2 head: `6d53d32` (`fix: wire compose authentication configuration`)
-- Plan: `docs/superpowers/plans/2026-09-13-batch-2-authentication.md`
-- SDD workspace/ledger: `.superpowers/sdd/2026-09-13-batch-2-authentication/`
-- Existing historical Batch 2 worktree is preserved for audit context; all new work lands directly on `main`.
+- Current head: `9a1b459` (`docs: record browser contract verification`)
+- Batch 3 plan: `docs/superpowers/plans/2026-09-14-batch-3-catalog.md`
+- Batch 3 audit: `docs/audit/batch-3-verification.md`
+- Existing SDD ledger: `.superpowers/sdd/2026-09-13-batch-2-authentication/` (Batch 2 remains complete and preserved)
+- Local `.env` is ignored and must never be committed or printed.
 
-## Batch goal
+## Batch goal and binding contracts
 
-Deliver User Service registration/login, BCrypt password policy, RS256 JWT issuance and cross-service validation, rotating opaque refresh sessions, logout/revocation, auth/me, profile GET/PATCH, password change, pending/active TOTP 2FA, one-time login challenges, rate limiting, deletion cleanup, and the Angular auth/profile/security flows.
+Deliver the Movie Service catalog vertical slice: anonymous movie/genre reads, admin-only movie/genre CRUD, safe combined search, related movies, and matching Angular browse/search/detail/admin surfaces.
 
-## Binding contracts
-
-- User Service alone signs JWTs and mutates credentials, sessions, challenges, TOTP, and profile/account state.
-- JWTs are short-lived RS256 with `sub`, `roles`, issuer, audience, `iat`, `exp`, and JTI; protected services validate issuer/audience/signature.
-- Passwords use BCrypt; refresh/challenge values are random and persist only as hashes; active TOTP is AES-256-GCM encrypted outside Neo4j.
-- Pending TOTP is separate and expiring; password-only login never authenticates an active-2FA user.
-- Refresh rotates atomically and rejects replay; logout revokes the current session and clears the cookie.
-- Access JWT and enrollment material remain memory-only in Angular; refresh cookie is Secure/HttpOnly/SameSite with origin checks.
-- Identity comes from JWT subject; profile/account mutations cannot accept arbitrary user IDs; deletion removes shares, sessions, and challenges before the user.
-
-## Required canonical reading by workstream
-
-| Workstream | Read only these sections in addition to the plan |
-| --- | --- |
-| Security foundation | `02_TECHNICAL_ARCHITECTURE.md` §§8–12; `04_API_SPEC.md` §§3–6, 39–45; `06_TESTING_SECURITY.md` §§16, 28–32 |
-| Auth/profile backend | `01_PRODUCT_SPEC.md` §§5–7, 21, 24; `03_GRAPH_DATABASE_SPEC.md` §§3, 9–11, 19, 23; `04_API_SPEC.md` §§8–18; `06_TESTING_SECURITY.md` §§13–20 |
-| Angular auth/profile | `05_FRONTEND_SPEC.md` §§4–10, 22–23, 28–32; `06_TESTING_SECURITY.md` §§29, 35–36 |
-| Acceptance | `00_MASTER_EXECUTION_PLAN.md` Batch 2 gate; `06_TESTING_SECURITY.md` §§13–20, 28–32, 35–36; `08_DEPLOYMENT_OPERATIONS.md` §§4, 6, 18–19, 25 |
+- Movie Service owns Movie and Genre graph mutations; Cypher input is parameterized.
+- Public `GET /api/v1/movies`, `GET /api/v1/movies/{id}`, `GET /api/v1/movies/{id}/related`, and `GET /api/v1/genres` remain anonymous.
+- All Movie/Genre mutations require `ROLE_ADMIN`; USER mutations must be rejected server-side.
+- Sort fields are allowlisted; pagination is bounded and deterministic; `releaseDate` stays nullable.
+- Movie deletion removes only its relationships; referenced Genre deletion returns conflict.
 
 ## Workstream dispatch
 
-| State | Workstream | Required handoff |
+| State | Workstream | Evidence / handoff |
 | --- | --- | --- |
-| Complete | Task 1 security dependencies/key/JWT foundation | `4941506..fcf20da`, review clean |
-| Complete | Task 2 registration/login/refresh/profile backend | `46a278f..2b1f96a`, review clean |
-| Complete | Task 3 TOTP/challenges/rate limiting/deletion | `178821b..f6cced8`, review clean |
-| Complete | Task 4 Angular auth store/interceptor/routes | `c639e67..2c185f6`, review clean |
-| Complete | Task 5 Angular profile/security/browser contracts | `0c492ec..567434a`, review clean |
-| Complete | Task 6 acceptance evidence/status | Fresh backend integration, Compose auth, cross-service JWT, Playwright browser, and frontend verification evidence recorded in `docs/audit/batch-2-verification.md` |
+| Complete for current scope | Tasks 1–3 persistence, REST, Neo4j wiring | `ec15c47..9a1b459`; focused Java tests, live non-empty reads, combined filters, related reads, and authenticated API CRUD recorded in `docs/audit/batch-3-verification.md` |
+| Complete | Existing auth/browser baseline | Frontend 52 tests pass; existing Playwright auth contract 1/1 passes against Compose |
+| First unfinished | Task 4 Angular catalog/admin browser surface | Public browse/detail exists; admin component/route and catalog Playwright coverage are not yet implemented |
+| After Task 4 | Task 5 checkpoint | Run full verification, independent review, update only Batch 3 status in `00_MASTER_EXECUTION_PLAN.md` |
 
-Final whole-branch review and consolidated fix `31f9fc3` are clean. The fix wires CORS, trusted-proxy rate identity, shared Problem Details errors, and immediate profile-name synchronization without changing the acceptance blockers.
+## Verified commands and live evidence
 
-## Current blocker
+- `scripts/smoke-compose.ps1 -EnvFile .env`: migrator exit 0; 11 constraints; 3 ONLINE indexes; GDS `2026.07.0`; four services healthy; web reachable.
+- Movie Service focused tests: compile/package green; `MovieCatalogRepositoryTest` 2/2 green.
+- Frontend: `npm test` 12 files / 52 tests green with elevated workspace access.
+- Browser: `npx playwright test e2e/auth.spec.ts` 1/1 passed.
+- Live anonymous reads: movies 200, genres 200, anonymous movie POST 401.
+- Live disposable catalog fixture: collection/detail/related 200; combined title/genre/year/sort/direction filter returned expected rows.
+- Live disposable auth fixture: USER movie POST 403; ADMIN movie create/update/delete 201/200/204; referenced genre delete 409 then 204; deleted movie 404. Fixtures/accounts were removed.
 
-Batch 2 is complete. Batch 3 code verification is passing, but live Compose acceptance is pending the user-provided `.env`. Do not claim Batch 3 complete until live catalog/admin smoke and frontend catalog e2e pass.
+## Current blocker / acceptance gap
+
+Do not mark Batch 3 complete. The remaining acceptance gap is Angular admin movie/genre controls plus catalog/admin Playwright coverage. The plan also calls for unknown-sort rejection and full clean-checkout verification before changing Batch 3 status.
 
 ## Dispatch policy
 
-Dispatch only the first unfinished workstream. Each implementer receives this context, its task brief, the precise base/head range, and the minimum canonical row above. Implementers use TDD, commit their task, and write a report before one independent review. Failed reviews resume the same implementer for rounds 1–3; later rounds use a fresh stronger implementer. Do not mark Batch 2 complete or merge/push without explicit human authority and fresh acceptance evidence.
-
-## Environment notes
-
-- JDK 26 may be present; Maven must compile with release 21 and record compatibility warnings without treating them as Java 21 proof.
-- Use an ephemeral local `.env` for live Compose checks; never commit or print secrets.
-- Docker/Testcontainers and Maven wrapper network access may require approved escalation.
+Dispatch only the first unfinished Batch 3 workstream. Preserve direct-main execution, current implementation, completed tasks, and the existing Batch 1/2 audit history. Use TDD for new behavior, run focused verification before broader checks, and record evidence without secrets. Do not redispatch completed backend or auth work.
