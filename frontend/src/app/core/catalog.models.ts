@@ -1,0 +1,11 @@
+export interface GenreSummary { id: string; name: string; }
+export interface MovieSummary {
+  id: string; title: string; overview: string; releaseYear: number;
+  releaseDate: string | null; posterUrl: string | null; genres: GenreSummary[];
+  averageRating: number; ratingCount: number;
+}
+export interface MovieDetail extends MovieSummary {
+  runtimeMinutes: number | null; externalSource: string | null; externalId: string | null;
+  createdAt: string; updatedAt: string;
+}
+export interface PageResult<T> { content: T[]; page: number; size: number; totalElements: number; totalPages: number; }

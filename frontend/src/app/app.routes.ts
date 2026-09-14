@@ -33,5 +33,7 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/profile/profile.component').then((module) => module.ProfileComponent),
   },
+  { path: 'movies', loadComponent: () => import('./features/catalog/catalog.component').then((m) => m.CatalogComponent) },
+  { path: 'movies/:id', loadComponent: () => import('./features/catalog/movie-detail.component').then((m) => m.MovieDetailComponent) },
   { path: '**', redirectTo: '' },
 ];
