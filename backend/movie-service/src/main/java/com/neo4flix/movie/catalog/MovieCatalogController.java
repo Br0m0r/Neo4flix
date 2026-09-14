@@ -44,6 +44,12 @@ public class MovieCatalogController {
         return ResponseEntity.of(repository.findMovie(id));
     }
 
+    @GetMapping("/movies/{id}/related")
+    public java.util.List<MovieSummary> related(@PathVariable String id,
+                                                @RequestParam(defaultValue = "12") int limit) {
+        return repository.findRelated(id, limit);
+    }
+
     @GetMapping("/genres")
     public java.util.List<GenreSummary> genres() {
         return repository.findGenres();

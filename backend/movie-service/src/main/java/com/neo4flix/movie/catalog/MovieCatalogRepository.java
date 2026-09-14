@@ -20,6 +20,7 @@ import static com.neo4flix.movie.catalog.CatalogModels.*;
 public interface MovieCatalogRepository {
     PageResult<MovieSummary> search(MovieQuery query);
     Optional<MovieDetail> findMovie(String id);
+    List<MovieSummary> findRelated(String id, int limit);
     List<GenreSummary> findGenres();
     MovieDetail createMovie(MovieWrite movie);
     Optional<MovieDetail> updateMovie(String id, MovieWrite movie);
@@ -64,6 +65,17 @@ public interface MovieCatalogRepository {
                             + "RETURN m AS movie, collect(CASE WHEN g IS NULL THEN null ELSE {id:g.id,name:g.name} END) AS genres")
                     .bind("id").to(id).fetchAs(MovieDetail.class)
                     .mappedBy((ts, record) -> mapDetail(record)).one();
+        }
+
+        @Override
+        public List<MovieSummary> findRelated(String id, int limit) {
+            String cypher = "MATCH (m:Movie {id:$id})-[:IN_GENRE]->(g:Genre)<-[:IN_GENRE]-(related:Movie) "
+                    + "WHERE related.id <> $id WITH related, count(DISTINCT g) AS overlap "
+                    + "OPTIONAL MATCH (related)-[:IN_GENRE]->(rg:Genre) "
+                    + "WITH related, overlap, collect(CASE WHEN rg IS NULL THEN null ELSE {id:rg.id,name:rg.name} END) AS genres "
+                    + "RETURN related AS movie, genres ORDER BY overlap DESC, related.normalizedTitle LIMIT $limit";
+            return new ArrayList<>(client.query(cypher).bindAll(Map.of("id", id, "limit", Math.min(Math.max(limit, 1), 50)))
+                    .fetchAs(MovieSummary.class).mappedBy((ts, record) -> mapSummary(record)).all());
         }
 
         @Override
