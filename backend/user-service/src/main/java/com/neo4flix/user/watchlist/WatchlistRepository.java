@@ -29,7 +29,7 @@ public interface WatchlistRepository {
                 MATCH (movie:Movie {id: $movieId})
                 MERGE (user)-[watchlisted:WATCHLISTED {key: $key}]->(movie)
                 ON CREATE SET watchlisted.createdAt = datetime(), watchlisted._createdMarker = marker
-                WITH watchlisted, marker, watchlisted._createdMarker = marker AS added
+                WITH watchlisted, marker, coalesce(watchlisted._createdMarker = marker, false) AS added
                 REMOVE watchlisted._createdMarker
                 RETURN added
                 """;
@@ -80,7 +80,7 @@ public interface WatchlistRepository {
         @Override
         public WatchlistDtos.PageResponse findMine(String userId, int page, int size) {
             long total = client.query(COUNT)
-                    .bind("userId").to(userId)
+                    .bind(userId).to("userId")
                     .fetchAs(Long.class)
                     .mappedBy((typeSystem, record) -> record.get("total").asLong())
                     .one()

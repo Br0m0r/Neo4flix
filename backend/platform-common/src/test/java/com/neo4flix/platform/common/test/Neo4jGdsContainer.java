@@ -66,6 +66,10 @@ public final class Neo4jGdsContainer implements AutoCloseable {
         }
     }
 
+    public Driver driver() {
+        return driver;
+    }
+
     public MigrationRun runMigrator(String mode) {
         long migrationHistoryBefore = migrationHistorySize();
         Path migratorJar = buildMigratorJar();
