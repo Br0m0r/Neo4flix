@@ -1,6 +1,7 @@
 package com.neo4flix.recommendation.persistence;
 
 import com.neo4flix.recommendation.core.RecommendationDtos;
+import com.neo4flix.recommendation.core.RecommendationConfiguration;
 import com.neo4flix.recommendation.core.RecommendationScoringService;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,14 @@ public class RecommendationNeo4jRepository implements RecommendationRepository {
             LIMIT $candidateLimit
             """;
 
+    static final String QUALIFYING_PEER_QUERY = """
+            MATCH (me:User {id: $userId})-[:RATED]->(movie:Movie)<-[:RATED]-(peer:User)
+            WHERE peer <> me
+            WITH peer, count(movie) AS commonMovies
+            WHERE commonMovies >= $minimumOverlap
+            RETURN count(peer) AS qualifyingPeerCount
+            """;
+
     static final String GENRE_QUERY = """
             MATCH (:User {id: $userId})-[rated:RATED]->(:Movie)-[:IN_GENRE]->(genre:Genre)
             RETURN genre.name AS genre,
@@ -79,20 +88,24 @@ public class RecommendationNeo4jRepository implements RecommendationRepository {
 
     private final Neo4jClient client;
     private final RecommendationScoringService scoring;
+    private final double popularityPriorCount;
 
     public RecommendationNeo4jRepository(Neo4jClient client) {
-        this(client, new RecommendationScoringService());
+        this(client, new RecommendationScoringService(), RecommendationConfiguration.defaults());
     }
 
     @Autowired
-    public RecommendationNeo4jRepository(Neo4jClient client, RecommendationScoringService scoring) {
+    public RecommendationNeo4jRepository(Neo4jClient client,
+                                          RecommendationScoringService scoring,
+                                          RecommendationConfiguration configuration) {
         this.client = client;
         this.scoring = scoring;
+        this.popularityPriorCount = configuration.popularityPriorCount();
     }
 
     @Override
     public Snapshot snapshot(RecommendationDtos.Query query) {
-        Map<String, Object> parameters = parameters(query, 5.0);
+        Map<String, Object> parameters = parameters(query, popularityPriorCount);
         int ratingCount = client.query(PROFILE_QUERY)
                 .bindAll(parameters)
                 .fetchAs(Long.class)
@@ -100,6 +113,13 @@ public class RecommendationNeo4jRepository implements RecommendationRepository {
                 .one()
                 .orElse(0L)
                 .intValue();
+
+        boolean qualifyingPeer = client.query(QUALIFYING_PEER_QUERY)
+                .bindAll(parameters)
+                .fetchAs(Long.class)
+                .mappedBy((typeSystem, record) -> record.get("qualifyingPeerCount").asLong())
+                .one()
+                .orElse(0L) > 0;
 
         Map<String, Map<String, Object>> collaborative = new HashMap<>();
         client.query(COLLABORATIVE_QUERY)
@@ -121,8 +141,8 @@ public class RecommendationNeo4jRepository implements RecommendationRepository {
                 .fetch()
                 .all()
                 .forEach(row -> rows.add(enrich(row, collaborative.get(String.valueOf(row.get("movieId"))),
-                        genrePreferences, 5.0)));
-        return new Snapshot(ratingCount, !collaborative.isEmpty(), rows);
+                        genrePreferences, popularityPriorCount)));
+        return new Snapshot(ratingCount, qualifyingPeer, rows);
     }
 
     static Map<String, Object> parameters(RecommendationDtos.Query query, double priorCount) {
@@ -162,11 +182,7 @@ public class RecommendationNeo4jRepository implements RecommendationRepository {
                                                 double priorCount) {
         Map<String, Object> row = new HashMap<>(movie);
         List<String> genres = strings(movie.get("genres"));
-        double content = genres.stream()
-                .mapToDouble(genre -> Math.max(0.0, genrePreferences.getOrDefault(genre, 0.0)))
-                .average()
-                .orElse(0.0);
-        row.put("contentScore", RecommendationScoringService.clamp(content));
+        row.put("contentScore", contentScore(genres, genrePreferences));
         row.put("popularityScore", scoring.popularityScore(
                 number(movie.get("averageRating")), longOrZero(movie.get("ratingCount")), priorCount));
         if (collaborative != null) {
@@ -175,6 +191,18 @@ public class RecommendationNeo4jRepository implements RecommendationRepository {
             row.put("commonMovies", collaborative.get("commonMovies"));
         }
         return mapSignalRow(row);
+    }
+
+    static double contentScore(List<String> genres, Map<String, Double> genrePreferences) {
+        List<Double> knownPreferences = genres.stream()
+                .map(genrePreferences::get)
+                .filter(java.util.Objects::nonNull)
+                .toList();
+        if (knownPreferences.isEmpty()) {
+            return 0.0;
+        }
+        double averagePreference = knownPreferences.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+        return RecommendationScoringService.clamp((averagePreference + 1.0) / 2.0);
     }
 
     private static String string(Object value) {

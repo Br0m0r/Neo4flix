@@ -15,6 +15,9 @@ class RecommendationRepositoryTest {
                 .contains("gds.similarity.cosine")
                 .contains("$userId", "$minimumOverlap", "$peerLimit")
                 .contains("ORDER BY movie.id");
+        assertThat(RecommendationNeo4jRepository.QUALIFYING_PEER_QUERY)
+                .contains("$userId", "$minimumOverlap")
+                .contains("count(peer)");
     }
 
     @Test
@@ -59,5 +62,15 @@ class RecommendationRepositoryTest {
         assertThat(row.posterUrl()).isNull();
         assertThat(row.peerCount()).isEqualTo(2);
         assertThat(row.commonMovies()).isEqualTo(3);
+    }
+
+    @Test
+    void contentScorePreservesNegativeAndNeutralGenreAffinity() {
+        assertThat(RecommendationNeo4jRepository.contentScore(
+                java.util.List.of("Action"), Map.of("Action", -1.0))).isEqualTo(0.0);
+        assertThat(RecommendationNeo4jRepository.contentScore(
+                java.util.List.of("Drama"), Map.of("Drama", 0.0))).isEqualTo(0.5);
+        assertThat(RecommendationNeo4jRepository.contentScore(
+                java.util.List.of("Science Fiction"), Map.of("Science Fiction", 1.0))).isEqualTo(1.0);
     }
 }

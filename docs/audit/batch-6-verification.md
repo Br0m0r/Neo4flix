@@ -33,7 +33,7 @@ The golden fixture proves Alice's hybrid ranking, fresh-user popularity, sparse-
 
 | Gate | Command | Result |
 | --- | --- | --- |
-| Full Maven reactor | `$env:JAVA_HOME='C:\\Program Files\\Java\\jdk-26.0.1'; & 'C:\\Users\\User\\.m2\\wrapper\\dists\\apache-maven-3.9.11\\d6d3cbd4012d4c1d840e93277aca316c\\bin\\mvn.cmd' -B test` | PASS — 122 tests, 0 failures, 0 errors |
+| Full Maven reactor | `$env:JAVA_HOME='C:\\Program Files\\Java\\jdk-26.0.1'; & 'C:\\Users\\User\\.m2\\wrapper\\dists\\apache-maven-3.9.11\\d6d3cbd4012d4c1d840e93277aca316c\\bin\\mvn.cmd' -B test` | PASS — 123 tests, 0 failures, 0 errors |
 | Frontend unit/regression | `npm test` (from `frontend`) | PASS — 75 tests, plus Docker-node compatibility check |
 | Frontend lint | `npm run lint` (from `frontend`) | PASS — zero warnings/errors |
 | Frontend production build | `npm run build` (from `frontend`) | PASS — Angular production bundle generated |
@@ -41,6 +41,6 @@ The golden fixture proves Alice's hybrid ranking, fresh-user popularity, sparse-
 | Browser regression | `npx playwright test --workers=1 --reporter=line` (from `frontend`) | PASS — 5 passed, 1 existing admin test skipped by its fixture |
 | Diff hygiene | `git diff --check` | PASS |
 
-The full reactor includes the recommendation unit/application/persistence suite. The focused golden fixture and query-plan gates above remain the evidence for real Neo4j/GDS behavior and bounded `EXPLAIN`/`PROFILE` execution. Compose image builds use an installed shared platform test JAR so production image compilation can skip test execution without losing reactor-resolvable test fixtures.
+The full reactor includes the recommendation unit/application/persistence suite. The focused golden fixture and query-plan gates above remain the evidence for real Neo4j/GDS behavior and bounded `EXPLAIN`/`PROFILE` execution. The repository now injects the configured popularity prior, preserves negative genre affinity through a bounded `[0,1]` normalization, and computes qualifying-peer maturity independently from candidate availability. Compose image builds use an installed shared platform test JAR so production image compilation can skip test execution without losing reactor-resolvable test fixtures.
 
 No secrets, peer identities, vectors, or watchlist data were emitted by the query-plan or golden tests. The only expected runtime note is Neo4j's non-blocking warning for nullable `overview`/`posterUrl` fields absent from the intentionally sparse audit fixture.
