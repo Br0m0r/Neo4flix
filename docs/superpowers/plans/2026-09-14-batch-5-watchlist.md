@@ -86,7 +86,7 @@
 - Modify: `frontend/src/app/app.routes.ts`
 
 **Interfaces:**
-- `WatchlistEntry` mirrors the backend movie entry and includes `movieId`, `movieTitle`, `overview`, `releaseYear`, `posterUrl`, and `createdAt`.
+- `WatchlistEntry` mirrors the backend movie entry and includes `movieId`, `title`, `overview`, `releaseYear`, `posterUrl`, and `createdAt`.
 - `WatchlistApiService.list(page = 0, size = 24)`, `.add(movieId)`, and `.remove(movieId)` map exactly to the three API paths and methods.
 - `WatchlistComponent` renders `Loading watchlist…`, `Your watchlist is empty.`, an error alert with retry, or a `data-testid="watchlist"` list; every item has a detail link and a `Remove` button.
 
@@ -124,4 +124,3 @@
 - [ ] **Step 3: Run final verification:** `./scripts/verify.ps1 -TestOnly` with configured `JAVA_HOME`, full frontend tests/lint/build, focused watchlist concurrency, `./scripts/smoke-compose.ps1 -EnvFile .env`, browser suite, and `git diff --check`.
 - [ ] **Step 4: Record exact commands/counts, fixture cleanup, and any non-blocking review notes** in `docs/audit/batch-5-verification.md`.
 - [ ] **Step 5: Self-review for Critical/Important issues**, resolve them, mark only Batch 5 `[x]`, update active context to Batch 6, commit, push `main`, and verify local `HEAD` equals `origin/main`.
-

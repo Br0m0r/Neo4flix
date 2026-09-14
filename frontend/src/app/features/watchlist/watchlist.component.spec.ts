@@ -4,7 +4,7 @@ import { Subject, of, throwError } from 'rxjs';
 import { WatchlistApiService } from '../../core/watchlist-api.service';
 import { WatchlistComponent } from './watchlist.component';
 
-const page = (content: Array<{ movieId: string; movieTitle: string; overview: string; releaseYear: number; posterUrl: string | null; createdAt: string }>) => ({
+const page = (content: Array<{ movieId: string; title: string; overview: string; releaseYear: number; posterUrl: string | null; createdAt: string }>) => ({
   content, page: 0, size: 24, totalElements: content.length, totalPages: content.length ? 1 : 0,
 });
 
@@ -43,7 +43,7 @@ describe('WatchlistComponent', () => {
   });
 
   it('renders entries and removes one after a successful mutation', () => {
-    api.list.mockReturnValue(of(page([{ movieId: 'movie-1', movieTitle: 'Arrival', overview: 'First contact', releaseYear: 2016, posterUrl: null, createdAt: '2026-09-14T00:00:00Z' }])));
+    api.list.mockReturnValue(of(page([{ movieId: 'movie-1', title: 'Arrival', overview: 'First contact', releaseYear: 2016, posterUrl: null, createdAt: '2026-09-14T00:00:00Z' }])));
     api.remove.mockReturnValue(of(void 0));
     create();
     expect(fixture.nativeElement.querySelector('[data-testid="watchlist"]')?.textContent).toContain('Arrival');
@@ -55,7 +55,7 @@ describe('WatchlistComponent', () => {
   });
 
   it('keeps the entry and shows an accessible error when removal fails', () => {
-    api.list.mockReturnValue(of(page([{ movieId: 'movie-1', movieTitle: 'Arrival', overview: 'First contact', releaseYear: 2016, posterUrl: null, createdAt: '2026-09-14T00:00:00Z' }])));
+    api.list.mockReturnValue(of(page([{ movieId: 'movie-1', title: 'Arrival', overview: 'First contact', releaseYear: 2016, posterUrl: null, createdAt: '2026-09-14T00:00:00Z' }])));
     api.remove.mockReturnValue(throwError(() => new Error('unavailable')));
     create();
 

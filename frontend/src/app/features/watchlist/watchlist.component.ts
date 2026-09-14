@@ -27,7 +27,7 @@ import { WatchlistEntry } from '../../core/watchlist.models';
           <ul data-testid="watchlist">
             @for (entry of entries(); track entry.movieId) {
               <li>
-                <a [routerLink]="['/movies', entry.movieId]">{{ entry.movieTitle }}</a>
+                <a [routerLink]="['/movies', entry.movieId]">{{ entry.title }}</a>
                 @if (entry.releaseYear) { <span>{{ entry.releaseYear }}</span> }
                 <button type="button" [disabled]="busyMovieId() === entry.movieId" (click)="remove(entry)">
                   {{ busyMovieId() === entry.movieId ? 'Removing…' : 'Remove' }}

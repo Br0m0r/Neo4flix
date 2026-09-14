@@ -607,7 +607,7 @@ reconciliation, the complete document must still be reviewed.
 
 ## Batch 5 — Watchlist Vertical Slice
 
-**Status:** [ ]
+**Status:** [x]
 
 **Required reading:**
 

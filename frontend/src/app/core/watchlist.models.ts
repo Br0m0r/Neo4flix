@@ -1,6 +1,6 @@
 export interface WatchlistEntry {
   movieId: string;
-  movieTitle: string;
+  title: string;
   overview: string | null;
   releaseYear: number | null;
   posterUrl: string | null;
