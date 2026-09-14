@@ -34,6 +34,7 @@ export const routes: Routes = [
       import('./features/profile/profile.component').then((module) => module.ProfileComponent),
   },
   { path: 'movies', loadComponent: () => import('./features/catalog/catalog.component').then((m) => m.CatalogComponent) },
+  { path: 'movies/:id/rate', canActivate: [authGuard], loadComponent: () => import('./features/catalog/rating-page.component').then((m) => m.RatingPageComponent) },
   { path: 'movies/:id', loadComponent: () => import('./features/catalog/movie-detail.component').then((m) => m.MovieDetailComponent) },
   { path: 'admin/catalog', canActivate: [adminGuard], loadComponent: () => import('./features/admin/catalog-admin.component').then((m) => m.AdminCatalogComponent) },
   { path: '**', redirectTo: '' },
