@@ -51,15 +51,15 @@ public record MovieQuery(
 
     public Map<String, Object> parameters() {
         Map<String, Object> parameters = new LinkedHashMap<>();
-        if (title != null) parameters.put("title", title);
-        if (genre != null) parameters.put("genre", genre);
-        if (minYear != null) parameters.put("minYear", minYear);
-        if (maxYear != null) parameters.put("maxYear", maxYear);
-        if (fromDate != null) parameters.put("fromDate", fromDate);
-        if (toDate != null) parameters.put("toDate", toDate);
-        if (minRating != null) parameters.put("minRating", minRating);
+        parameters.put("title", title);
+        parameters.put("genre", genre);
+        parameters.put("minYear", minYear);
+        parameters.put("maxYear", maxYear);
+        parameters.put("fromDate", fromDate);
+        parameters.put("toDate", toDate);
+        parameters.put("minRating", minRating);
         parameters.put("skip", (long) page * size);
         parameters.put("limit", size);
-        return Map.copyOf(parameters);
+        return parameters;
     }
 }
