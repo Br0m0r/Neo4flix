@@ -8,7 +8,7 @@
 
 - Worktree: `C:\Users\User\Desktop\Neo4flix`
 - Branch: `main` (direct-main execution; do not create new worktrees)
-- Current head: `53df73b` (`feat: add angular catalog admin entry point`)
+- Current head: `414822c` (`feat: complete angular catalog admin controls`)
 - Batch 3 plan: `docs/superpowers/plans/2026-09-14-batch-3-catalog.md`
 - Batch 3 audit: `docs/audit/batch-3-verification.md`
 - Existing SDD ledger: `.superpowers/sdd/2026-09-13-batch-2-authentication/` (Batch 2 remains complete and preserved)
@@ -29,24 +29,24 @@ Deliver the Movie Service catalog vertical slice: anonymous movie/genre reads, a
 | State | Workstream | Evidence / handoff |
 | --- | --- | --- |
 | Complete for current scope | Tasks 1–3 persistence, REST, Neo4j wiring | `ec15c47..9a1b459`; focused Java tests, live non-empty reads, combined filters, related reads, and authenticated API CRUD recorded in `docs/audit/batch-3-verification.md` |
-| Complete | Existing auth/browser baseline | Frontend 52 tests pass; existing Playwright auth contract 1/1 passes against Compose |
-| In progress | Task 4 Angular catalog/admin browser surface | Public browse/detail and guarded admin create entry point exist; catalog Playwright coverage and richer edit/delete controls remain |
+| Complete | Existing auth/browser baseline | Frontend 58 tests pass; existing Playwright auth contract 1/1 passes against Compose |
+| In progress | Task 4 Angular catalog/admin browser surface | Public browse/detail, guarded admin CRUD controls, and USER browser denial exist; authenticated ADMIN browser CRUD remains |
 | After Task 4 | Task 5 checkpoint | Run full verification, independent review, update only Batch 3 status in `00_MASTER_EXECUTION_PLAN.md` |
 
 ## Verified commands and live evidence
 
 - `scripts/smoke-compose.ps1 -EnvFile .env`: migrator exit 0; 11 constraints; 3 ONLINE indexes; GDS `2026.07.0`; four services healthy; web reachable.
 - Movie Service focused tests: compile/package green; `MovieCatalogRepositoryTest` 3/3 green, including unknown-sort rejection.
-- Frontend: `npm test` 12 files / 52 tests green with elevated workspace access.
-- Browser: `npx playwright test` 2/2 passed (authentication and anonymous catalog browse).
-- Angular Task 4 focused tests: 6/6 route and mutation-client assertions passed; full frontend suite is 13 files / 55 tests green, lint and production build green.
+- Frontend: `npm test` 14 files / 58 tests green with elevated workspace access.
+- Browser: `npx playwright test` 3/3 passed (authentication, anonymous catalog browse, and USER mutation denial).
+- Angular Task 4 focused tests: route/client assertions plus 3 admin component tests passed; full frontend suite is 14 files / 58 tests green, lint and production build green.
 - Live anonymous reads: movies 200, genres 200, anonymous movie POST 401; unknown sort returns 400.
 - Live disposable catalog fixture: collection/detail/related 200; combined title/genre/year/sort/direction filter returned expected rows.
 - Live disposable auth fixture: USER movie POST 403; ADMIN movie create/update/delete 201/200/204; referenced genre delete 409 then 204; deleted movie 404. Fixtures/accounts were removed.
 
 ## Current blocker / acceptance gap
 
-Do not mark Batch 3 complete. The remaining acceptance gap is authenticated admin Playwright coverage plus richer edit/delete controls and full clean-checkout verification before changing Batch 3 status.
+Do not mark Batch 3 complete. The remaining acceptance gap is authenticated ADMIN Playwright CRUD coverage and full clean-checkout verification before changing Batch 3 status.
 
 ## Dispatch policy
 
