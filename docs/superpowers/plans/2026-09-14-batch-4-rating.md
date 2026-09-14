@@ -34,6 +34,7 @@
 - Create: `backend/rating-service/src/main/java/com/neo4flix/rating/api/RatingHistoryEntry.java`
 - Create: `backend/rating-service/src/main/java/com/neo4flix/rating/api/RatingSummaryResponse.java`
 - Create: `backend/rating-service/src/main/java/com/neo4flix/rating/api/RatingPageResponse.java`
+- Modify: `backend/rating-service/pom.xml` to add `spring-boot-starter-validation` for DTO and controller validation.
 - Create: `backend/rating-service/src/test/java/com/neo4flix/rating/api/RatingDtoValidationTest.java`
 
 **Interfaces:**
@@ -45,7 +46,7 @@
 
 - [ ] **Step 1: Write the failing validation tests** for scores 0 and 6, blank movie IDs, and a valid score 1/5 boundary.
 - [ ] **Step 2: Run the DTO test red** with `./mvnw.cmd -pl backend/rating-service -am -Dtest=RatingDtoValidationTest test`; confirm the missing DTO/validation failure is the expected cause.
-- [ ] **Step 3: Add the records and Jakarta validation annotations** exactly matching the interfaces above; use `@Min(1)`, `@Max(5)`, and `@NotBlank`.
+- [ ] **Step 3: Add `spring-boot-starter-validation`, then add the records and Jakarta validation annotations** exactly matching the interfaces above; use `@Min(1)`, `@Max(5)`, and `@NotBlank`.
 - [ ] **Step 4: Run the DTO test green** with the same command.
 - [ ] **Step 5: Write the Batch 4 active context** with current `main` head, approved design link, first unfinished task, and Batch 3 completion preserved; do not claim Batch 4 complete.
 - [ ] **Step 6: Commit** with `git add docs/superpowers/ACTIVE_BATCH_CONTEXT.md backend/rating-service/src/main backend/rating-service/src/test && git commit -m "feat: define rating service contracts"`.
