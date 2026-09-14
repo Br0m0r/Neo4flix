@@ -36,17 +36,17 @@ Deliver the Movie Service catalog vertical slice: anonymous movie/genre reads, a
 ## Verified commands and live evidence
 
 - `scripts/smoke-compose.ps1 -EnvFile .env`: migrator exit 0; 11 constraints; 3 ONLINE indexes; GDS `2026.07.0`; four services healthy; web reachable.
-- Movie Service focused tests: compile/package green; `MovieCatalogRepositoryTest` 2/2 green.
+- Movie Service focused tests: compile/package green; `MovieCatalogRepositoryTest` 3/3 green, including unknown-sort rejection.
 - Frontend: `npm test` 12 files / 52 tests green with elevated workspace access.
 - Browser: `npx playwright test` 2/2 passed (authentication and anonymous catalog browse).
 - Angular Task 4 focused tests: 6/6 route and mutation-client assertions passed; full frontend suite is 13 files / 55 tests green, lint and production build green.
-- Live anonymous reads: movies 200, genres 200, anonymous movie POST 401.
+- Live anonymous reads: movies 200, genres 200, anonymous movie POST 401; unknown sort returns 400.
 - Live disposable catalog fixture: collection/detail/related 200; combined title/genre/year/sort/direction filter returned expected rows.
 - Live disposable auth fixture: USER movie POST 403; ADMIN movie create/update/delete 201/200/204; referenced genre delete 409 then 204; deleted movie 404. Fixtures/accounts were removed.
 
 ## Current blocker / acceptance gap
 
-Do not mark Batch 3 complete. The remaining acceptance gap is authenticated admin Playwright coverage plus richer edit/delete controls. The plan also calls for unknown-sort rejection and full clean-checkout verification before changing Batch 3 status.
+Do not mark Batch 3 complete. The remaining acceptance gap is authenticated admin Playwright coverage plus richer edit/delete controls and full clean-checkout verification before changing Batch 3 status.
 
 ## Dispatch policy
 

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class MovieCatalogRepositoryTest {
 
@@ -22,7 +23,7 @@ class MovieCatalogRepositoryTest {
 
     @Test
     void queryAlwaysProvidesNullableCypherParametersAndSafeSortDefaults() {
-        MovieQuery query = MovieQuery.from(" ", " ", null, null, null, "drop table", "sideways", -4, 0);
+        MovieQuery query = MovieQuery.from(" ", " ", null, null, null, null, "sideways", -4, 0);
 
         assertThat(query.title()).isNull();
         assertThat(query.genre()).isNull();
@@ -32,5 +33,12 @@ class MovieCatalogRepositoryTest {
         assertThat(query.sortCypher()).isEqualTo("m.createdAt");
         assertThat(query.parameters()).containsKeys("title", "genre", "minYear", "maxYear", "skip", "limit");
         assertThat(query.parameters().get("title")).isNull();
+    }
+
+    @Test
+    void queryRejectsUnknownSortFields() {
+        assertThatThrownBy(() -> MovieQuery.from(null, null, null, null, null, "drop table", "desc", 0, 24))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sort");
     }
 }
