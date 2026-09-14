@@ -5,21 +5,52 @@ This directory is the **single entrypoint** for humans and agentic coding worker
 The external assignment and audit remain non-negotiable requirements. This canonical set resolves their ambiguities into one implementable architecture while keeping the required technologies and behaviors intact.
 
 ## Start Here
+There are two execution modes.
 
 For clean-checkout setup, verification, and the local stack, see
 [Local development](docs/DEVELOPMENT.md).
 
-1. Read this `README.md`.
-2. Read `00_MASTER_EXECUTION_PLAN.md`.
-3. Identify the first incomplete batch.
-4. Read **only** that batch's listed canonical specifications.
-5. Use `superpowers:writing-plans` to create the batch implementation plan under `docs/superpowers/plans/`.
-6. Ensure work is isolated with `superpowers:using-git-worktrees` before executing the plan.
-7. Prefer `superpowers:subagent-driven-development`; use `superpowers:executing-plans` when SDD/subagents are unavailable.
-8. Use TDD, task review, fresh verification, and the batch evidence report.
-9. Stop at the batch checkpoint for human review.
+### A. Resume an Active Batch
 
-Do **not** begin implementation by feeding every specification to every worker. The controller owns cross-document context and should give each implementation task the exact requirement/interface context it needs.
+If `docs/superpowers/ACTIVE_BATCH_CONTEXT.md` exists and its status is `ACTIVE`:
+
+1. read `docs/superpowers/ACTIVE_BATCH_CONTEXT.md`
+2. read the referenced active implementation plan
+3. read the referenced `.superpowers/sdd/...` ledger/workspace when present
+4. inspect current git state relevant to the unfinished workstream
+5. resume the first unfinished workstream
+
+Do **not** restart full repository orientation, regenerate a valid plan,
+redispatch completed work, or reread complete canonical specifications by default.
+
+The active context is a cache only. Canonical specifications remain authoritative.
+
+Open an exact canonical section when:
+
+- the active context or plan is insufficient
+- performing critical requirement verification
+- resolving ambiguity
+- investigating a suspected conflict
+
+### B. Start a New Batch
+
+If no active batch exists:
+
+1. read this `README.md`
+2. read `00_MASTER_EXECUTION_PLAN.md`
+3. identify the first incomplete authorized batch
+4. read only that batch's required canonical material
+5. invoke `superpowers:writing-plans`
+6. create the implementation plan under `docs/superpowers/plans/`
+7. verify the shared `main` checkout is understood and free of unresolved conflicts
+8. create/populate `docs/superpowers/ACTIVE_BATCH_CONTEXT.md`
+9. execute the batch with `superpowers:executing-plans`, TDD, focused tests, and lean review gates
+10. commit logical checkpoints directly on `main` and stop at the batch checkpoint
+
+The primary controller owns cross-document context.
+
+Implementation workers and reviewers should receive compact task-specific
+context instead of independently rediscovering the entire planning system.
 
 ## External Source of Truth
 
@@ -144,14 +175,13 @@ superpowers:writing-plans
       ↓
 docs/superpowers/plans/<batch-plan>.md
       ↓
-superpowers:using-git-worktrees
+shared main checkout + compact active context
       ↓
-superpowers:subagent-driven-development
-   or superpowers:executing-plans
+superpowers:executing-plans
       ↓
-TDD → task review → fix/re-review
+TDD → focused tests → lean review when needed
       ↓
-verification-before-completion
+one full batch verification
       ↓
 Batch evidence report
       ↓

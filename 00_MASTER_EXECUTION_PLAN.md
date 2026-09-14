@@ -4,9 +4,9 @@
 >
 > Requirements live in the canonical specifications. Do not use this file as a substitute for product, graph/database, API, frontend, testing/security, recommendation/audit, or deployment details.
 >
-> Required Superpowers workflow: use `superpowers:writing-plans` before implementation; use `superpowers:using-git-worktrees` before plan execution; prefer `superpowers:subagent-driven-development`, otherwise `superpowers:executing-plans`; use `superpowers:test-driven-development`, `superpowers:systematic-debugging`, review/fix loops, and `superpowers:verification-before-completion`.
+> Required workflow: use `superpowers:writing-plans` before implementation; prefer `superpowers:executing-plans` for the shared main checkout; use `superpowers:test-driven-development`, `superpowers:systematic-debugging`, focused review/fix loops when needed, and `superpowers:verification-before-completion`.
 >
-> Never merge or push to `main` without explicit user approval.
+> Direct-main mode is authorized for this repository. Commit logical checkpoints directly on `main`; never push without explicit user approval.
 
 ## 1. Goal
 
@@ -78,46 +78,233 @@ A status is an evidence claim.
 
 ## 6. Per-Batch Superpowers Protocol
 
-### A. Prepare
+#### A. Prepare
 
-1. Read this batch's **Required reading** only.
-2. Inspect current repository/code/test state relevant to the batch.
-3. Invoke `superpowers:writing-plans`.
-4. Save plan to:
+#### New Batch
+
+For a batch that has not yet been planned:
+
+1. read this batch's **Required reading**
+2. inspect current repository/code/test state relevant to the batch
+3. invoke `superpowers:writing-plans`
+4. save the plan to:
 
 ```text
 docs/superpowers/plans/YYYY-MM-DD-batch-N-<slug>.md
 ```
 
-5. Plan must specify exact paths, interfaces, test-first steps, dependency order, verification commands, and canonical-spec references.
-6. Review plan against canonical specs before execution.
+5. reconcile the canonical context required by the batch
+6. ensure the generated plan contains enough task-level context that
+   implementation workers do not need to rediscover the whole architecture
+7. create/update:
 
-### B. Isolate
+```text
+docs/superpowers/ACTIVE_BATCH_CONTEXT.md
+```
 
-Use `superpowers:using-git-worktrees` or prove current workspace is already a safe isolated feature worktree/branch.
+8. review the plan against canonical requirements before execution
 
-Never begin implementation on main/master without explicit human consent.
+#### Resume Existing Batch
+
+If an active valid plan and `ACTIVE_BATCH_CONTEXT.md` already exist:
+
+1. do not regenerate the plan
+2. do not repeat full repository orientation
+3. read the active context
+4. read the active plan
+5. read the current SDD ledger/workspace when available
+6. inspect relevant git state
+7. resume the first unfinished workstream
+
+Canonical specifications remain authoritative and may be opened when required,
+but full-spec rereading is not the default resume behavior.
+
+#### Plan Content Rule
+
+Plans must specify:
+
+- exact paths
+- interfaces/contracts before dependent code
+- dependency order
+- TDD steps where appropriate
+- focused tests
+- required real integration/runtime proof
+- verification commands
+- canonical section references
+
+Plans should **reference canonical specifications, not reproduce them**.
+
+Do not copy large canonical sections into generated plans unless exact text is
+necessary to resolve an implementation ambiguity.
+
+### B. Shared Main Checkout
+
+Implementation proceeds directly on `main` in this repository. Do not create,
+reuse, or delete worktrees for ordinary batch execution. Do not run parallel
+implementers against the shared checkout.
+
+Before each workstream, verify:
+
+```bash
+git status --short
+git branch --show-current
+```
+
+The controller must understand and preserve unrelated user edits. Commit small,
+logical checkpoints directly on `main` so every change is independently
+reversible. Never reset, rewrite, delete, or destructively alter user work.
+Pushing still requires explicit human approval.
 
 ### C. Execute
 
-Prefer `superpowers:subagent-driven-development`.
+Prefer `superpowers:executing-plans` in the shared checkout. Use subagents only
+for read-only review or when the user explicitly requests delegation; never
+dispatch concurrent writers against `main`.
 
-Current SDD expectations:
+#### SDD Dispatch and Context Policy
 
-- fresh implementer per task
-- controller supplies exact task brief/context rather than making workers rediscover the full repo plan
-- TDD for behavior-bearing work
-- implementation self-check
-- spec-compliance review then code-quality review
-- fix/re-review loop
-- broad final review for the batch plan
-- plan-scoped `.superpowers/sdd/...` ledger/workspace when provided by the installed skill; use it to avoid redispatch after context compaction
+Use **one coherent implementation workstream at a time**, not one agent per
+small checkbox. Keep the controller's context compact and execute tightly
+coupled changes together.
 
-Fallback: `superpowers:executing-plans` when subagents/SDD unavailable.
+A coherent workstream is a group of tightly coupled changes that benefit from
+sharing the same implementation context.
+
+Examples:
+
+```text
+repository + service + controller + DTO + focused tests
+```
+
+```text
+migration + migration verification + constraint tests
+```
+
+Do not combine unrelated features merely to reduce agent count.
+
+The controller supplies each worker a compact task packet containing:
+
+- objective
+- relevant active invariants
+- exact files/interfaces involved
+- exact canonical section references
+- acceptance criteria
+- expected focused tests
+- prior decisions/interfaces the task depends on
+
+Workers should not reread the whole planning set or complete canonical specs
+unless the supplied context is insufficient.
+
+The SDD ledger/workspace is authoritative for execution progress.
+
+Do not redispatch completed work after context compaction or session restart.
+
+TDD remains required for behavior-bearing work.
 
 Use `superpowers:systematic-debugging` for unexplained failures.
 
-Task commits are allowed inside the isolated branch/worktree because SDD review/provenance may use commit ranges. Do not merge/push main.
+#### Review Depth
+
+Review effort is risk-based.
+
+##### LOW Risk
+
+Examples:
+
+- straightforward configuration wiring
+- documentation
+- simple boilerplate
+- non-behavioral refactoring
+
+Flow:
+
+```text
+implementation
+→ self-check
+→ focused verification
+```
+
+##### NORMAL Risk
+
+Default for ordinary application behavior.
+
+Flow:
+
+```text
+implementation
+→ combined specification/code-quality review
+→ fixes if needed
+→ focused verification
+```
+
+##### CRITICAL Risk
+
+Use independent deeper review for:
+
+- authentication
+- authorization
+- password/token/TOTP handling
+- graph-schema migrations
+- relationship uniqueness
+- concurrency integrity
+- destructive graph transactions
+- Cypher security
+- recommendation scoring/GDS correctness
+- deployment secrets
+- TLS/security configuration
+- any task explicitly identified as critical by canonical requirements
+
+Flow:
+
+```text
+implementation
+→ specification/integrity review
+→ code-quality/security review
+→ fix/re-review when findings exist
+→ focused verification
+```
+
+A finding-free review does not require a ceremonial re-review.
+
+#### Reviewer Context
+
+Reviewers begin with:
+
+- the task packet
+- active batch context
+- changed files/diff
+- relevant tests
+- exact canonical references
+
+Reviewers open additional canonical material only when needed to:
+
+- verify a requirement
+- investigate a possible violation
+- resolve ambiguity
+
+Independent review means independent reasoning, not independent rediscovery
+of the entire repository.
+
+#### Lean Review Policy
+
+A focused review is required for security-sensitive, cross-service, migration,
+or failed-test changes. Otherwise review the coherent workstream once at the
+batch gate. Do not repeat full diff/spec loading after a clean review.
+
+- controller supplies compact task context and canonical references
+- TDD for behavior-bearing work
+- focused tests during implementation
+- one full verification run at the batch gate
+- one review/fix/re-review loop only when a concrete blocker is found
+- plan-scoped `.superpowers/sdd/...` ledger/workspace remains authoritative
+
+Use `superpowers:executing-plans` when subagents/SDD are unavailable or when
+delegation would duplicate context.
+
+Use `superpowers:systematic-debugging` for unexplained failures.
+
+Task commits are made directly on `main` as logical checkpoints. Do not push
+without explicit approval.
 
 ### D. Verify
 
@@ -142,17 +329,83 @@ Known caveats:
 git status --short:
 git log --oneline BASE..HEAD:
 ```
+### Active Context Maintenance
+
+Before ending an implementation session or after completing a coherent
+workstream, update:
+
+```text
+docs/superpowers/ACTIVE_BATCH_CONTEXT.md
+```
+
+Update only information that changed:
+
+- completed workstream IDs
+- current unfinished workstream
+- newly established interfaces/paths
+- relevant implementation decisions
+- current blockers
+- verification commands/results when useful
+
+Do not use chat history as the only persistence mechanism.
+
 
 ### E. Human Checkpoint
 
-After gate passes:
+After the batch gate passes:
 
 1. mark only that batch `[x]`
 2. summarize implementation/proof
-3. state next batch + required reading
-4. stop
+3. update the final batch evidence
+4. set `ACTIVE_BATCH_CONTEXT.md` status to `COMPLETE`
+5. state the next batch and its required reading
+6. stop for human authorization
 
-No automatic continuation across batch boundaries.
+Do not automatically prepare or execute the next batch.
+
+After the user authorizes the next batch:
+
+1. perform the new-batch preparation workflow
+2. create the new implementation plan
+3. replace the completed active context with the new batch context
+4. begin execution only after preparation is complete
+
+
+## Required-Reading Resolution Policy
+
+`Required reading` identifies the canonical sources the primary controller
+must reconcile when preparing a new batch.
+
+It does **not** mean every implementation worker or reviewer must independently
+read every listed file.
+
+At batch preparation time, the controller must resolve the required reading
+into the exact sections relevant to that batch and record those references in:
+
+```text
+docs/superpowers/ACTIVE_BATCH_CONTEXT.md
+```
+
+After the batch plan and active context exist:
+
+- workers receive task-specific context
+- reviewers receive review-specific context
+- complete canonical files are opened only when necessary
+- canonical authority remains unchanged
+
+Do not routinely copy canonical specification text into:
+
+- generated plans
+- task packets
+- reviewer packets
+- active context
+
+Use concise requirements plus exact canonical section references instead.
+
+When a batch explicitly requires a complete document or full-project
+reconciliation, the complete document must still be reviewed.
+
+
 
 # 7. Ordered Implementation Batches
 
@@ -709,7 +962,7 @@ No automatic continuation across batch boundaries.
 
 **Final proof:**
 
-- clean isolated branch/worktree
+- clean `main` checkout
 - empty-volume migration/startup
 - `make verify`
 - `make verify-all`
