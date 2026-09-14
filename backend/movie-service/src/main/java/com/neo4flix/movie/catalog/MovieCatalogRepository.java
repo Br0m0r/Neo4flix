@@ -51,13 +51,13 @@ public interface MovieCatalogRepository {
                     + "OPTIONAL MATCH (m)-[:IN_GENRE]->(g:Genre) "
                     + "WITH m, collect(CASE WHEN g IS NULL THEN null ELSE {id:g.id, name:g.name} END) AS genres "
                     + "RETURN m AS movie, genres "
-                    + "ORDER BY " + order + " SKIP $skip LIMIT $limit";
+                    + "ORDER BY " + order + " SKIP " + ((long) query.page() * query.size()) + " LIMIT " + query.size();
             String count = "MATCH (m:Movie) " + where + " RETURN count(m) AS total";
             params.values().removeIf(java.util.Objects::isNull);
-            List<MovieSummary> content = new ArrayList<>(client.query(rows).bindAll(params).fetchAs(MovieSummary.class)
-                    .mappedBy((ts, record) -> mapSummary(record)).all());
-            long total = client.query(count).bindAll(params).fetchAs(Long.class)
-                    .mappedBy((ts, record) -> record.get("total").asLong()).one().orElse(0L);
+            List<MovieSummary> content = client.query(rows).bindAll(params).fetch().all().stream()
+                    .map(record -> mapSummary((Record) record)).toList();
+            long total = client.query(count).bindAll(params).fetch().one()
+                    .map(record -> ((Record) record).get("total").asLong()).orElse(0L);
             return new PageResult<>(content, query.page(), query.size(), total,
                     (int) Math.ceil((double) total / query.size()));
         }
