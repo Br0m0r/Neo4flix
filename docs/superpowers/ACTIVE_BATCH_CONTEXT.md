@@ -9,6 +9,7 @@
 - Worktree: `C:\Users\User\Desktop\Neo4flix\.worktrees\batch-2-authentication`
 - Branch: `batch-2-authentication`
 - Batch 1 merged base: `b93ec22` (`merge: batch 1 graph schema and migrations`)
+- Current Batch 2 head: `31f9fc3` (`fix: harden batch 2 cross-cutting security contracts`)
 - Plan: `docs/superpowers/plans/2026-09-13-batch-2-authentication.md`
 - SDD workspace/ledger: `.superpowers/sdd/2026-09-13-batch-2-authentication/`
 - Main checkout remains on `main`; do not implement Batch 2 in `main`.
@@ -46,6 +47,8 @@ Deliver User Service registration/login, BCrypt password policy, RS256 JWT issua
 | Complete | Task 4 Angular auth store/interceptor/routes | `c639e67..2c185f6`, review clean |
 | Complete | Task 5 Angular profile/security/browser contracts | `0c492ec..567434a`, review clean |
 | Complete — checkpoint blocked | Task 6 acceptance evidence/status | `723b373`; Compose key wiring and `/auth/me` runtime proof remain missing; Playwright/deployed gates deferred |
+
+Final whole-branch review and consolidated fix `31f9fc3` are clean. The fix wires CORS, trusted-proxy rate identity, shared Problem Details errors, and immediate profile-name synchronization without changing the acceptance blockers.
 
 ## Current blocker
 
