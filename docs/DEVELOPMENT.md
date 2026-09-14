@@ -1,6 +1,6 @@
 # Local development
 
-Run commands from the repository root. This guide covers the Batch 0 bootstrap;
+Run commands from the repository root. This guide covers bootstrap and auth verification;
 the [canonical planning set](../README.md) remains the implementation authority.
 
 ## Required tools
@@ -25,8 +25,9 @@ Copy-Item .env.example .env
 ```
 
 Replace the `change-me` values in `.env` with local, non-production values before
-startup. Keep `NEO4J_USERNAME=neo4j`. The JWT key paths and TOTP/demo settings are
-future-batch placeholders; Batch 0 does not require generating keys or seed data.
+startup. Keep `NEO4J_USERNAME=neo4j`. The example's `JWT_PRIVATE_KEY_PATH`,
+`JWT_PUBLIC_KEY_PATH`, and `TOTP_ENCRYPTION_KEY` are legacy placeholders; they do
+not configure Batch 2 authentication. See the auth configuration requirements below.
 Never commit `.env` or private keys. Changing a password in `.env` does not rotate
 credentials in an existing Neo4j data volume.
 
@@ -39,8 +40,10 @@ make verify
 This runs Maven `verify`, then frontend `npm ci`, lint, tests in run-once mode,
 and the production build, then validates `infra/compose.yml` with `.env.example`.
 It stops on the first failing command. It installs dependencies and writes build
-outputs but starts no containers and changes no database data. The example
-environment makes verification independent of local credentials.
+outputs and starts isolated Testcontainers Neo4j instances for schema, auth HTTP,
+refresh/challenge replay, and relationship concurrency tests. It does not modify
+the development graph. The example environment makes Compose configuration
+validation independent of local credentials.
 
 To preview commands without running them, or run only Java/frontend tests:
 
@@ -56,6 +59,39 @@ Maintainers can run its behavioral tests with Pester installed:
 ```powershell
 Invoke-Pester scripts/verify.Tests.ps1
 ```
+
+## Authentication verification and runtime prerequisites
+
+Run the live auth and graph acceptance path with Docker running:
+
+```powershell
+pwsh -NoProfile -File scripts/verify.ps1 -Integration
+```
+
+This selects `Neo4jSchemaIntegrationTest`, `*ConcurrencyIT`,
+`AuthNeo4jIntegrationIT`, and `AuthProductionContextIT`. The auth HTTP suite starts
+the actual User Service context on a random port against an isolated Neo4j graph,
+generates ephemeral RSA and AES keys in memory, and cleans up its containers.
+No `.env` or existing database credentials are needed for these tests.
+
+For a configured runtime, User Service requires `NEO4FLIX_JWT_PRIVATE_KEY`
+(PKCS#8 RSA PEM, DER base64, or a readable key-file path),
+`NEO4FLIX_JWT_PUBLIC_KEY` (the matching public key), and
+`NEO4FLIX_TOTP_ENCRYPTION_KEY` (base64 of 32 random bytes). Every protected service
+requires the same public key, issuer, and audience; the signing private key and
+TOTP encryption key belong only to User Service. Configure
+`NEO4FLIX_ALLOWED_ORIGINS` for the intended frontend origin. Keep keys and any
+temporary `.env` local and ignored; never print key material or tokens.
+
+The committed Compose topology currently passes only Neo4j connection settings
+to the business services. It does not yet wire these auth settings or mount key
+files, so `make dev-up` alone is not a Batch 2 auth startup recipe. Merely adding
+the names to `.env` does not pass them into containers. Runtime Compose auth
+acceptance remains outstanding; see `docs/audit/batch-2-verification.md`.
+
+Playwright is not installed or pinned as a runnable repository suite. The Vitest
+storage/interceptor/profile checks are component evidence; real-browser storage,
+cookie transport, reload, and navigation checks remain deferred.
 
 ## Start and check the stack
 
