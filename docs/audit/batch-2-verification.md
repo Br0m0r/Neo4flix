@@ -225,6 +225,12 @@ profile/security surface, and Logout returned to the sign-in screen. No browser
 storage or token contents were emitted. The temporary stack and key directory
 were removed after the check.
 
+After restoring dependencies from `frontend/package-lock.json`, fresh frontend
+verification passed: `npm test -- --run` reported 52/52 tests across 12 files,
+`npm run lint` exited 0 with no warnings, and `npm run build` completed with the
+production bundle generated. The repository still has no pinned Playwright
+command, so deployed HTTPS cookie/storage assertions remain deferred.
+
 `frontend/package.json` has no Playwright dependency or browser test command.
 The lockfile's `@vitest/browser-playwright` occurrence is optional peer metadata,
 not a pinned runnable Playwright suite. Deferred checks are:
