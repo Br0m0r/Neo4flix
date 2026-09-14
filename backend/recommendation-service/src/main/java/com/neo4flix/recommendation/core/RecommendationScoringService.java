@@ -63,7 +63,7 @@ public final class RecommendationScoringService {
         return POPULARITY_REASON;
     }
 
-    static double clamp(double value) {
+    public static double clamp(double value) {
         if (!Double.isFinite(value)) {
             return 0.0;
         }
