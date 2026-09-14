@@ -3,6 +3,7 @@ package com.neo4flix.recommendation.persistence;
 import com.neo4flix.recommendation.core.RecommendationDtos;
 import com.neo4flix.recommendation.core.RecommendationScoringService;
 import org.springframework.data.neo4j.core.Neo4jClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public final class RecommendationNeo4jRepository implements RecommendationRepository {
+public class RecommendationNeo4jRepository implements RecommendationRepository {
 
     static final String PROFILE_QUERY = """
             MATCH (:User {id: $userId})-[rated:RATED]->(:Movie)
@@ -83,6 +84,7 @@ public final class RecommendationNeo4jRepository implements RecommendationReposi
         this(client, new RecommendationScoringService());
     }
 
+    @Autowired
     public RecommendationNeo4jRepository(Neo4jClient client, RecommendationScoringService scoring) {
         this.client = client;
         this.scoring = scoring;

@@ -110,8 +110,8 @@
 - Modify: `00_MASTER_EXECUTION_PLAN.md` only after every gate passes.
 - Modify: `docs/superpowers/ACTIVE_BATCH_CONTEXT.md` only after the final commit hash is known.
 
-- [ ] **Step 1: Add a focused query-plan test** that calls package-private `RecommendationNeo4jRepository.explainPeerAndCandidatePlans(RecommendationDtos.Query)` to run `EXPLAIN` for the peer and candidate statements and `PROFILE` once against the deterministic fixture, asserting the statements execute successfully and recording only operator names, row counts, and bounded-plan observations.
-- [ ] **Step 2: Run the query-plan test green** with the focused integration command and ensure no secrets or full user vectors are written to output.
-- [ ] **Step 3: Run final verification:** full Maven reactor tests, full Recommendation Service/GDS integration selection, frontend regression suite, `npm run lint`, `npm run build`, Compose rebuild/smoke, `git diff --check`, and the existing serial Playwright suite.
-- [ ] **Step 4: Record exact commands, test counts, GDS evidence, fixture cleanup, query-plan notes, and any non-blocking review findings** in `docs/audit/batch-6-verification.md`.
+- [x] **Step 1: Add a focused query-plan test** using package-visible repository statements and the Neo4j driver to run `EXPLAIN` for the peer/candidate statements and `PROFILE` once against the deterministic fixture, asserting successful execution and recording only operator names, row counts, and bounded-plan observations.
+- [x] **Step 2: Run the query-plan test green** with the focused integration command and ensure no secrets or full user vectors are written to output.
+- [x] **Step 3: Run final verification:** full Maven reactor tests, full Recommendation Service/GDS integration selection, frontend regression suite, `npm run lint`, `npm run build`, Compose rebuild/smoke, `git diff --check`, and the existing serial Playwright suite.
+- [x] **Step 4: Record exact commands, test counts, GDS evidence, fixture cleanup, query-plan notes, and any non-blocking review findings** in `docs/audit/batch-6-verification.md`.
 - [ ] **Step 5: Self-review for Critical/Important findings, change only Batch 6 status to `[x]`, update active context to Batch 7, commit, push `main`, and verify local `HEAD` equals `origin/main`.

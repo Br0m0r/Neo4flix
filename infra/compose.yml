@@ -8,9 +8,10 @@ x-service-build: &service-build
     COPY .mvn/ .mvn/
     COPY mvnw pom.xml ./
     COPY backend/ backend/
-    COPY database/migrator/pom.xml database/migrator/pom.xml
+    COPY database/ database/
     ARG SERVICE_MODULE
-    RUN sh ./mvnw -B -pl backend/$${SERVICE_MODULE} -am package -DskipTests && \
+    RUN sh ./mvnw -B -pl backend/platform-common -am install -DskipTests && \
+        sh ./mvnw -B -pl backend/$${SERVICE_MODULE} -am package -Dmaven.test.skip=true && \
         cp backend/$${SERVICE_MODULE}/target/$${SERVICE_MODULE}-*.jar /workspace/app.jar
     FROM eclipse-temurin:21.0.11_10-jre-alpine-3.22
     WORKDIR /app

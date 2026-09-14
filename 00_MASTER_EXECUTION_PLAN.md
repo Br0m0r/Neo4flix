@@ -639,7 +639,7 @@ reconciliation, the complete document must still be reviewed.
 
 ## Batch 6 — Recommendation Engine Core
 
-**Status:** [ ]
+**Status:** [x]
 
 **Required reading:**
 

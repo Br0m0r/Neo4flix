@@ -1,5 +1,8 @@
 package com.neo4flix.recommendation.core;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public final class RecommendationScoringService {
 
     private static final String COLLABORATIVE_REASON = "Users with similar ratings also liked this movie.";
