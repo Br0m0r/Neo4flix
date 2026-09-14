@@ -569,7 +569,7 @@ reconciliation, the complete document must still be reviewed.
 
 ## Batch 4 — Rating Service CRUD and User Rating-History Facade
 
-**Status:** [ ]
+**Status:** [x]
 
 **Required reading:**
 

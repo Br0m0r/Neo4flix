@@ -1,6 +1,6 @@
 # Active Batch Context — Batch 4 Ratings
 
-> **Status:** IN PROGRESS — Batch 4 plan approved; rating contracts and persistence work are the first unfinished workstream.
+> **Status:** IN PROGRESS — Batch 4 implementation is complete; final verification/audit is the only unfinished workstream.
 >
 > **Purpose:** Compact handoff for direct-main Batch 4 execution. This cache does not override canonical specifications, the approved design, or the implementation plan.
 
@@ -8,7 +8,7 @@
 
 - Worktree: `C:\Users\User\Desktop\Neo4flix`
 - Branch: `main` (direct-main execution; do not create new worktrees)
-- Current head: `dca2c8e` (`docs: plan batch 4 rating slice`)
+- Current head: `b210ba0` (`feat: show rating history in profile`)
 - Batch 4 design: `docs/superpowers/specs/2026-09-14-batch-4-rating-design.md`
 - Batch 4 plan: `docs/superpowers/plans/2026-09-14-batch-4-rating.md`
 - Batch 3 audit: `docs/audit/batch-3-verification.md` (Batch 3 remains complete and preserved)
@@ -30,8 +30,8 @@ Deliver Rating Service CRUD, derived movie rating summaries, User Service rating
 | State | Workstream | Evidence / handoff |
 | --- | --- | --- |
 | Complete | Batches 0–3 | Master plan statuses and Batch 3 audit record all gates passed and pushed |
-| In progress | Task 1 | Add typed rating DTO contracts, validation tests, and this active context |
-| Pending | Tasks 2–7 | Rating persistence/API, User facade, Angular flows, browser/audit checkpoint |
+| Complete | Tasks 1–6 | Rating contracts/persistence/API, User facade, Angular detail/rating/profile flows; focused tests green |
+| In progress | Task 7 | Final repository verification, audit evidence, review, main push |
 
 ## Verification policy
 

@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { finalize, forkJoin, of, switchMap, catchError } from 'rxjs';
+import { catchError, finalize, of } from 'rxjs';
 import { CatalogApiService } from '../../core/catalog-api.service';
 import { MovieDetail } from '../../core/catalog.models';
 import { RatingApiService } from '../../core/rating-api.service';
@@ -54,21 +54,31 @@ export class RatingPageComponent implements OnInit {
   private movieId: string | null = null;
 
   ngOnInit(): void {
-    this.route.paramMap.pipe(
-      switchMap((params) => {
-        this.movieId = params.get('id');
-        return this.movieId
-          ? forkJoin({ movie: this.catalog.movie(this.movieId), rating: this.ratings.get(this.movieId) })
-          : of({ movie: null, rating: null });
-      }),
-      takeUntilDestroyed(this.destroyRef),
-      catchError(() => { this.error.set('Unable to load this movie rating.'); return of(null); }),
-      finalize(() => this.loading.set(false)),
-    ).subscribe((result) => {
-      if (!result) return;
-      this.movie.set(result.movie);
-      this.currentRating.set(result.rating);
-      this.selectedScore.set(result.rating?.score ?? 0);
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      this.movieId = params.get('id');
+      if (!this.movieId) {
+        this.loading.set(false);
+        return;
+      }
+
+      this.catalog.movie(this.movieId).pipe(
+        takeUntilDestroyed(this.destroyRef),
+        catchError(() => {
+          this.error.set('Unable to load this movie rating.');
+          return of(null);
+        }),
+      ).subscribe((movie) => {
+        this.movie.set(movie);
+        this.loading.set(false);
+      });
+
+      this.ratings.get(this.movieId).pipe(
+        takeUntilDestroyed(this.destroyRef),
+        catchError(() => of(null)),
+      ).subscribe((rating) => {
+        this.currentRating.set(rating);
+        this.selectedScore.set(rating?.score ?? 0);
+      });
     });
   }
 
