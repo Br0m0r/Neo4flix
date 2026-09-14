@@ -2,7 +2,7 @@
 
 ## Current status
 
-Batch 3 remains in progress. Code-level and live Compose infrastructure/catalog-read checks pass; authenticated ADMIN browser CRUD acceptance is still pending.
+Batch 3 remains in progress. Code-level and live Compose infrastructure/catalog-read checks pass; authenticated ADMIN browser CRUD now passes, with the final clean-checkout/review gate pending.
 
 ## Verified
 
@@ -10,7 +10,7 @@ Batch 3 remains in progress. Code-level and live Compose infrastructure/catalog-
 - Testcontainers Neo4j startup checks pass during the Movie Service suite.
 - Frontend build passes.
 - Frontend tests: 58 tests, 0 failures.
-- Current Playwright browser contracts: 3 tests passed against the healthy Compose web stack (authentication, anonymous catalog browse, and USER mutation denial).
+- Current Playwright browser contracts: default suite 3/3 passed against the healthy Compose web stack (authentication, anonymous catalog browse, and USER mutation denial); credential-gated ADMIN CRUD contract passed 1/1 with a disposable local admin fixture.
 - Frontend catalog browse/detail routes and typed API client are pushed to `main`.
 - Angular catalog admin entry point is guarded at `/admin/catalog`; typed movie/genre mutation methods, accessible create forms, and movie/genre edit/delete controls are covered by route/client assertions plus 3 focused component tests.
 - Fresh Compose smoke: migrator exited 0, 11 constraints, 3 ONLINE indexes, GDS `2026.07.0`, four services healthy, and web reachable.
@@ -22,8 +22,8 @@ Batch 3 remains in progress. Code-level and live Compose infrastructure/catalog-
 
 ## Pending live gate
 
-Run the remaining authenticated ADMIN catalog/admin browser acceptance. Authentication, anonymous browse, USER denial, and focused admin component tests are green, but no Batch 3 completion claim is made until ADMIN browser CRUD gates pass.
+Run the final clean-checkout verification and review. Authentication, anonymous browse, USER denial, ADMIN CRUD, and focused admin component tests are green, but no Batch 3 completion claim is made until the final gate passes.
 
 ## Commits
 
-- `ec15c47`, `49d4d27`, `a7737c3`, `03c5617`, `07694c1`, `97c2a7f`, `a2a59b2`, `3310206`, `5478226`, `194562c`, `9fcc551`, `ac17b83`, `d4ffb3a`, `414822c`
+- `ec15c47`, `49d4d27`, `a7737c3`, `03c5617`, `07694c1`, `97c2a7f`, `a2a59b2`, `3310206`, `5478226`, `194562c`, `9fcc551`, `ac17b83`, `d4ffb3a`, `414822c`, `92e0c80`
