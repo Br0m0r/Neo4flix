@@ -6,13 +6,13 @@
 
 ## Repository state
 
-- Worktree: `C:\Users\User\Desktop\Neo4flix\.worktrees\batch-2-authentication`
-- Branch: `batch-2-authentication`
+- Worktree: `C:\Users\User\Desktop\Neo4flix`
+- Branch: `main` (direct-main execution; do not create new worktrees)
 - Batch 1 merged base: `b93ec22` (`merge: batch 1 graph schema and migrations`)
-- Current Batch 2 head: `31f9fc3` (`fix: harden batch 2 cross-cutting security contracts`)
+- Current Batch 2 head: `6d53d32` (`fix: wire compose authentication configuration`)
 - Plan: `docs/superpowers/plans/2026-09-13-batch-2-authentication.md`
 - SDD workspace/ledger: `.superpowers/sdd/2026-09-13-batch-2-authentication/`
-- Main checkout remains on `main`; do not implement Batch 2 in `main`.
+- Existing historical Batch 2 worktree is preserved for audit context; all new work lands directly on `main`.
 
 ## Batch goal
 
@@ -46,13 +46,13 @@ Deliver User Service registration/login, BCrypt password policy, RS256 JWT issua
 | Complete | Task 3 TOTP/challenges/rate limiting/deletion | `178821b..f6cced8`, review clean |
 | Complete | Task 4 Angular auth store/interceptor/routes | `c639e67..2c185f6`, review clean |
 | Complete | Task 5 Angular profile/security/browser contracts | `0c492ec..567434a`, review clean |
-| Complete — checkpoint blocked | Task 6 acceptance evidence/status | `723b373`; Compose key wiring and `/auth/me` runtime proof remain missing; Playwright/deployed gates deferred |
+| Complete — checkpoint blocked | Task 6 acceptance evidence/status | `723b373`; Compose key wiring is now committed as `6d53d32`, but `/auth/me` runtime proof and Playwright/deployed gates remain deferred |
 
 Final whole-branch review and consolidated fix `31f9fc3` are clean. The fix wires CORS, trusted-proxy rate identity, shared Problem Details errors, and immediate profile-name synchronization without changing the acceptance blockers.
 
 ## Current blocker
 
-Batch 2 remains `[ ]` in `00_MASTER_EXECUTION_PLAN.md`. The acceptance report is committed at `docs/audit/batch-2-verification.md`. Before marking the batch complete, wire JWT signing/public/TOTP encryption key environment into `infra/compose.yml`, fix and prove `/api/v1/auth/me`, then rerun the deferred deployed/browser/security gates. Do not redispatch Tasks 1–6.
+Batch 2 remains `[ ]` in `00_MASTER_EXECUTION_PLAN.md`. The acceptance report is committed at `docs/audit/batch-2-verification.md`. Compose now wires JWT signing/public/TOTP encryption key environment (commit `6d53d32`). Before marking the batch complete, run a valid-key Compose smoke, prove `/api/v1/auth/me`, then rerun the deferred deployed/browser/security gates. Do not redispatch Tasks 1–6.
 
 ## Dispatch policy
 
