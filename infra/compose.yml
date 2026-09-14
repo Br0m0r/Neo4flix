@@ -24,6 +24,18 @@ x-service-environment: &service-environment
   NEO4J_USERNAME: ${NEO4J_USERNAME:?Set NEO4J_USERNAME}
   NEO4J_PASSWORD: ${NEO4J_PASSWORD:?Set NEO4J_PASSWORD}
 
+x-protected-service-environment: &protected-service-environment
+  <<: *service-environment
+  NEO4FLIX_ALLOWED_ORIGINS: ${NEO4FLIX_ALLOWED_ORIGINS:?Set NEO4FLIX_ALLOWED_ORIGINS}
+  NEO4FLIX_JWT_PUBLIC_KEY: ${NEO4FLIX_JWT_PUBLIC_KEY:?Set NEO4FLIX_JWT_PUBLIC_KEY}
+  NEO4FLIX_JWT_ISSUER: ${NEO4FLIX_JWT_ISSUER:-neo4flix-user-service}
+  NEO4FLIX_JWT_AUDIENCE: ${NEO4FLIX_JWT_AUDIENCE:-neo4flix-api}
+
+x-user-service-environment: &user-service-environment
+  <<: *protected-service-environment
+  NEO4FLIX_JWT_PRIVATE_KEY: ${NEO4FLIX_JWT_PRIVATE_KEY:?Set NEO4FLIX_JWT_PRIVATE_KEY}
+  NEO4FLIX_TOTP_ENCRYPTION_KEY: ${NEO4FLIX_TOTP_ENCRYPTION_KEY:?Set NEO4FLIX_TOTP_ENCRYPTION_KEY}
+
 x-migrator-build: &migrator-build
   context: ..
   dockerfile_inline: |
@@ -44,7 +56,7 @@ x-migrator-build: &migrator-build
     ENTRYPOINT ["java", "-jar", "/app/app.jar"]
 
 x-business-service: &business-service
-  environment: *service-environment
+  environment: *protected-service-environment
   depends_on:
     database-migrator:
       condition: service_completed_successfully
@@ -87,6 +99,7 @@ services:
 
   user-service:
     <<: *business-service
+    environment: *user-service-environment
     image: neo4flix/user-service:0.0.1
     build:
       <<: *service-build

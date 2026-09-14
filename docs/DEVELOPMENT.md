@@ -83,11 +83,12 @@ TOTP encryption key belong only to User Service. Configure
 `NEO4FLIX_ALLOWED_ORIGINS` for the intended frontend origin. Keep keys and any
 temporary `.env` local and ignored; never print key material or tokens.
 
-The committed Compose topology currently passes only Neo4j connection settings
-to the business services. It does not yet wire these auth settings or mount key
-files, so `make dev-up` alone is not a Batch 2 auth startup recipe. Merely adding
-the names to `.env` does not pass them into containers. Runtime Compose auth
-acceptance remains outstanding; see `docs/audit/batch-2-verification.md`.
+The committed Compose topology passes the canonical `NEO4FLIX_*` auth settings
+into the business services: User Service receives the signing private key and
+TOTP encryption key, while every protected service receives the matching public
+key, issuer, audience, and allowed origins. Key values may be PEM/base64
+material or readable file paths. Runtime Compose auth acceptance still requires
+valid local values and a live smoke run; see `docs/audit/batch-2-verification.md`.
 
 Playwright is not installed or pinned as a runnable repository suite. The Vitest
 storage/interceptor/profile checks are component evidence; real-browser storage,

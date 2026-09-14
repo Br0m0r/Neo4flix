@@ -25,6 +25,15 @@ try {
         Assert-Contract ($service.depends_on.'database-migrator'.condition -ceq 'service_completed_successfully') "$name must wait for the migrator to succeed."
         Assert-Contract (-not $service.PSObject.Properties['ports']) "$name must not publish ports in the base topology."
         Assert-Contract ($config.services.web.depends_on.$name.condition -ceq 'service_healthy') "Web must wait for $name health."
+        Assert-Contract ($service.environment.NEO4FLIX_JWT_PUBLIC_KEY -ceq 'replace-with-rsa-public-key-or-file-path') "$name must receive the configured JWT public key."
+        Assert-Contract ($service.environment.NEO4FLIX_ALLOWED_ORIGINS -ceq 'http://localhost:4200,http://localhost:8080') "$name must receive the configured allowed origins."
+    }
+    Assert-Contract ($config.services.'user-service'.environment.NEO4FLIX_JWT_PRIVATE_KEY -ceq 'replace-with-pkcs8-rsa-private-key-or-file-path') 'User Service must receive the JWT signing key.'
+    Assert-Contract ($config.services.'user-service'.environment.NEO4FLIX_TOTP_ENCRYPTION_KEY -ceq 'replace-with-base64-32-byte-key') 'User Service must receive the TOTP encryption key.'
+    foreach ($name in @('movie-service', 'rating-service', 'recommendation-service')) {
+        $service = $config.services.$name
+        Assert-Contract (-not $service.environment.PSObject.Properties['NEO4FLIX_JWT_PRIVATE_KEY']) "$name must not receive the JWT signing key."
+        Assert-Contract (-not $service.environment.PSObject.Properties['NEO4FLIX_TOTP_ENCRYPTION_KEY']) "$name must not receive the TOTP encryption key."
     }
     Assert-Contract ($config.services.'database-migrator'.depends_on.neo4j.condition -ceq 'service_healthy') 'Migrator must wait for Neo4j health.'
     Assert-Contract (-not $config.services.neo4j.PSObject.Properties['ports']) 'Neo4j must not publish ports in the base topology.'
