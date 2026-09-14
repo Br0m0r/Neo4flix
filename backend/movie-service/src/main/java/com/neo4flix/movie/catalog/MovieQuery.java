@@ -39,7 +39,7 @@ public record MovieQuery(
         String normalizedGenre = genre == null || genre.isBlank() ? null : genre.trim();
         int boundedPage = Math.max(page, 0);
         int boundedSize = Math.min(Math.max(size, 1), 100);
-        String normalizedSort = SORT_FIELDS.containsKey(sortBy) ? sortBy : "createdAt";
+        String normalizedSort = sortBy != null && SORT_FIELDS.containsKey(sortBy) ? sortBy : "createdAt";
         String normalizedDirection = "asc".equalsIgnoreCase(direction) ? "asc" : "desc";
         return new MovieQuery(normalizedTitle, normalizedGenre, minYear, maxYear, fromDate, null,
                 null, normalizedSort, normalizedDirection, boundedPage, boundedSize);
