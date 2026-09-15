@@ -64,9 +64,9 @@
 **Interfaces:**
 - Evidence records identify existing passing controls (JWT/roles/ownership, CORS, cookie-origin checks, bounds, 429, request IDs) and distinguish unavailable external tools from passing scans.
 
-- [ ] **Step 1: Add failing checklist assertions** for the new Nginx and scan commands.
-- [ ] **Step 2: Implement the checklist/evidence updates** without claiming unavailable TLS, gitleaks, Trivy, or k6 results.
-- [ ] **Step 3: Run focused security tests and record exact outputs**.
+- [x] **Step 1: Add failing checklist assertions** for the new Nginx and scan commands.
+- [x] **Step 2: Implement the checklist/evidence updates** without claiming unavailable TLS, gitleaks, Trivy, or k6 results.
+- [x] **Step 3: Run focused security tests and record exact outputs**.
 - [ ] **Step 4: Commit** `docs: record batch 10 security verification`.
 
 ### Task 4: Batch 10 verification and handoff

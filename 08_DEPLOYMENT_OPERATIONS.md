@@ -316,6 +316,11 @@ Final gate:
 - HTTPS/header check
 - exposed-port check
 
+Repository entry points:
+
+- `pwsh -NoProfile -File scripts/test-security-headers.ps1` checks the Nginx header policy.
+- `make security` runs the dependency and tracked-secret review plus any installed gitleaks/Trivy scanners without printing `.env` values.
+
 ## 29. Staging/Audit Gate
 
 - [ ] clean Compose startup

@@ -438,6 +438,12 @@ make verify
 make verify-all
 ```
 
+### Batch 10 security entry points
+
+- `pwsh -NoProfile -File scripts/test-security-headers.ps1` verifies the Nginx browser-security header contract without reading secrets.
+- `pwsh -NoProfile -File scripts/security.ps1` runs the frontend high-severity dependency audit and tracked secret-path review, then runs gitleaks and Trivy when those tools are installed; missing external scanners are reported as explicit skips.
+- `make security` invokes the same wrapper from the repository root.
+
 ### make verify
 - backend compile/static/style
 - unit
