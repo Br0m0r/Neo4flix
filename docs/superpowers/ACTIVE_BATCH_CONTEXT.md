@@ -8,7 +8,7 @@
 
 - Worktree: `C:\Users\User\Desktop\Neo4flix`
 - Branch: `main` (direct-main execution; do not create worktrees)
-- Context snapshot base: `a65006c` (`docs: close batch 11 verification`).
+- Context snapshot base: `bf7b544` (`docs: close batch 11 verification`).
 - Local `.env` is ignored and must never be committed or printed.
 
 ## Completed ledger
