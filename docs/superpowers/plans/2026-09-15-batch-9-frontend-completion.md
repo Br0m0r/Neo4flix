@@ -34,14 +34,14 @@
 - `SearchComponent` owns a non-empty title control, synchronizes `title` with `ActivatedRoute.queryParamMap`, calls `CatalogApiService.movies({ title })`, and renders loading/empty/error/success states.
 - `/admin`, `/admin/movies`, `/admin/movies/new`, `/admin/movies/:id/edit`, and `/admin/genres` resolve through the existing admin component with `adminGuard`; `/` resolves to the authenticated home page.
 
-- [ ] **Step 1: Write failing route and page tests** for every missing route, admin guard coverage, search query-param serialization, and home navigation links.
-- [ ] **Step 2: Run the focused frontend tests and confirm they fail**
+- [x] **Step 1: Write failing route and page tests** for every missing route, admin guard coverage, search query-param serialization, and home navigation links.
+- [x] **Step 2: Run the focused frontend tests and confirm they fail**
 
 Run: `npm test -- --watch=false --include='src/app/app.routes.spec.ts' --include='src/app/features/home/home.component.spec.ts' --include='src/app/features/search/search.component.spec.ts'`
 
-- [ ] **Step 3: Implement the home and search standalone components** with typed `CatalogApiService` calls, explicit loading/empty/error states, and Material/semantic controls.
-- [ ] **Step 4: Register all canonical and admin alias routes** with the correct guards and route parameters.
-- [ ] **Step 5: Run focused tests and commit**
+- [x] **Step 3: Implement the home and search standalone components** with typed `CatalogApiService` calls, explicit loading/empty/error states, and Material/semantic controls.
+- [x] **Step 4: Register all canonical and admin alias routes** with the correct guards and route parameters.
+- [x] **Step 5: Run focused tests and commit**
 
 Run: `npm test -- --watch=false --include='src/app/app.routes.spec.ts' --include='src/app/features/home/home.component.spec.ts' --include='src/app/features/search/search.component.spec.ts'`
 
