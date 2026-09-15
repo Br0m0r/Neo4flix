@@ -34,6 +34,7 @@ export const routes: Routes = [
       import('./features/profile/profile.component').then((module) => module.ProfileComponent),
   },
   { path: 'watchlist', canActivate: [authGuard], loadComponent: () => import('./features/watchlist/watchlist.component').then((m) => m.WatchlistComponent) },
+  { path: 'recommendations', canActivate: [authGuard], loadComponent: () => import('./features/recommendations/recommendations.component').then((m) => m.RecommendationsComponent) },
   { path: 'movies', loadComponent: () => import('./features/catalog/catalog.component').then((m) => m.CatalogComponent) },
   { path: 'movies/:id/rate', canActivate: [authGuard], loadComponent: () => import('./features/catalog/rating-page.component').then((m) => m.RatingPageComponent) },
   { path: 'movies/:id', loadComponent: () => import('./features/catalog/movie-detail.component').then((m) => m.MovieDetailComponent) },
