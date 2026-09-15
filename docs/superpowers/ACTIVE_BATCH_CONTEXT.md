@@ -8,7 +8,7 @@
 
 - Worktree: `C:\Users\User\Desktop\Neo4flix`
 - Branch: `main` (direct-main execution; do not create worktrees)
-- Context snapshot base: `30c122b` (`feat: verify and fix sharing browser flow`).
+- Context snapshot base: `5a6a50a` (`test: clean up recommendation fixtures on setup failure`).
 - Local `.env` is ignored and must never be committed or printed.
 
 ## Completed ledger
