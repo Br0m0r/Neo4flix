@@ -22,6 +22,7 @@ Command: `NEO4FLIX_E2E_BASE_URL=http://localhost:8080 npm run e2e` from `fronten
 
 ## Failure-mode limitations
 
+- With `recommendation-service` stopped, `GET /api/v1/movies?page=0&size=1` continued to return `200`; the service was then restored and all six Compose services returned healthy.
 - Recommendation-service-down browser behavior could not be exercised without an authenticated E2E fixture; the existing controller/unit contract remains the available evidence.
 - ADMIN CRUD could not be exercised without `NEO4FLIX_E2E_ADMIN_EMAIL` and `NEO4FLIX_E2E_ADMIN_PASSWORD`.
 - 2FA and sharing browser scenarios are not present in the current Playwright suite; their component/API coverage remains separate evidence.

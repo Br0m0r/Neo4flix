@@ -62,6 +62,7 @@
 - Rebuilt the full Compose stack with the existing `.env` and preserved Neo4j data.
 - Playwright against `http://localhost:8080`: 8 tests discovered, 5 passed, 3 skipped for missing disposable credentials (recommendations, recommendation outage, ADMIN CRUD), 0 failed.
 - Public entry point returned HTTP 200 with request ID and configured browser security headers.
+- Controlled outage check: catalog remained HTTP 200 while recommendation-service was stopped; the service was restored and all six Compose services returned healthy.
 - Audit record: `docs/audit/batch-11-browser-failure-verification.md`.
 
 ## Next unfinished workstream

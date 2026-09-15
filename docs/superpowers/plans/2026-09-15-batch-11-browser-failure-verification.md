@@ -62,7 +62,7 @@ Record whether `NEO4FLIX_E2E_EMAIL`, `NEO4FLIX_E2E_PASSWORD`, `NEO4FLIX_E2E_ADMI
 
 Execute the recommendation outage Playwright test if credentials are available; otherwise record the exact credential-gated skip and verify the controller contract with the existing unit tests.
 
-- [~] **Step 2: Browser outage continuity remains unverified without credentials; preserve the existing controller/unit contract evidence.**
+- [x] **Step 2: Verify catalog continuity during outage; catalog remained HTTP 200 while recommendation-service was stopped, then the service was restored healthy.**
 
 Record that the normal catalog route remains usable and recommendation failure is represented as controlled 503/problem UI rather than a blank or fatal shell.
 
