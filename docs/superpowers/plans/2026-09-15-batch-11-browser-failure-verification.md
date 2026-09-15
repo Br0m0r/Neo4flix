@@ -52,6 +52,10 @@ Run `npm run e2e` from `frontend` with `NEO4FLIX_E2E_BASE_URL=http://localhost:8
 
 Record whether `NEO4FLIX_E2E_EMAIL`, `NEO4FLIX_E2E_PASSWORD`, `NEO4FLIX_E2E_ADMIN_EMAIL`, and `NEO4FLIX_E2E_ADMIN_PASSWORD` were configured without printing their values. Do not convert skipped tests into pass claims.
 
+- [x] **Step 3: Verify the browser 2FA flow with a disposable user.**
+
+The scenario enrolls 2FA from the live setup URI, completes the password-only challenge with a generated RFC 6238 code, and cleans up with reauthentication.
+
 ### Task 3: Verify controlled recommendation-service failure
 
 **Files:**
@@ -81,6 +85,6 @@ Run Compose health inspection, `git diff --check`, and the existing frontend reg
 
 Document credential-gated skips, unavailable failure injection, or any browser/environment blocker without claiming unobserved flows.
 
-- [~] **Step 3: Keep Batch 11 partially proven until disposable admin credentials and failure injection are available.**
+- [~] **Step 3: Keep Batch 11 partially proven until disposable ADMIN credentials and failure injection are available.**
 
 Update the master plan and active context, commit, push `main`, and verify local/remote SHA equality.

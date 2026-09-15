@@ -50,7 +50,7 @@ async function deleteDisposableUser(request: APIRequestContext, token: string): 
   expect(deletion.status()).toBe(204);
 }
 
-test('authenticated users can load recommendations and persist filter URL state', async ({ page, request }) => {
+test('authenticated users can load recommendations, persist filters, and survive recommendation outage', async ({ page, request }) => {
   const user = await registerDisposableUser(request);
   try {
     await signIn(page, user.email, user.authResponse);
@@ -62,20 +62,13 @@ test('authenticated users can load recommendations and persist filter URL state'
     await page.getByTestId('apply-filters').click();
     await expect(page).toHaveURL(/genre=Science(?:%20|\+)Fiction/);
     await expect(page.getByRole('heading', { name: 'Recommendations' })).toBeVisible();
-  } finally {
-    await deleteDisposableUser(request, user.token);
-  }
-});
 
-test('recommendation outage leaves the normal movie catalog available', async ({ page, request }) => {
-  const user = await registerDisposableUser(request);
-  try {
     await page.route('**/api/v1/recommendations/me**', (route) => route.fulfill({
       status: 503,
       contentType: 'application/problem+json',
       body: JSON.stringify({ code: 'RECOMMENDATION_SERVICE_UNAVAILABLE' }),
     }));
-    await signIn(page, user.email, user.authResponse);
+    await page.getByLabel('Primary navigation').getByRole('link', { name: 'Movies' }).click();
     await page.getByLabel('Primary navigation').getByRole('link', { name: 'Recommendations' }).click();
     await expect(page.getByRole('alert')).toContainText('temporarily unavailable');
     await page.getByRole('link', { name: 'Browse movies' }).first().click();
