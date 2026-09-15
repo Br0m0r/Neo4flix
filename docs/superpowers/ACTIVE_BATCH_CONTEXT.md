@@ -8,7 +8,7 @@
 
 - Worktree: `C:\Users\User\Desktop\Neo4flix`
 - Branch: `main` (direct-main execution; do not create worktrees)
-- Context snapshot base: `1dcdfe1` (`docs: record batch 10 security verification`); update to the final handoff commit after push.
+- Context snapshot base: `0428023` (`security: close batch 10 control gaps`).
 - Local `.env` is ignored and must never be committed or printed.
 
 ## Completed ledger
