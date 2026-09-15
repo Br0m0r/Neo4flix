@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { CatalogApiService } from '../../core/catalog-api.service';
 import { RatingApiService } from '../../core/rating-api.service';
 import { RatingPageComponent } from './rating-page.component';
@@ -30,11 +30,15 @@ describe('RatingPageComponent', () => {
         { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({ id: 'movie-1' })) } },
       ],
     }).compileComponents();
-    fixture = TestBed.createComponent(RatingPageComponent);
-    fixture.detectChanges();
   });
 
+  function create(): void {
+    fixture = TestBed.createComponent(RatingPageComponent);
+    fixture.detectChanges();
+  }
+
   it('renders accessible 1–5 controls and creates a missing rating', () => {
+    create();
     const radios = fixture.nativeElement.querySelectorAll('input[type="radio"]');
     expect(radios.length).toBe(5);
     expect(fixture.nativeElement.querySelector('[role="radiogroup"]')?.getAttribute('aria-label'))
@@ -47,5 +51,19 @@ describe('RatingPageComponent', () => {
     fixture.detectChanges();
     expect(ratings.create).toHaveBeenCalledWith('movie-1', 5);
     expect(fixture.nativeElement.querySelector('.status')?.textContent).toContain('Rating saved.');
+  });
+
+  it('preserves a user selection when the existing-rating lookup finishes later', () => {
+    const pending = new Subject<null>();
+    ratings.get.mockReturnValue(pending.asObservable());
+    create();
+
+    (fixture.nativeElement.querySelector('input[aria-label="5 stars"]') as HTMLInputElement).click();
+    fixture.detectChanges();
+    pending.next(null);
+    pending.complete();
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement.querySelector('button') as HTMLButtonElement).disabled).toBe(false);
   });
 });

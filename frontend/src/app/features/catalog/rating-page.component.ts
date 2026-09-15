@@ -23,7 +23,7 @@ import { RatingResponse } from '../../core/rating.models';
           <div role="radiogroup" aria-label="Choose a rating from one to five stars">
             @for (score of scores; track score) {
               <label>
-                <input type="radio" name="score" [value]="score" [checked]="selectedScore() === score" [attr.aria-label]="score + ' stars'" (change)="selectedScore.set(score)" />
+                <input type="radio" name="score" [value]="score" [checked]="selectedScore() === score" [attr.aria-label]="score + ' stars'" (change)="selectScore(score)" />
                 {{ score }} ★
               </label>
             }
@@ -77,10 +77,12 @@ export class RatingPageComponent implements OnInit {
         catchError(() => of(null)),
       ).subscribe((rating) => {
         this.currentRating.set(rating);
-        this.selectedScore.set(rating?.score ?? 0);
+        if (this.selectedScore() === 0) this.selectedScore.set(rating?.score ?? 0);
       });
     });
   }
+
+  protected selectScore(score: number): void { this.selectedScore.set(score); }
 
   protected save(): void {
     if (!this.movieId || this.selectedScore() === 0 || this.busy()) return;
