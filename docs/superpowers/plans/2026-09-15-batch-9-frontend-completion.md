@@ -78,6 +78,6 @@ Commit: `feat: close frontend route and page gaps`
 
 **Files:** `frontend/e2e/*.spec.ts`, `docs/audit/batch-9-verification.md`, `docs/superpowers/ACTIVE_BATCH_CONTEXT.md`, `00_MASTER_EXECUTION_PLAN.md`.
 
-- [ ] **Step 1: Add serial Playwright coverage** for route reachability, anonymous search/detail, authenticated rating/watchlist/recommendation flows, anonymous sharing, USER/admin denial, and XSS-as-text.
-- [ ] **Step 2: Run full Maven, frontend test/lint/build, Compose interpolation, and serial Playwright**; record credential-gated skips explicitly.
-- [ ] **Step 3: Run `git diff --check`, mark Batch 9 complete only when the route/accessibility/contract gate is met, update active context to Batch 10, commit audit evidence, and push `main`.**
+- [x] **Step 1: Add serial Playwright coverage** for route reachability, anonymous search/detail, authenticated rating/watchlist/recommendation flows, anonymous sharing, USER/admin denial, and XSS-as-text.
+- [x] **Step 2: Run full Maven, frontend test/lint/build, Compose interpolation, and serial Playwright**; record credential-gated skips explicitly.
+- [x] **Step 3: Run `git diff --check`, mark Batch 9 complete only when the route/accessibility/contract gate is met, update active context to Batch 10, commit audit evidence, and push `main`.**

@@ -1,6 +1,6 @@
-# Active Batch Context — Batch 9 In Progress
+# Active Batch Context — Batch 10 Ready
 
-> **Status:** Batch 8 is complete and pushed. Batch 9 is in progress on direct `main` execution; route/page closure, catalog state, movie summaries, and shell accessibility are complete.
+> **Status:** Batch 9 is complete and pushed. Batch 10 is the next unfinished batch; execution remains direct on `main`.
 >
 > **Purpose:** Compact handoff cache generated from the Batch 8 plan, SDD ledger, current git state, and canonical requirements. It does not replace the master plan, product/API specs, or approved batch plans.
 
@@ -8,7 +8,7 @@
 
 - Worktree: `C:\Users\User\Desktop\Neo4flix`
 - Branch: `main` (direct-main execution; do not create worktrees)
-- Context snapshot base: `c8fb101` (`fix: associate recommendation filter labels`)
+- Context snapshot base: `ce467e4` (`fix: preserve browser rating selection`)
 - Local `.env` is ignored and must never be committed or printed.
 
 ## Completed ledger
@@ -32,7 +32,7 @@
 - Playwright share-specific coverage is not present; existing authenticated specs skip without configured E2E credentials. This is recorded explicitly in `docs/audit/batch-8-verification.md`.
 - Audit record: `docs/audit/batch-8-verification.md`.
 
-## Batch 9 progress
+## Batch 9 completion
 
 - Plan: `docs/superpowers/plans/2026-09-15-batch-9-frontend-completion.md`.
 - `e99dd23` closes `/`, `/home`, `/search`, and canonical admin aliases with focused route/home/search coverage.
@@ -40,11 +40,15 @@
 - `4e09100` removes the duplicate shell heading and adds visible focus/responsive shell styling.
 - `27bec5a` renders movie poster and genre summary fields on movie detail.
 - `c8fb101` associates recommendation filters with explicit label/control IDs.
-- Frontend regression after these changes: 100 tests passed; lint and production build passed.
+- `04070ac` adds detail/watchlist retry states and removes the dead `/ratings` path.
+- `e0e5e39` adds responsive card/form/admin reflow and stronger navigation/rating semantics.
+- `bfefd49` adds admin catalog retry and controlled recommendation status messaging without rendering private signals.
+- `ce467e4` preserves a user-selected rating when the existing-rating lookup completes later.
+- Final verification: Maven 129 tests; frontend 105 tests; lint/build; Compose interpolation; Playwright 5 passed and 3 credential-gated skips.
 
-## Next unfinished Batch 9 workstream
+## Next unfinished workstream
 
-- Continue Task 2 in the Batch 9 plan with profile/watchlist/detail state coverage, then complete accessibility/responsive and recommendation/admin contract reconciliation.
+- Begin Batch 10 security hardening and observability from the master plan.
 - Preserve Batch 8 contracts: public links remain hash-only and owner-scoped; public pages must not leak private recommendation data; recommendation failures must not break normal catalog browsing.
 
 ## Execution policy
