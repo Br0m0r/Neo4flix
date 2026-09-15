@@ -27,10 +27,19 @@ async function registerDisposableUser(request: APIRequestContext): Promise<Dispo
     data: { email, displayName: 'Recommendations Playwright', password },
   });
   expect(register.status()).toBe(201);
-  const login = await request.post('/api/v1/auth/login', { data: { email, password } });
-  expect(login.status()).toBe(200);
-  const authResponse = await login.json() as Record<string, unknown>;
-  return { email, token: authResponse.accessToken as string, authResponse };
+  try {
+    const login = await request.post('/api/v1/auth/login', { data: { email, password } });
+    expect(login.status()).toBe(200);
+    const authResponse = await login.json() as Record<string, unknown>;
+    return { email, token: authResponse.accessToken as string, authResponse };
+  } catch (error) {
+    const cleanupLogin = await request.post('/api/v1/auth/login', { data: { email, password } });
+    if (cleanupLogin.ok()) {
+      const cleanupResponse = await cleanupLogin.json() as { accessToken: string };
+      await deleteDisposableUser(request, cleanupResponse.accessToken);
+    }
+    throw error;
+  }
 }
 
 async function deleteDisposableUser(request: APIRequestContext, token: string): Promise<void> {
