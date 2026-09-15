@@ -18,6 +18,7 @@ wrapper, Node/npm frontend toolchain
 | Recommendation/Neo4j outage handling | Batch 11 controlled outage record | Catalog remained available; recommendation outage returned a request-traceable error; stack restored |
 | Disposable Neo4j recovery | Guarded backup/restore helpers with separate temporary source/target containers and volumes | Marker node dumped, restored, and read back successfully; temporary resources removed |
 | Authenticated k6 smoke | `scripts/k6/authenticated-smoke.js` with disposable runtime user | 15 seconds/1 VU; 48 requests; 45/45 checks; 0.00% HTTP failures; teardown left 0 users |
+| Bounded sustained k6 run | Same profile at 5 VUs for 30 seconds | 453 requests; 450/450 checks; 0.00% server failures; 115 explicit 429s; p95 11.83 ms; 0 users remained |
 
 ## Explicit limitations
 

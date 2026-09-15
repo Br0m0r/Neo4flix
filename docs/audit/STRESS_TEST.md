@@ -71,3 +71,16 @@ The authenticated profile is a bounded smoke probe only; a successful run does
 not establish sustained throughput or a release SLO. The full Batch 13 gate
 still requires a deterministic load seed, sustained concurrency, and integrity
 analysis under load.
+
+## Bounded sustained run
+
+The same profile was run at 5 VUs for 30 seconds against the local development
+stack. It completed 150 iterations and 453 HTTP requests (including setup and
+teardown), with 450/450 endpoint checks passing, 0.00% server-failure rate, and
+p95 latency of 11.83 ms. The profile observed 115 HTTP 429 responses; these are
+classified as intentional rate limiting, not server failures. Teardown left 0
+disposable users and the relationship count remained 42.
+
+This result is useful integrity/rate-limit evidence, but it is not a production
+capacity claim: the load seed, concurrency envelope, and SLO targets still need
+to be defined and interpreted for the deployment environment.

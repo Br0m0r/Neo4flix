@@ -61,7 +61,9 @@ The golden cases proved deterministic hybrid ranking, cold-start strategies, alr
   `STRESS_TEST.md` provide bounded public and disposable-account profiles. The
   public runner passed 30 requests with 0% HTTP failures and p95 latency of
   14.83 ms; the authenticated runner passed 45/45 checks with 0% failures and
-  p95 latency of 131.53 ms. These are not sustained-load results.
+  p95 latency of 131.53 ms. A 5-VU/30-second run passed 450/450 checks with 0%
+  server failures and 115 explicit rate-limit responses. These remain bounded
+  development results, not production capacity claims.
 - `scripts/backup-neo4j.ps1` and `scripts/restore-neo4j.ps1` provide explicit,
   guarded Community offline dump/load helpers. They refuse ambiguous restore
   targets; a disposable two-container marker recovery cycle passed without

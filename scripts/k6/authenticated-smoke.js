@@ -1,12 +1,17 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
+import { Counter } from 'k6/metrics';
 
 const baseUrl = (__ENV.BASE_URL || 'http://localhost:8080').replace(/\/$/, '');
 const password = __ENV.K6_PASSWORD;
+const rateLimited = new Counter('rate_limited_responses');
 
 if (!password) {
   throw new Error('Set K6_PASSWORD to a disposable test password; no password is embedded in this profile.');
 }
+
+// 429 is a deliberate, observable rate-limit outcome rather than a server error.
+http.setResponseCallback(http.expectedStatuses(200, 201, 202, 204, 429));
 
 export const options = {
   vus: Number(__ENV.VUS || 1),
@@ -59,9 +64,12 @@ export default function (user) {
     http.get(`${baseUrl}/api/v1/users/me/watchlist?page=0&size=1`, params),
   ];
 
-  responses.forEach((response) => check(response, {
+  responses.forEach((response) => {
+    if (response.status === 429) rateLimited.add(1);
+    check(response, {
     'authenticated response is 2xx or 429': accepted,
-  }));
+    });
+  });
   sleep(1);
 }
 
