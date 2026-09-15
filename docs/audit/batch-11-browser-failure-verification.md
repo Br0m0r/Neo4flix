@@ -24,11 +24,12 @@ Command: `NEO4FLIX_E2E_BASE_URL=http://localhost:8080 npm run e2e` from `fronten
 ## Failure-mode limitations
 
 - With `recommendation-service` stopped, `GET /api/v1/movies?page=0&size=1` continued to return `200`; the service was then restored and all six Compose services returned healthy.
+- With Neo4j stopped, an authenticated catalog probe returned `500` with request ID `aa41cd3c5b18d775c049a2c8b6868a87`; Neo4j was restarted to healthy, the disposable probe user was deleted, and no volume was reset.
 - The first live sharing smoke exposed a Neo4j temporal-binding defect; converting share timestamps to UTC `ZonedDateTime` fixed it. Repository tests, a live API smoke, and the new Playwright sharing test all pass after the fix.
 - ADMIN CRUD could not be exercised without `NEO4FLIX_E2E_ADMIN_EMAIL` and `NEO4FLIX_E2E_ADMIN_PASSWORD`.
 - The 2FA browser scenario enrolls a disposable user from the returned `otpauth://` URI, verifies the password-only challenge, completes the current TOTP code, and deletes the user with reauthentication.
-- Neo4j failure injection and k6 stress execution were not performed in this pass.
+- k6 stress execution was not performed in this pass.
 
 ## Batch disposition
 
-Batch 11 implementation is not marked complete: the real stack and available browser flows passed, while credential-gated and failure-injection scenarios remain explicitly unverified.
+Batch 11 implementation is not marked complete: the real stack and available browser flows passed, while ADMIN CRUD remains credential-gated and k6 stress remains unverified.

@@ -85,6 +85,6 @@ Run Compose health inspection, `git diff --check`, and the existing frontend reg
 
 Document credential-gated skips, unavailable failure injection, or any browser/environment blocker without claiming unobserved flows.
 
-- [~] **Step 3: Keep Batch 11 partially proven until disposable ADMIN credentials and failure injection are available.**
+- [~] **Step 3: Keep Batch 11 partially proven until disposable ADMIN credentials are available; Neo4j failure injection is now evidenced.**
 
 Update the master plan and active context, commit, push `main`, and verify local/remote SHA equality.
