@@ -12,7 +12,7 @@ wrapper, Node/npm frontend toolchain
 | Frontend unit suite | `npm.cmd --prefix frontend test` | 27 files, 105 tests passed |
 | Audit fixture loader | `.\mvnw.cmd -pl database/migrator -am '-Dtest=AuditSeedLoaderIT' test` | 2/2 passed; idempotent fixture reload |
 | Recommendation golden fixture | `.\mvnw.cmd -pl backend/recommendation-service -am '-Dtest=RecommendationGoldenFixtureIT' '-Dsurefire.failIfNoSpecifiedTests=false' test` | 2/2 passed; deterministic ranking and GDS cosine path |
-| Browser contract | `npm.cmd --prefix frontend run e2e` against local Compose | 8 passed, 1 skipped for absent disposable ADMIN credentials |
+| Browser contract | `npm.cmd --prefix frontend run e2e` against local Compose (fresh rerun) | 8 passed, 1 skipped for absent disposable ADMIN credentials in 15 seconds |
 | Standalone ADMIN browser contract | Disposable registration/promotion and cleanup | 1 passed; cleanup count 0 |
 | Compose runtime | `docker compose ... ps` and `scripts/smoke-compose.ps1` | Six services healthy; web returned HTTP 200 with request ID |
 | Recommendation/Neo4j outage handling | Batch 11 controlled outage record | Catalog remained available; recommendation outage returned a request-traceable error; stack restored |

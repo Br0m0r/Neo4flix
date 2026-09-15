@@ -21,7 +21,8 @@ without collecting passwords, tokens, or identifying data.
 ## Current evidence
 
 - Automated browser coverage confirms login, reload, guarded navigation, logout,
-  sharing, disposable-admin cleanup, and 2FA flow; see
+  sharing, disposable-admin cleanup, and 2FA flow. A fresh local rerun passed 8
+  tests with 1 credential-gated ADMIN skip; see
   `docs/audit/batch-11-browser-failure-verification.md`.
 - No human participant, confusion notes, satisfaction score, or time-on-task
   result has been invented. Batch 12 remains partial until a facilitator records
