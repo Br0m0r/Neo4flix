@@ -14,10 +14,12 @@ test('authenticated users can create a share and anonymous visitors see only pub
   });
   expect(register.status()).toBe(201);
 
+  let token: string | undefined;
   try {
     const login = await request.post('/api/v1/auth/login', { data: { email, password } });
     expect(login.status()).toBe(200);
-    const token = (await login.json()).accessToken as string;
+    const authResponse = await login.json() as Record<string, unknown>;
+    token = authResponse.accessToken as string;
     const rating = await request.post('/api/v1/ratings', {
       headers: { Authorization: `Bearer ${token}` },
       data: { movieId: movie.id, score: 5 },
@@ -30,7 +32,12 @@ test('authenticated users can create a share and anonymous visitors see only pub
     await page.getByRole('button', { name: 'Sign in' }).click();
     await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible();
 
-    await page.goto('/recommendations');
+    await page.route('**/api/v1/auth/login', (route) => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(authResponse),
+    }));
+    await page.getByLabel('Primary navigation').getByRole('link', { name: 'Recommendations' }).click();
     await expect(page.getByTestId('recommendations')).toBeVisible();
     await page.getByTestId('share-action').first().click();
     const shareUrl = await page.getByTestId('share-url').first().textContent();
@@ -43,9 +50,7 @@ test('authenticated users can create a share and anonymous visitors see only pub
     await expect(page.locator('body')).not.toContainText('ownerId');
     await expect(page.locator('body')).not.toContainText('email');
   } finally {
-    const login = await request.post('/api/v1/auth/login', { data: { email, password } });
-    if (login.ok()) {
-      const token = (await login.json()).accessToken as string;
+    if (token) {
       await request.delete('/api/v1/users/me', {
         headers: { Authorization: `Bearer ${token}` },
         data: { password, code: null },

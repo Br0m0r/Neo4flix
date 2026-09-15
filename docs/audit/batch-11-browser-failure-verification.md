@@ -16,8 +16,8 @@ Entry point: rebuilt Docker Compose stack at `http://localhost:8080`
 Command: `NEO4FLIX_E2E_BASE_URL=http://localhost:8080 npm run e2e` from `frontend`.
 
 - 9 tests discovered.
-- 6 passed: anonymous catalog browse, USER admin denial, login/profile/logout, rating lifecycle, watchlist lifecycle, and authenticated sharing/public lookup.
-- 3 skipped because no disposable E2E credentials were configured: recommendation load/filter state, recommendation outage continuity, and ADMIN catalog CRUD.
+- 8 passed: anonymous catalog browse, USER admin denial, login/profile/logout, rating lifecycle, recommendation load/filter state, recommendation outage continuity, watchlist lifecycle, and authenticated sharing/public lookup.
+- 1 skipped because no disposable ADMIN E2E credentials were configured: ADMIN catalog CRUD.
 - No browser test failed.
 - The Playwright suite runs with one worker because these stateful auth flows intentionally share the local Nginx client identity and production auth rate-limit bucket.
 
@@ -25,7 +25,6 @@ Command: `NEO4FLIX_E2E_BASE_URL=http://localhost:8080 npm run e2e` from `fronten
 
 - With `recommendation-service` stopped, `GET /api/v1/movies?page=0&size=1` continued to return `200`; the service was then restored and all six Compose services returned healthy.
 - The first live sharing smoke exposed a Neo4j temporal-binding defect; converting share timestamps to UTC `ZonedDateTime` fixed it. Repository tests, a live API smoke, and the new Playwright sharing test all pass after the fix.
-- Recommendation-service-down browser behavior could not be exercised without an authenticated E2E fixture; the existing controller/unit contract remains the available evidence.
 - ADMIN CRUD could not be exercised without `NEO4FLIX_E2E_ADMIN_EMAIL` and `NEO4FLIX_E2E_ADMIN_PASSWORD`.
 - A 2FA browser scenario is not present in the current Playwright suite; sharing is covered by the passing authenticated sharing/public-lookup test above.
 - Neo4j failure injection and k6 stress execution were not performed in this pass.

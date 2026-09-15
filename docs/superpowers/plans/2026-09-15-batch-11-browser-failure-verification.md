@@ -58,11 +58,11 @@ Record whether `NEO4FLIX_E2E_EMAIL`, `NEO4FLIX_E2E_PASSWORD`, `NEO4FLIX_E2E_ADMI
 - Inspect: `frontend/e2e/recommendations.spec.ts`, `backend/movie-service/src/main/java/com/neo4flix/movie/recommendation/MovieRecommendationController.java`
 - Modify: `docs/audit/batch-11-browser-failure-verification.md`
 
-- [~] **Step 1: Run the existing outage scenario; record the credential-gated skip because no disposable fixture is configured.**
+- [x] **Step 1: Run the outage scenario with a disposable self-registered browser fixture.**
 
-Execute the recommendation outage Playwright test if credentials are available; otherwise record the exact credential-gated skip and verify the controller contract with the existing unit tests.
+The recommendation specs create and delete disposable users through the API; only the ADMIN CRUD spec remains credential-gated.
 
-- [x] **Step 2: Verify catalog continuity during outage; catalog remained HTTP 200 while recommendation-service was stopped, then the service was restored healthy.**
+- [x] **Step 2: Verify catalog continuity during outage; the browser fallback kept the normal movie catalog available after the recommendation request returned controlled 503/problem data.**
 
 Record that the normal catalog route remains usable and recommendation failure is represented as controlled 503/problem UI rather than a blank or fatal shell.
 
@@ -81,6 +81,6 @@ Run Compose health inspection, `git diff --check`, and the existing frontend reg
 
 Document credential-gated skips, unavailable failure injection, or any browser/environment blocker without claiming unobserved flows.
 
-- [~] **Step 3: Keep Batch 11 partially proven until disposable admin/recommendation credentials and failure injection are available.**
+- [~] **Step 3: Keep Batch 11 partially proven until disposable admin credentials and failure injection are available.**
 
 Update the master plan and active context, commit, push `main`, and verify local/remote SHA equality.

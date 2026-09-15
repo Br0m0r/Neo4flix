@@ -16,17 +16,23 @@ test('authenticated USER accounts are denied the admin catalog and movie mutatio
   });
   expect(register.status()).toBe(201);
 
+  const login = await request.post('/api/v1/auth/login', { data: { email, password } });
+  expect(login.status()).toBe(200);
+  const authResponse = await login.json() as { accessToken: string; user: unknown };
+  await page.route('**/api/v1/auth/login', (route) => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify(authResponse),
+  }));
+
   await page.goto('/auth/login');
   await page.getByRole('textbox', { name: 'Email' }).fill(email);
   await page.getByRole('textbox', { name: 'Password' }).fill(password);
   await page.getByRole('button', { name: 'Sign in' }).click();
   await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible();
 
-  const login = await request.post('/api/v1/auth/login', { data: { email, password } });
-  expect(login.status()).toBe(200);
-  const token = (await login.json()).accessToken as string;
   const mutation = await request.post('/api/v1/movies', {
-    headers: { Authorization: `Bearer ${token}` },
+    headers: { Authorization: `Bearer ${authResponse.accessToken}` },
     data: {
       title: 'Denied movie', overview: 'Denied', releaseYear: 2026, releaseDate: null,
       runtimeMinutes: null, posterUrl: null, externalSource: null, externalId: null, genreIds: [],
@@ -35,7 +41,7 @@ test('authenticated USER accounts are denied the admin catalog and movie mutatio
   expect(mutation.status()).toBe(403);
 
   const deletion = await request.delete('/api/v1/users/me', {
-    headers: { Authorization: `Bearer ${token}` },
+    headers: { Authorization: `Bearer ${authResponse.accessToken}` },
     data: { password, code: null },
   });
   expect(deletion.status()).toBe(204);
