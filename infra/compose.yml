@@ -113,6 +113,9 @@ services:
 
   movie-service:
     <<: *business-service
+    environment:
+      <<: *protected-service-environment
+      NEO4FLIX_RECOMMENDATION_BASE_URL: http://recommendation-service:8084
     image: neo4flix/movie-service:0.0.1
     build:
       <<: *service-build
