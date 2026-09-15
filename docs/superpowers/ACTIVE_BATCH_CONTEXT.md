@@ -8,7 +8,7 @@
 
 - Worktree: `C:\Users\User\Desktop\Neo4flix`
 - Branch: `main` (direct-main execution; do not create worktrees)
-- Context snapshot base: `5a6a50a` (`test: clean up recommendation fixtures on setup failure`).
+- Context snapshot base: `63103de` (`test: verify browser two-factor flow`).
 - Local `.env` is ignored and must never be committed or printed.
 
 ## Completed ledger
