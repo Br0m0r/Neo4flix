@@ -3,6 +3,8 @@ package com.neo4flix.recommendation.share;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.time.Instant;
 import java.util.List;
@@ -61,6 +63,7 @@ public final class RecommendationShareModels {
             PublicMovie movie) {
     }
 
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public static final class UnavailableShareException extends RuntimeException {
         public UnavailableShareException() {
             super("share unavailable");

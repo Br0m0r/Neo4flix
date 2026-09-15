@@ -7,6 +7,9 @@ import java.util.Base64;
 import java.util.HexFormat;
 import java.util.Objects;
 
+import org.springframework.stereotype.Service;
+
+@Service
 public final class RecommendationShareTokenService {
 
     private static final int TOKEN_BYTES = 32;
