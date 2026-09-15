@@ -5,6 +5,7 @@ import { TwoFactorLoginComponent } from './features/auth/two-factor-login.compon
 import { ProfileComponent } from './features/profile/profile.component';
 import { routes } from './app.routes';
 import { AdminCatalogComponent } from './features/admin/catalog-admin.component';
+import { ShareComponent } from './features/share/share.component';
 
 describe('auth routes', () => {
   it('registers the three lazy auth pages with anonymous-only protection', async () => {
@@ -39,5 +40,12 @@ describe('auth routes', () => {
 
     expect(admin?.canActivate).toContain(adminGuard);
     expect(await admin?.loadComponent?.()).toBe(AdminCatalogComponent);
+  });
+
+  it('registers the anonymous lazy share page without an auth guard', async () => {
+    const share = routes.find((route) => route.path === 'share/:publicToken');
+
+    expect(share?.canActivate).toBeUndefined();
+    expect(await share?.loadComponent?.()).toBe(ShareComponent);
   });
 });
