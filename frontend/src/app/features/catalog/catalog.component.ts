@@ -60,7 +60,12 @@ const EMPTY_PAGE: PageResult<MovieSummary> = { content: [], page: 0, size: 24, t
     .catalog { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
     form { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
-    img { aspect-ratio: 2 / 3; object-fit: cover; }
+    img { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; }
+    @media (max-width: 37.5rem) {
+      form { align-items: stretch; }
+      form mat-form-field, form button { width: 100%; }
+      .grid { grid-template-columns: 1fr; }
+    }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

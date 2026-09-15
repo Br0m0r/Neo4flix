@@ -62,9 +62,9 @@ Commit: `feat: close frontend route and page gaps`
 
 **Files:** `frontend/src/app/app.component.ts`, `frontend/src/app/app.component.html`, `frontend/src/app/app.component.scss`, feature component templates/styles, `frontend/src/styles.scss`, and accessibility specs.
 
-- [ ] **Step 1: Add failing tests** for navigation names, focusable controls, form labels/errors, poster alt behavior, rating keyboard semantics, and mobile navigation.
-- [ ] **Step 2: Implement shared responsive layout, visible focus, stacked filters/forms, card reflow, and accessible names** using Angular Material primitives.
-- [ ] **Step 3: Run lint, focused accessibility tests, and commit**
+- [x] **Step 1: Add failing tests** for navigation names, focusable controls, form labels/errors, poster alt behavior, rating keyboard semantics, and mobile navigation.
+- [x] **Step 2: Implement shared responsive layout, visible focus, stacked filters/forms, card reflow, and accessible names** using Angular Material primitives.
+- [x] **Step 3: Run lint, focused accessibility tests, and commit**
 
 ### Task 4: Recommendation/admin UX and API contract reconciliation
 

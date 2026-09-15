@@ -102,7 +102,7 @@ const releaseYearDateValidator: ValidatorFn = (control: AbstractControl) => {
       </mat-card>
     </section>
   `,
-  styles: [`.admin-catalog{max-width:52rem;margin:0 auto}.admin-catalog mat-card{margin-block:1rem}.admin-catalog form{display:grid;gap:1rem}.admin-catalog fieldset{border:0;display:flex;flex-wrap:wrap;gap:.75rem;padding:0}.admin-catalog ul{list-style:none;padding:0}.admin-catalog li{align-items:center;display:flex;justify-content:space-between;padding:.5rem 0}.actions{display:flex;gap:.5rem}.status{min-height:1.5rem}`],
+  styles: [`.admin-catalog{width:min(100%,52rem);margin:0 auto;padding-inline:clamp(0rem,2vw,1rem)}.admin-catalog mat-card{margin-block:1rem}.admin-catalog form{display:grid;gap:1rem}.admin-catalog fieldset{border:0;display:flex;flex-wrap:wrap;gap:.75rem;padding:0}.admin-catalog ul{list-style:none;padding:0}.admin-catalog li{align-items:center;display:flex;justify-content:space-between;padding:.5rem 0;gap:.75rem}.actions{display:flex;gap:.5rem;flex-wrap:wrap}.status{min-height:1.5rem}@media (max-width:37.5rem){.admin-catalog li{align-items:flex-start;flex-direction:column}.admin-catalog .actions{width:100%}.admin-catalog .actions button{flex:1 1 auto}}`],
 })
 export class AdminCatalogComponent implements OnInit {
   private readonly api = inject(CatalogApiService);

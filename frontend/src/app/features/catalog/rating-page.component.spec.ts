@@ -37,6 +37,10 @@ describe('RatingPageComponent', () => {
   it('renders accessible 1–5 controls and creates a missing rating', () => {
     const radios = fixture.nativeElement.querySelectorAll('input[type="radio"]');
     expect(radios.length).toBe(5);
+    expect(fixture.nativeElement.querySelector('[role="radiogroup"]')?.getAttribute('aria-label'))
+      .toBe('Choose a rating from one to five stars');
+    expect(Array.from(radios).map((radio) => (radio as HTMLInputElement).getAttribute('aria-label')))
+      .toEqual(['1 stars', '2 stars', '3 stars', '4 stars', '5 stars']);
     (radios[4] as HTMLInputElement).dispatchEvent(new Event('change'));
     fixture.detectChanges();
     (fixture.nativeElement.querySelector('button') as HTMLButtonElement).click();

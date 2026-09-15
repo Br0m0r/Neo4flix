@@ -95,7 +95,7 @@ type FilterForm = {
       }
     </section>
   `,
-  styles: [`.recommendations{max-width:1100px;margin:2rem auto;padding:0 1rem}.recommendations form{display:flex;flex-wrap:wrap;gap:1rem;align-items:end;margin:1rem 0}.recommendations label{display:flex;flex-direction:column;gap:.25rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}.grid article{border:1px solid #ddd;border-radius:8px;padding:1rem}.grid button{margin-left:.75rem}`],
+  styles: [`.recommendations{max-width:1100px;margin:2rem auto;padding:0 1rem}.recommendations form{display:flex;flex-wrap:wrap;gap:1rem;align-items:end;margin:1rem 0}.recommendations label{display:flex;flex-direction:column;gap:.25rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}.grid article{border:1px solid #ddd;border-radius:8px;padding:1rem;min-width:0;overflow-wrap:anywhere}.grid img{display:block;max-width:100%;height:auto}.grid button{margin-left:.75rem}@media (max-width:37.5rem){.recommendations form{display:grid;grid-template-columns:1fr;align-items:stretch}.recommendations form button{width:100%}.grid{grid-template-columns:1fr}.grid button{margin-left:0;margin-top:.5rem}}`],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RecommendationsComponent implements OnInit {

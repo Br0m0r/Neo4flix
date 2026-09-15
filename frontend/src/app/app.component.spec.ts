@@ -51,6 +51,8 @@ describe('AppComponent', () => {
       'Neo4flix preview',
     );
     expect(fixture.nativeElement.querySelector('main h1')).toBeNull();
+    const mobileMenu = fixture.nativeElement.querySelector('.mobile-menu-trigger') as HTMLButtonElement;
+    expect(mobileMenu.getAttribute('aria-label')).toBe('Open primary navigation menu');
   });
 
   it('shows anonymous actions and logs an authenticated user out through the store', async () => {

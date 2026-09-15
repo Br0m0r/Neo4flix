@@ -38,6 +38,12 @@ import { WatchlistApiService } from '../../core/watchlist-api.service';
       <button type="button" data-testid="movie-retry" (click)="retryMovie()">Retry</button>
     } @else { <p role="status">Movie not found.</p> }
   `,
+  styles: [
+    ':host { display: block; }',
+    'article { min-width: 0; }',
+    'article img { display: block; max-width: 100%; height: auto; max-height: 32rem; object-fit: cover; }',
+    '@media (max-width: 37.5rem) { article img { width: 100%; max-height: none; } }',
+  ],
 })
 export class MovieDetailComponent {
   private readonly route = inject(ActivatedRoute); private readonly api = inject(CatalogApiService);
