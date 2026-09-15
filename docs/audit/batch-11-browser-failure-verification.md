@@ -20,16 +20,16 @@ Command: `NEO4FLIX_E2E_BASE_URL=http://localhost:8080 npm run e2e` from `fronten
 - 1 skipped because no disposable ADMIN E2E credentials were configured: ADMIN catalog CRUD.
 - No browser test failed.
 - The Playwright suite runs with one worker because these stateful auth flows intentionally share the local Nginx client identity and production auth rate-limit bucket.
+- The credential-gated ADMIN contract was then run independently with a freshly registered, disposable user promoted only for this verification: `e2e/admin-catalog.spec.ts` passed (`1 passed`, 4.4s). The fixture cleanup query returned `remaining 0`; no test data or credentials were retained.
 
 ## Failure-mode limitations
 
 - With `recommendation-service` stopped, `GET /api/v1/movies?page=0&size=1` continued to return `200`; the service was then restored and all six Compose services returned healthy.
 - With Neo4j stopped, an authenticated catalog probe returned `500` with request ID `aa41cd3c5b18d775c049a2c8b6868a87`; Neo4j was restarted to healthy, the disposable probe user was deleted, and no volume was reset.
 - The first live sharing smoke exposed a Neo4j temporal-binding defect; converting share timestamps to UTC `ZonedDateTime` fixed it. Repository tests, a live API smoke, and the new Playwright sharing test all pass after the fix.
-- ADMIN CRUD could not be exercised without `NEO4FLIX_E2E_ADMIN_EMAIL` and `NEO4FLIX_E2E_ADMIN_PASSWORD`.
 - The 2FA browser scenario enrolls a disposable user from the returned `otpauth://` URI, verifies the password-only challenge, completes the current TOTP code, and deletes the user with reauthentication.
 - k6 stress execution was not performed in this pass.
 
 ## Batch disposition
 
-Batch 11 implementation is not marked complete: the real stack and available browser flows passed, while ADMIN CRUD remains credential-gated and k6 stress remains unverified.
+Batch 11 browser and failure-mode verification is complete for the exercise scope: the full default suite passed 8 tests with only the expected credential-gated skip, and the ADMIN CRUD contract passed separately with a disposable promoted fixture. k6 stress execution remains an optional follow-up and is not part of the Batch 11 gate.

@@ -85,6 +85,6 @@ Run Compose health inspection, `git diff --check`, and the existing frontend reg
 
 Document credential-gated skips, unavailable failure injection, or any browser/environment blocker without claiming unobserved flows.
 
-- [~] **Step 3: Keep Batch 11 partially proven until disposable ADMIN credentials are available; Neo4j failure injection is now evidenced.**
+- [x] **Step 3: Close Batch 11 after disposable ADMIN verification; Neo4j failure injection is evidenced.**
 
-Update the master plan and active context, commit, push `main`, and verify local/remote SHA equality.
+The standalone ADMIN contract passed with a disposable promoted fixture, the fixture was removed, and the Compose stack remained healthy. Update the master plan and active context, commit, push `main`, and verify local/remote SHA equality. k6 remains optional follow-up.

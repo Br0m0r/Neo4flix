@@ -1,6 +1,6 @@
-# Active Batch Context — Batch 11 Verification Pending
+# Active Batch Context — Batch 11 Complete
 
-> **Status:** Batch 10 exercise deliverables are complete and pushed. Batch 11 real-stack browser verification is partially proven; credential-gated and failure-injection scenarios remain open. Execution remains direct on `main`.
+> **Status:** Batches 10 and 11 exercise deliverables are complete and pushed. Batch 11 real-stack browser, outage, authorization, sharing, and 2FA verification is complete; k6 remains optional follow-up. Execution remains direct on `main`.
 >
 > **Purpose:** Compact handoff cache generated from the Batch 10 plan, SDD ledger, current git state, and canonical requirements. It does not replace the master plan, product/API specs, or approved batch plans.
 
@@ -8,7 +8,7 @@
 
 - Worktree: `C:\Users\User\Desktop\Neo4flix`
 - Branch: `main` (direct-main execution; do not create worktrees)
-- Context snapshot base: `63103de` (`test: verify browser two-factor flow`).
+- Context snapshot base: `a65006c` (`docs: close batch 11 verification`).
 - Local `.env` is ignored and must never be committed or printed.
 
 ## Completed ledger
@@ -66,11 +66,12 @@
 - Controlled authenticated Neo4j outage returned HTTP 500 with a request ID; Neo4j was restored healthy and the disposable probe user was removed without resetting the volume.
 - Public entry point returned HTTP 200 with request ID and configured browser security headers.
 - Controlled outage check: catalog remained HTTP 200 while recommendation-service was stopped; the service was restored and all six Compose services returned healthy.
+- Standalone ADMIN CRUD contract passed with a freshly registered/promoted disposable fixture (`1 passed`); cleanup confirmed `remaining 0` and all six services remained healthy.
 - Audit record: `docs/audit/batch-11-browser-failure-verification.md`.
 
 ## Next unfinished workstream
 
-- Finish Batch 11 with disposable ADMIN E2E credentials; k6 remains optional stress follow-up.
+- Begin Batch 12 audit dataset, Cypher/GDS evidence, usability, and runbook work. k6 remains optional stress follow-up.
 - Preserve Batch 10 controls: explicit edge headers and limits, request-ID propagation, generic Problem Details, explicit CORS/cookie-origin checks, bounded inputs, proxy-aware auth throttling, poster URL validation, and deterministic scan entry points.
 
 ## Execution policy
