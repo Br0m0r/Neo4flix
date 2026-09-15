@@ -74,6 +74,15 @@ describe('RecommendationsComponent', () => {
     expect(fixture.nativeElement.querySelector('[data-testid="movie-details"]')).not.toBeNull();
   });
 
+  it('associates every recommendation filter with a real label target', () => {
+    create();
+
+    expect(fixture.nativeElement.querySelector('label[for="recommendation-genre"]')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('label[for="recommendation-from-year"]')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('#recommendation-genre')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('#recommendation-from-year')).not.toBeNull();
+  });
+
   it('writes normalized filter values to the URL when applied', () => {
     create();
     const genre = fixture.nativeElement.querySelector('[formControlName="genre"]') as HTMLInputElement;

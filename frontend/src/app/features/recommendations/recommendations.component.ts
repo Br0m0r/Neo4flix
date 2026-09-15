@@ -32,17 +32,16 @@ type FilterForm = {
       <a routerLink="/movies">← Browse movies</a>
       <h1 id="recommendations-title">Recommendations</h1>
       <form [formGroup]="form" (ngSubmit)="applyFilters()" aria-label="Recommendation filters">
-        <label>Genre <input formControlName="genre" maxlength="80" /></label>
-        <label>From year <input formControlName="fromYear" inputmode="numeric" /></label>
-        <label>To year <input formControlName="toYear" inputmode="numeric" /></label>
-        <label>Minimum rating <input formControlName="minimumAverageRating" inputmode="decimal" /></label>
-        <label>Sort
-          <select formControlName="sort">
+        <label for="recommendation-genre">Genre</label><input id="recommendation-genre" formControlName="genre" maxlength="80" />
+        <label for="recommendation-from-year">From year</label><input id="recommendation-from-year" formControlName="fromYear" inputmode="numeric" />
+        <label for="recommendation-to-year">To year</label><input id="recommendation-to-year" formControlName="toYear" inputmode="numeric" />
+        <label for="recommendation-min-rating">Minimum rating</label><input id="recommendation-min-rating" formControlName="minimumAverageRating" inputmode="decimal" />
+        <label for="recommendation-sort">Sort</label>
+          <select id="recommendation-sort" formControlName="sort">
             <option value="recommendation">Recommended</option>
             <option value="rating">Highest rated</option>
             <option value="newest">Newest</option>
           </select>
-        </label>
         <button data-testid="apply-filters" type="submit">Apply filters</button>
         <button type="button" (click)="resetFilters()">Reset</button>
       </form>
