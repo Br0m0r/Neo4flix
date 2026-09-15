@@ -2,6 +2,11 @@
 
 This runbook prepares the existing Neo4flix graph for an evaluator walkthrough. It uses the repository’s deterministic audit fixture and does not change application code or delete Neo4j data.
 
+The official 01-edu audit questions are reproduced as an executable local
+checklist in [01-EDU_AUDIT_QUESTION_CHECKLIST.md](01-EDU_AUDIT_QUESTION_CHECKLIST.md).
+Use that checklist after the setup below; it maps each question to a live action,
+supporting test, and the evidence that should be recorded.
+
 ## Prerequisites
 
 - Windows PowerShell from the repository root.

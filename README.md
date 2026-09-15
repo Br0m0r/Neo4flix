@@ -77,6 +77,7 @@ pwsh -NoProfile -File scripts/restore-neo4j.ps1 -DumpFile .\backups\neo4j\neo4j-
 ```
 
 See [Local development](docs/DEVELOPMENT.md), the [audit runbook](docs/audit/AUDIT_RUNBOOK.md),
+the [01-edu audit question checklist](docs/audit/01-EDU_AUDIT_QUESTION_CHECKLIST.md),
 the [stress-test notes](docs/audit/STRESS_TEST.md), and the [final status reconciliation](docs/audit/FINAL_STATUS.md) for the complete command
 contracts and current limitations. The local profile is HTTP-only; deployment
 HTTPS, a human usability session, and the full k6/backup-restore audit gates
