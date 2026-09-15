@@ -17,6 +17,7 @@ wrapper, Node/npm frontend toolchain
 | Compose runtime | `docker compose ... ps` and `scripts/smoke-compose.ps1` | Six services healthy; web returned HTTP 200 with request ID |
 | Recommendation/Neo4j outage handling | Batch 11 controlled outage record | Catalog remained available; recommendation outage returned a request-traceable error; stack restored |
 | Disposable Neo4j recovery | Guarded backup/restore helpers with separate temporary source/target containers and volumes | Marker node dumped, restored, and read back successfully; temporary resources removed |
+| Authenticated k6 smoke | `scripts/k6/authenticated-smoke.js` with disposable runtime user | 15 seconds/1 VU; 48 requests; 45/45 checks; 0.00% HTTP failures; teardown left 0 users |
 
 ## Explicit limitations
 

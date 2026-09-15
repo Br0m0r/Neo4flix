@@ -57,9 +57,11 @@ The golden cases proved deterministic hybrid ranking, cold-start strategies, alr
   and outage evidence without treating skipped credentials as passes.
 - `USABILITY_TEST.md` defines the required seven-step human journey and keeps
   the participant result pending rather than fabricating observations.
-- `scripts/k6/smoke.js` and `STRESS_TEST.md` provide a bounded anonymous catalog
-  smoke profile. The pinned Docker runner passed 30 requests with 0% HTTP
-  failures and p95 latency of 14.83 ms; this is not authenticated load evidence.
+- `scripts/k6/smoke.js`, `scripts/k6/authenticated-smoke.js`, and
+  `STRESS_TEST.md` provide bounded public and disposable-account profiles. The
+  public runner passed 30 requests with 0% HTTP failures and p95 latency of
+  14.83 ms; the authenticated runner passed 45/45 checks with 0% failures and
+  p95 latency of 131.53 ms. These are not sustained-load results.
 - `scripts/backup-neo4j.ps1` and `scripts/restore-neo4j.ps1` provide explicit,
   guarded Community offline dump/load helpers. They refuse ambiguous restore
   targets; a disposable two-container marker recovery cycle passed without
