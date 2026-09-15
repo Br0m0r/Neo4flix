@@ -1,6 +1,6 @@
 # Active Batch Context — Batch 12 Partial
 
-> **Status:** Batches 10 and 11 exercise deliverables are complete and pushed. Batch 12 evidence foundation plus minimum audit/readme artifacts are present; human usability, full load, and HTTPS remain open. Guarded disposable Neo4j backup/restore smoke and bounded public k6 smoke passed. Execution remains direct on `main`.
+> **Status:** Batches 10 and 11 exercise deliverables are complete and pushed. Batch 12 evidence foundation plus minimum audit/readme artifacts are present; human usability, full load, and HTTPS remain open. Guarded disposable Neo4j backup/restore plus bounded public and authenticated k6 smokes passed. Execution remains direct on `main`.
 >
 > **Purpose:** Compact handoff cache generated from the Batch 10 plan, SDD ledger, current git state, and canonical requirements. It does not replace the master plan, product/API specs, or approved batch plans.
 
