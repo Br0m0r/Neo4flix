@@ -8,7 +8,7 @@
 
 - Worktree: `C:\Users\User\Desktop\Neo4flix`
 - Branch: `main` (direct-main execution; do not create worktrees)
-- Context snapshot base: `628d041` (`docs: record batch 11 browser verification`).
+- Context snapshot base: `7a81bbb` (`docs: add recommendation outage continuity evidence`).
 - Local `.env` is ignored and must never be committed or printed.
 
 ## Completed ledger
