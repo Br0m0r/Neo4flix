@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { signal } from '@angular/core';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { AuthStore } from '../../core/auth.store';
 import { CatalogApiService } from '../../core/catalog-api.service';
 import { RatingApiService } from '../../core/rating-api.service';
@@ -64,5 +64,24 @@ describe('MovieDetailComponent watchlist actions', () => {
 
     expect(fixture.nativeElement.querySelector('img[alt="Arrival poster"]')).not.toBeNull();
     expect(fixture.nativeElement.textContent).toContain('Science Fiction');
+  });
+
+  it('renders a retryable load error and reloads the movie', () => {
+    let unavailable = true;
+    catalog.movie.mockImplementation(() => unavailable
+      ? throwError(() => new Error('offline'))
+      : of(movie));
+    fixture = TestBed.createComponent(MovieDetailComponent);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent)
+      .toContain('Unable to load movie details. Please try again.');
+
+    const initialCalls = catalog.movie.mock.calls.length;
+    unavailable = false;
+    (fixture.nativeElement.querySelector('[data-testid="movie-retry"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(catalog.movie.mock.calls.length).toBeGreaterThan(initialCalls);
+    expect(fixture.nativeElement.querySelector('h1')?.textContent).toContain('Arrival');
   });
 });

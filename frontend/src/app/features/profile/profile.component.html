@@ -176,7 +176,7 @@
         </mat-card-content>
       </mat-card>
 
-      <mat-card appearance="outlined" aria-labelledby="ratings-section-title">
+      <mat-card appearance="outlined" id="ratings" aria-labelledby="ratings-section-title">
         <mat-card-header>
           <mat-card-title id="ratings-section-title">Ratings</mat-card-title>
           <mat-card-subtitle>Review and update the movies you have rated.</mat-card-subtitle>
@@ -203,7 +203,7 @@
             </ul>
           }
           <div class="actions">
-            <a mat-flat-button data-testid="ratings-link" href="/ratings" routerLink="/ratings">View rating history</a>
+            <a mat-flat-button data-testid="ratings-link" href="/profile#ratings">View rating history</a>
             <a mat-button data-testid="watchlist-link" href="/watchlist" routerLink="/watchlist">Open watchlist</a>
           </div>
         </mat-card-content>

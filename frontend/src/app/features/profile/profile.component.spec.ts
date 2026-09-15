@@ -387,7 +387,7 @@ describe('ProfileComponent', () => {
     const ratingLink = fixture.nativeElement.querySelector('[data-testid="ratings-link"]') as HTMLAnchorElement;
     const watchlistLink = fixture.nativeElement.querySelector('[data-testid="watchlist-link"]') as HTMLAnchorElement;
 
-    expect(ratingLink.getAttribute('href')).toBe('/ratings');
+    expect(ratingLink.getAttribute('href')).toBe('/profile#ratings');
     expect(watchlistLink.getAttribute('href')).toBe('/watchlist');
   });
 

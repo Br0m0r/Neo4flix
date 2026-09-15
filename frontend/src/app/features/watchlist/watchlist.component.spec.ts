@@ -64,4 +64,17 @@ describe('WatchlistComponent', () => {
     expect(fixture.nativeElement.querySelector('[data-testid="watchlist"]')?.textContent).toContain('Arrival');
     expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent).toContain('Unable to update your watchlist.');
   });
+
+  it('renders a load error with a retry action', () => {
+    api.list
+      .mockReturnValueOnce(throwError(() => new Error('offline')))
+      .mockReturnValueOnce(of(page([{ movieId: 'movie-2', title: 'Dune', overview: 'Desert', releaseYear: 2021, posterUrl: null, createdAt: '2026-09-14T00:00:00Z' }])));
+    create();
+
+    expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent).toContain('Unable to load your watchlist.');
+    (fixture.nativeElement.querySelector('button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(api.list).toHaveBeenCalledTimes(2);
+    expect(fixture.nativeElement.querySelector('[data-testid="watchlist"]')?.textContent).toContain('Dune');
+  });
 });

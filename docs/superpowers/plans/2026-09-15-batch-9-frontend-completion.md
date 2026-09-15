@@ -54,9 +54,9 @@ Commit: `feat: close frontend route and page gaps`
 - Modify: `frontend/src/app/core/catalog-api.service.ts`, `frontend/src/app/core/catalog.models.ts`
 - Test: adjacent `catalog`, `movie-detail`, `watchlist`, and `profile` specs
 
-- [ ] **Step 1: Add failing tests** for URL-backed browse filters, pagination/empty/error states, movie poster/genre/rating fields, retry controls, and profile/watchlist errors.
-- [ ] **Step 2: Implement route-query filter serialization, retryable error signals, empty-state actions, poster/genre/rating rendering, and DTO fields from `04_API_SPEC.md` without duplicating API calls or storing entities globally.
-- [ ] **Step 3: Run the focused catalog/detail/watchlist/profile suites and commit**
+- [x] **Step 1: Add failing tests** for URL-backed browse filters, pagination/empty/error states, movie poster/genre/rating fields, retry controls, and profile/watchlist errors.
+- [x] **Step 2: Implement route-query filter serialization, retryable error signals, empty-state actions, poster/genre/rating rendering, and DTO fields from `04_API_SPEC.md` without duplicating API calls or storing entities globally.
+- [x] **Step 3: Run the focused catalog/detail/watchlist/profile suites and commit**
 
 ### Task 3: Accessibility and responsive baseline
 

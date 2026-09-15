@@ -2,7 +2,7 @@ import { AsyncPipe } from '@angular/common';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { catchError, finalize, map, of, switchMap } from 'rxjs';
+import { catchError, finalize, map, of, shareReplay, startWith, Subject, switchMap } from 'rxjs';
 import { AuthStore } from '../../core/auth.store';
 import { CatalogApiService } from '../../core/catalog-api.service';
 import { RatingApiService } from '../../core/rating-api.service';
@@ -31,6 +31,11 @@ import { WatchlistApiService } from '../../core/watchlist-api.service';
           @if (watchlistError()) { <p role="alert">{{ watchlistError() }}</p> }
         </section>
       </article>
+    } @else if (movieLoading()) {
+      <p role="status">Loading movie details…</p>
+    } @else if (movieError()) {
+      <p role="alert">{{ movieError() }}</p>
+      <button type="button" data-testid="movie-retry" (click)="retryMovie()">Retry</button>
     } @else { <p role="status">Movie not found.</p> }
   `,
 })
@@ -42,10 +47,32 @@ export class MovieDetailComponent {
   readonly watchlistBusy = signal(false);
   readonly watchlistStatus = signal<string | null>(null);
   readonly watchlistError = signal<string | null>(null);
+  readonly movieLoading = signal(true);
+  readonly movieError = signal<string | null>(null);
   readonly authenticated = () => this.auth.accessToken() !== null;
   readonly genreName = (genre: { name: string }) => genre.name;
-  readonly movie$ = this.route.paramMap.pipe(map(params => params.get('id')), switchMap(id => id ? this.api.movie(id) : of(null)), catchError(() => of(null)));
+  private readonly reloadMovie$ = new Subject<void>();
+  readonly movie$ = this.reloadMovie$.pipe(
+    startWith(void 0),
+    switchMap(() => {
+      this.movieLoading.set(true);
+      this.movieError.set(null);
+      return this.route.paramMap.pipe(
+        map(params => params.get('id')),
+        switchMap(id => id ? this.api.movie(id) : of(null)),
+        catchError(() => {
+          this.movieError.set('Unable to load movie details. Please try again.');
+          return of(null);
+        }),
+        finalize(() => this.movieLoading.set(false)),
+      );
+    }),
+    takeUntilDestroyed(this.destroyRef),
+    shareReplay({ bufferSize: 1, refCount: false }),
+  );
   readonly summary$ = this.route.paramMap.pipe(map(params => params.get('id')), switchMap(id => id ? this.ratingApi.summary(id) : of(null)), catchError(() => of(null)));
+
+  retryMovie(): void { this.reloadMovie$.next(); }
 
   toggleWatchlist(movieId: string): void {
     if (this.watchlistBusy()) return;
