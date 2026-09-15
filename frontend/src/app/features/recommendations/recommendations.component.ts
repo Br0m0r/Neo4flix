@@ -192,7 +192,7 @@ export class RecommendationsComponent implements OnInit {
       finalize(() => this.shareBusyMovieId.set(null)),
     ).subscribe({
       next: (created) => {
-        const url = created.publicPath;
+        const url = `${globalThis.location.origin}${created.publicPath}`;
         this.shareUrl.set(url);
         void this.copyPublicUrl(url);
       },

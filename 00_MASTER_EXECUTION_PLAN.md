@@ -715,7 +715,7 @@ reconciliation, the complete document must still be reviewed.
 
 ## Batch 8 — Recommendation Sharing and Recommendation-Service CRUD Completion
 
-**Status:** [ ]
+**Status:** [x]
 
 **Required reading:**
 

@@ -5,6 +5,8 @@ import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,9 +62,9 @@ public interface RecommendationShareRepository {
             OPTIONAL MATCH (m)-[:IN_GENRE]->(g:Genre)
             OPTIONAL MATCH (m)<-[rating:RATED]-(:User)
             WITH s, m, collect(DISTINCT CASE WHEN g IS NULL THEN null ELSE {id: g.id, name: g.name} END) AS genres,
-                 avg(rating.score) AS averageRating, count(rating) AS ratingCount
+                 avg(rating.score) AS averageRating, count(DISTINCT rating) AS ratingCount
             RETURN s.id AS id, m.id AS movieId, s.expiresAt AS expiresAt,
-                   m.id AS movieId, m.title AS title, m.overview AS overview,
+                   m.title AS title, m.overview AS overview,
                    m.releaseYear AS releaseYear, m.releaseDate AS releaseDate,
                    m.posterUrl AS posterUrl, genres, averageRating, ratingCount
             """;
@@ -179,6 +181,8 @@ public interface RecommendationShareRepository {
 
         private static Instant instant(Object value) {
             if (value instanceof Instant instant) return instant;
+            if (value instanceof ZonedDateTime dateTime) return dateTime.toInstant();
+            if (value instanceof OffsetDateTime dateTime) return dateTime.toInstant();
             if (value == null) return null;
             return Instant.parse(String.valueOf(value));
         }

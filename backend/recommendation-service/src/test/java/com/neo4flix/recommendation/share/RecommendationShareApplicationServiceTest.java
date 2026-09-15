@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Optional;
 import java.util.List;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -55,6 +56,17 @@ class RecommendationShareApplicationServiceTest {
     }
 
     @Test
+    void retriesAUniqueTokenCollision() {
+        OwnerView owner = new OwnerView("share-1", "movie-1", NOW, NOW.plusSeconds(30L * 86400), false);
+        when(repository.create(any(), any(), any(), any(), any(), any()))
+                .thenThrow(new DataIntegrityViolationException("duplicate token hash"))
+                .thenReturn(Optional.of(owner));
+
+        assertThat(service.create("owner-1", new CreateRequest("movie-1", null)).id()).isEqualTo("share-1");
+        verify(repository, org.mockito.Mockito.times(2)).create(any(), any(), any(), any(), any(), any());
+    }
+
+    @Test
     void updatesExpiryAndRevokesOnlyAnOwnedShare() {
         OwnerView existing = new OwnerView("share-1", "movie-1", NOW, NOW.plusSeconds(30L * 86400), false);
         OwnerView updated = new OwnerView("share-1", "movie-1", NOW, NOW.plusSeconds(60L * 86400), true);
@@ -66,6 +78,19 @@ class RecommendationShareApplicationServiceTest {
 
         assertThat(result).isEqualTo(updated);
         verify(repository).updateOwned("owner-1", "share-1", NOW.plusSeconds(60L * 86400), true, NOW);
+    }
+
+    @Test
+    void revokeOnlyUpdatePreservesTheExistingExpiry() {
+        Instant existingExpiry = NOW.plusSeconds(30L * 86400);
+        OwnerView existing = new OwnerView("share-1", "movie-1", NOW, existingExpiry, false);
+        OwnerView updated = new OwnerView("share-1", "movie-1", NOW, existingExpiry, true);
+        when(repository.findOwned("owner-1", "share-1")).thenReturn(Optional.of(existing));
+        when(repository.updateOwned("owner-1", "share-1", existingExpiry, true, NOW))
+                .thenReturn(Optional.of(updated));
+
+        assertThat(service.update("owner-1", "share-1", new UpdateRequest(null, true))).isEqualTo(updated);
+        verify(repository).updateOwned("owner-1", "share-1", existingExpiry, true, NOW);
     }
 
     @Test

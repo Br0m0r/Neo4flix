@@ -1,44 +1,41 @@
-# Active Batch Context — Batch 8 Recommendation Sharing and CRUD
+# Active Batch Context — Batch 8 Complete; Batch 9 Next
 
-> **Status:** Batch 7 is implemented and locally verified on `main`; Batch 8 is the next unfinished workstream.
+> **Status:** Batch 8 is implemented, verified, and ready to push from direct `main` execution. Batch 9 is the next unfinished workstream.
 >
-> **Purpose:** Compact handoff cache generated from the Batch 7 plan, SDD ledger, current git state, and canonical batch requirements. It does not replace the master plan, product/API specs, or the approved Batch 8 design/plan when created.
+> **Purpose:** Compact handoff cache generated from the Batch 8 plan, SDD ledger, current git state, and canonical requirements. It does not replace the master plan, product/API specs, or approved batch plans.
 
 ## Repository state
 
 - Worktree: `C:\Users\User\Desktop\Neo4flix`
 - Branch: `main` (direct-main execution; do not create worktrees)
-- Context snapshot base: `5e58720` (`fix: reconcile recommendation contracts`)
-- Batch 7 commits: `576a9f4`, `1c9f3c2`, `83cbfb6`, `d78c05f`, `39af0b1`, `f8d64e7`
+- Context snapshot base: final Batch 8 implementation plus audit/context updates
 - Local `.env` is ignored and must never be committed or printed.
 
 ## Completed ledger
 
-- Batches 0–6 remain complete and preserved.
-- Batch 7 recommendation API/UI/facade is complete:
-  - Recommendation Service `/api/v1/recommendations/me` derives identity from JWT `sub`, bounds filters, sorts/pages deterministically, and returns typed reason/strategy/movie summaries without peer/vector/watchlist internals.
-  - Movie Service `/api/v1/movies/recommended` forwards the allowlisted filters, bearer token, and generated/request-provided request ID; downstream validation passes through and failures return shared-contract 503 Problem Details.
-  - The facade route is authenticated before public movie GET matchers; normal catalog routes remain independent.
-  - Angular has a typed recommendation client, guarded lazy `/recommendations` route, URL-backed filters, loading/empty/error/503 states, detail links, and watchlist actions.
-  - Compose base/dev overlays point Movie Service at `http://recommendation-service:8084`.
-  - Playwright browser contract covers authenticated loading/filter persistence and outage fallback; tests skip safely until E2E credentials are configured.
+- Batches 0–7 remain complete and preserved.
+- Batch 8 recommendation sharing and CRUD is complete:
+  - Recommendation Service owns parameterized share persistence and owner/public CRUD.
+  - Tokens are cryptographically random; only SHA-256 hashes persist.
+  - Owner identity is derived from JWT `sub`; expiry, revocation, collision retry, and not-found behavior are enforced.
+  - Public lookup is anonymous but exposes only safe movie/genre projections.
+  - Public-share security is explicit and movie deletion removes inbound share nodes.
+  - Angular has typed share APIs, recommendation-card creation/copy flow, and anonymous `/share/:publicToken` page.
 
-## Batch 7 verification evidence
+## Batch 8 verification evidence
 
-- Full Maven reactor: 114 tests, 0 failures, 0 errors.
-- Focused recommendation API: 14 tests passed.
-- Movie/platform suites: 22 tests passed, including anonymous 401 protection for the facade.
-- Frontend unit suite: 84 tests passed; `npm run lint` and `npm run build` passed.
-- Compose interpolation validation passed with command-scoped placeholders; the user's `.env` was not changed.
-- Recommendation Playwright contract listed 2 tests and ran 2 skipped because credentials were not configured.
+- Full Maven reactor: 129 tests, 0 failures/errors/skips.
+- Recommendation Service reactor: 39 tests, 0 failures/errors/skips.
+- Frontend unit suite: 90 tests across 24 files; lint and production build passed.
+- Compose interpolation passed using `.env.example`; no `.env` was changed or printed.
 - `git diff --check` passed.
-- Audit record: `docs/audit/batch-7-verification.md`.
+- Playwright share-specific coverage is not present; existing authenticated specs skip without configured E2E credentials. This is recorded explicitly in `docs/audit/batch-8-verification.md`.
+- Audit record: `docs/audit/batch-8-verification.md`.
 
-## Next workstream: Batch 8
+## Next workstream: Batch 9
 
-- Canonical section: `00_MASTER_EXECUTION_PLAN.md` → “Batch 8 — Recommendation Sharing and Recommendation-Service CRUD Completion”.
-- Required reading before planning: sharing sections in `01_PRODUCT_SPEC.md`, `03_GRAPH_DATABASE_SPEC.md`, `04_API_SPEC.md`, `05_FRONTEND_SPEC.md`, and share privacy guidance in `06_TESTING_SECURITY.md`.
-- Preserve Batch 7 contracts: share tokens must be cryptographically random, only hashes persist, ownership/expiry/revocation are enforced, public lookup cannot leak private recommendation data, and sharing remains separate from recommendation ranking.
+- Canonical section: `00_MASTER_EXECUTION_PLAN.md` → “Batch 9 — Frontend Completion, Accessibility, Responsive, Contract Reconciliation”.
+- Preserve Batch 8 contracts: public links remain hash-only and owner-scoped; public pages must not leak private recommendation data; recommendation failures must not break normal catalog browsing.
 
 ## Execution policy
 

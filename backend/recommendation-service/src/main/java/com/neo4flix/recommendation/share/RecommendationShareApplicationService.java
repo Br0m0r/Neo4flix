@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import static com.neo4flix.recommendation.share.RecommendationShareModels.*;
@@ -48,10 +49,14 @@ public final class RecommendationShareApplicationService {
         Instant expiresAt = createdAt.plusSeconds(expiryDays * 86400L);
         for (int attempt = 0; attempt < MAX_TOKEN_ATTEMPTS; attempt++) {
             RecommendationShareTokenService.IssuedToken issued = tokens.issue();
-            OptionalOwner created = new OptionalOwner(repository.create(ownerId, movieId, UUID.randomUUID().toString(),
-                    issued.hash(), createdAt, expiresAt));
-            if (created.value().isPresent()) {
-                return toCreated(created.value().get(), issued.rawToken());
+            try {
+                OptionalOwner created = new OptionalOwner(repository.create(ownerId, movieId, UUID.randomUUID().toString(),
+                        issued.hash(), createdAt, expiresAt));
+                if (created.value().isPresent()) {
+                    return toCreated(created.value().get(), issued.rawToken());
+                }
+            } catch (DataIntegrityViolationException collision) {
+                // A unique token-hash collision is retriable; the next attempt gets a fresh token.
             }
         }
         throw new IllegalArgumentException("movie not found or share could not be created");
@@ -75,10 +80,10 @@ public final class RecommendationShareApplicationService {
         if (existing.revoked() && !Boolean.TRUE.equals(request.revoke())) {
             throw new IllegalArgumentException("revoked shares cannot be reactivated");
         }
-        int expiryDays = request.expiresInDays() == null
-                ? remainingDays(existing.expiresAt()) : expiryDays(request.expiresInDays());
         Instant now = clock.instant();
-        Instant expiresAt = now.plusSeconds(expiryDays * 86400L);
+        Instant expiresAt = request.expiresInDays() == null
+                ? existing.expiresAt()
+                : now.plusSeconds(expiryDays(request.expiresInDays()) * 86400L);
         return repository.updateOwned(ownerId, shareId, expiresAt, Boolean.TRUE.equals(request.revoke()), now)
                 .orElseThrow(UnavailableShareException::new);
     }
@@ -100,13 +105,6 @@ public final class RecommendationShareApplicationService {
             throw new IllegalArgumentException("share expiry is out of range");
         }
         return days;
-    }
-
-    private int remainingDays(Instant expiresAt) {
-        if (expiresAt == null) return properties.defaultExpiryDays();
-        long seconds = Math.max(1L, expiresAt.getEpochSecond() - clock.instant().getEpochSecond());
-        return (int) Math.min(properties.maxExpiryDays(), Math.max(properties.minExpiryDays(),
-                (seconds + 86399L) / 86400L));
     }
 
     private static CreatedView toCreated(OwnerView ownerView, String rawToken) {

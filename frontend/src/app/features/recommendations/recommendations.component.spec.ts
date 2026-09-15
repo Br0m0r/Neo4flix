@@ -133,10 +133,10 @@ describe('RecommendationsComponent', () => {
     fixture.detectChanges();
 
     expect(shareApi.create).toHaveBeenCalledWith('movie-1', 30);
-    expect(fixture.nativeElement.textContent).toContain('/share/raw-token');
+    expect(fixture.nativeElement.textContent).toContain(`${globalThis.location.origin}/share/raw-token`);
   });
 
-  it('copies a created public path through the Clipboard API when available', async () => {
+  it('copies a paste-ready public URL through the Clipboard API when available', async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
     api.list.mockReturnValue(of(response([item])));
@@ -149,6 +149,6 @@ describe('RecommendationsComponent', () => {
     fixture.nativeElement.querySelector('button[data-testid="share-action"]').click();
     await Promise.resolve();
 
-    expect(writeText).toHaveBeenCalledWith('/share/raw-token');
+    expect(writeText).toHaveBeenCalledWith(`${globalThis.location.origin}/share/raw-token`);
   });
 });

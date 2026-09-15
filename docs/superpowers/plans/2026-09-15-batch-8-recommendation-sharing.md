@@ -41,22 +41,22 @@ Backend files are grouped by responsibility: token/time primitives, share persis
 - `RecommendationShareProperties` exposes `defaultExpiryDays=30`, `minExpiryDays=1`, and `maxExpiryDays=365` with Spring configuration prefix `neo4flix.recommendation.share`.
 - `RecommendationShareModels` defines records `CreateRequest(String movieId, Integer expiresInDays)`, `UpdateRequest(Integer expiresInDays, Boolean revoke)`, `OwnerView`, `CreatedView` (with raw token), `PublicView`, `PublicMovie`, and `UnavailableShareException`.
 
-- [ ] **Step 1: Write failing token tests** asserting a 32-byte URL-safe token, distinct successive tokens, deterministic hash output, and no raw token in the hash.
-- [ ] **Step 2: Run the focused test to verify it fails**
+- [x] **Step 1: Write failing token tests** asserting a 32-byte URL-safe token, distinct successive tokens, deterministic hash output, and no raw token in the hash.
+- [x] **Step 2: Run the focused test to verify it fails**
 
 Run: `mvn -B -pl backend/recommendation-service -Dtest=RecommendationShareTokenServiceTest test`
 
 Expected: FAIL because the token service and records do not exist.
 
-- [ ] **Step 3: Implement the token codec and bounded expiry properties** using `SecureRandom`, `Base64.getUrlEncoder().withoutPadding()`, `MessageDigest.getInstance("SHA-256")`, and constructor validation that rejects non-positive or inverted bounds.
-- [ ] **Step 4: Add request/response records and configuration defaults** without exposing persistence node types.
-- [ ] **Step 5: Run the focused tests**
+- [x] **Step 3: Implement the token codec and bounded expiry properties** using `SecureRandom`, `Base64.getUrlEncoder().withoutPadding()`, `MessageDigest.getInstance("SHA-256")`, and constructor validation that rejects non-positive or inverted bounds.
+- [x] **Step 4: Add request/response records and configuration defaults** without exposing persistence node types.
+- [x] **Step 5: Run the focused tests**
 
 Run: `mvn -B -pl backend/recommendation-service -Dtest=RecommendationShareTokenServiceTest,RecommendationShareModelsTest test`
 
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```text
 git add backend/recommendation-service/src/main backend/recommendation-service/src/test
@@ -78,22 +78,22 @@ git commit -m "feat: add recommendation share token contracts"
 - `deleteOwned(String ownerId, String shareId)` returns a boolean.
 - `findPublic(String tokenHash, Instant now)` returns `Optional<PublicView>` and filters revoked/expired shares in Cypher.
 
-- [ ] **Step 1: Write repository contract tests** with a mocked `Neo4jClient` verifying every query binds `ownerId`, `shareId`, `movieId`, `tokenHash`, `now`, and timestamps as parameters; verify public projection has no creator or token-hash field.
-- [ ] **Step 2: Run the focused repository test to verify it fails**
+- [x] **Step 1: Write repository contract tests** with a mocked `Neo4jClient` verifying every query binds `ownerId`, `shareId`, `movieId`, `tokenHash`, `now`, and timestamps as parameters; verify public projection has no creator or token-hash field.
+- [x] **Step 2: Run the focused repository test to verify it fails**
 
 Run: `mvn -B -pl backend/recommendation-service -Dtest=RecommendationShareRepositoryTest test`
 
 Expected: FAIL because the repository contract is absent.
 
-- [ ] **Step 3: Implement the nested `@Repository` Neo4j adapter** using explicit `MATCH`, `CREATE`, `SET`, `DETACH DELETE`, and safe projection queries. Use fixed `ORDER BY s.createdAt DESC` and no string interpolation of request values.
-- [ ] **Step 4: Extend mapping assertions** to retain `RecommendationShareNode` label/id/relationship-direction coverage and document that API paths use DTO projections.
-- [ ] **Step 5: Run repository and mapping tests**
+- [x] **Step 3: Implement the nested `@Repository` Neo4j adapter** using explicit `MATCH`, `CREATE`, `SET`, `DETACH DELETE`, and safe projection queries. Use fixed `ORDER BY s.createdAt DESC` and no string interpolation of request values.
+- [x] **Step 4: Extend mapping assertions** to retain `RecommendationShareNode` label/id/relationship-direction coverage and document that API paths use DTO projections.
+- [x] **Step 5: Run repository and mapping tests**
 
 Run: `mvn -B -pl backend/recommendation-service -Dtest=RecommendationShareRepositoryTest,RecommendationPersistenceMappingTest test`
 
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```text
 git add backend/recommendation-service/src/main/java/com/neo4flix/recommendation/persistence backend/recommendation-service/src/test/java/com/neo4flix/recommendation/persistence
@@ -114,23 +114,23 @@ git commit -m "feat: add parameterized recommendation share repository"
 - `publicLookup(String rawToken, Clock clock)` returns `PublicView` or throws the shared not-found exception.
 - Controller routes are `POST/GET/PATCH/DELETE /api/v1/recommendation-shares` and `GET /api/v1/shares/{publicToken}`. Owner identity is read from `JwtClaims.subject()` and never from JSON/query data.
 
-- [ ] **Step 1: Write failing service tests** for default expiry, minimum/maximum bounds, movie-not-found, owner isolation, revoke irreversibility, random-token public lookup failure, and raw-token-only-on-create behavior.
-- [ ] **Step 2: Write failing MockMvc tests** for `201`, owner CRUD statuses, malformed/invalid body `400`, anonymous public `200`, and public invalid/expired/revoked `404`.
-- [ ] **Step 3: Run the focused tests to verify they fail**
+- [x] **Step 1: Write failing service tests** for default expiry, minimum/maximum bounds, movie-not-found, owner isolation, revoke irreversibility, random-token public lookup failure, and raw-token-only-on-create behavior.
+- [x] **Step 2: Write failing MockMvc tests** for `201`, owner CRUD statuses, malformed/invalid body `400`, anonymous public `200`, and public invalid/expired/revoked `404`.
+- [x] **Step 3: Run the focused tests to verify they fail**
 
 Run: `mvn -B -pl backend/recommendation-service -Dtest=RecommendationShareApplicationServiceTest,RecommendationShareControllerTest test`
 
 Expected: FAIL because application/controller classes and routes do not exist.
 
-- [ ] **Step 4: Implement application validation and token collision retry** (up to three generated-token attempts, then a generic server failure), calculate `expiresAt` from the injected UTC clock, and map repository optionals to the shared Problem Details behavior.
-- [ ] **Step 5: Implement thin controllers** with `@Valid` request records, `ResponseEntity` status mapping, and no persistence types in responses.
-- [ ] **Step 6: Run the focused tests**
+- [x] **Step 4: Implement application validation and token collision retry** (up to three generated-token attempts, then a generic server failure), calculate `expiresAt` from the injected UTC clock, and map repository optionals to the shared Problem Details behavior.
+- [x] **Step 5: Implement thin controllers** with `@Valid` request records, `ResponseEntity` status mapping, and no persistence types in responses.
+- [x] **Step 6: Run the focused tests**
 
 Run: `mvn -B -pl backend/recommendation-service -Dtest=RecommendationShareApplicationServiceTest,RecommendationShareControllerTest test`
 
 Expected: PASS.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```text
 git add backend/recommendation-service/src/main/java/com/neo4flix/recommendation/share backend/recommendation-service/src/test/java/com/neo4flix/recommendation/share
@@ -151,21 +151,21 @@ git commit -m "feat: expose recommendation share CRUD"
 - Movie deletion removes `(:RecommendationShare)-[:SHARES]->(:Movie)` share nodes before detaching the Movie.
 - Existing account deletion removes `(:User)-[:CREATED_SHARE]->(:RecommendationShare)` nodes; tests retain that invariant.
 
-- [ ] **Step 1: Write failing security and cleanup tests** asserting anonymous public lookup is permitted, owner CRUD is protected, and movie deletion query contains share cleanup before `DETACH DELETE m`.
-- [ ] **Step 2: Run focused platform/movie tests to verify failure**
+- [x] **Step 1: Write failing security and cleanup tests** asserting anonymous public lookup is permitted, owner CRUD is protected, and movie deletion query contains share cleanup before `DETACH DELETE m`.
+- [x] **Step 2: Run focused platform/movie tests to verify failure**
 
 Run: `mvn -B -pl backend/platform-common,backend/movie-service -am -Dtest=ResourceServerSecurityConfigTest,MovieCatalogRepositoryTest test`
 
 Expected: FAIL on the missing public matcher and missing share cleanup.
 
-- [ ] **Step 3: Add the explicit GET matcher before authenticated fall-through** and change movie deletion to delete inbound RecommendationShare nodes in the same parameterized operation before detaching the movie.
-- [ ] **Step 4: Run focused tests and account deletion integration coverage**
+- [x] **Step 3: Add the explicit GET matcher before authenticated fall-through** and change movie deletion to delete inbound RecommendationShare nodes in the same parameterized operation before detaching the movie.
+- [x] **Step 4: Run focused tests and account deletion integration coverage**
 
 Run: `mvn -B -pl backend/platform-common,backend/movie-service,backend/user-service -am -Dtest=ResourceServerSecurityConfigTest,MovieCatalogRepositoryTest,AuthProductionContextIT test`
 
 Expected: PASS (integration test may be skipped only when Docker/Testcontainers is unavailable).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```text
 git add backend/platform-common backend/movie-service backend/user-service
@@ -187,23 +187,23 @@ git commit -m "fix: secure public shares and clean deleted movies"
 - `publicLookup(publicToken: string): Observable<PublicRecommendationShare>` calls `/api/v1/shares/{encodeURIComponent(publicToken)}`.
 - `ShareComponent` loads `ActivatedRoute.paramMap`, renders public movie-safe fields, and maps every `HttpErrorResponse` to one generic unavailable message.
 
-- [ ] **Step 1: Write failing client/page tests** for URL encoding, public success rendering, generic 404 rendering, no creator/private fields, and route registration.
-- [ ] **Step 2: Run frontend focused tests to verify failure**
+- [x] **Step 1: Write failing client/page tests** for URL encoding, public success rendering, generic 404 rendering, no creator/private fields, and route registration.
+- [x] **Step 2: Run frontend focused tests to verify failure**
 
 Run: `npm test -- --watch=false --include='src/app/features/share/share.component.spec.ts'`
 
 Expected: FAIL because the client, component, and route do not exist.
 
-- [ ] **Step 3: Implement typed models/client** with `HttpParams` only for optional expiry and no token logging.
-- [ ] **Step 4: Implement standalone anonymous share page** with loading/status/error states, movie detail link, browse/register links, and plain-text interpolation for user-visible fields.
-- [ ] **Step 5: Register `share/:publicToken` before the wildcard route** without `authGuard`.
-- [ ] **Step 6: Run focused frontend tests**
+- [x] **Step 3: Implement typed models/client** with `HttpParams` only for optional expiry and no token logging.
+- [x] **Step 4: Implement standalone anonymous share page** with loading/status/error states, movie detail link, browse/register links, and plain-text interpolation for user-visible fields.
+- [x] **Step 5: Register `share/:publicToken` before the wildcard route** without `authGuard`.
+- [x] **Step 6: Run focused frontend tests**
 
 Run: `npm test -- --watch=false --include='src/app/features/share/share.component.spec.ts'`
 
 Expected: PASS.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```text
 git add frontend/src/app/core frontend/src/app/features/share frontend/src/app/app.routes.ts
@@ -221,21 +221,21 @@ git commit -m "feat: add anonymous recommendation share page"
 - `RecommendationsComponent` injects `RecommendationShareApiService`, exposes one Share button per movie card, and stores only the returned `publicPath`/status in component state.
 - `copyPublicUrl(url: string): Promise<void>` uses `navigator.clipboard.writeText` when available and a temporary textarea fallback otherwise.
 
-- [ ] **Step 1: Write failing component tests** for share button delegation, displayed public URL, successful Clipboard API copy, fallback copy, and visible failure state.
-- [ ] **Step 2: Run the focused component test to verify failure**
+- [x] **Step 1: Write failing component tests** for share button delegation, displayed public URL, successful Clipboard API copy, fallback copy, and visible failure state.
+- [x] **Step 2: Run the focused component test to verify failure**
 
 Run: `npm test -- --watch=false --include='src/app/features/recommendations/recommendations.component.spec.ts'`
 
 Expected: FAIL because the Share action and service injection do not exist.
 
-- [ ] **Step 3: Implement the minimal share state/action** with per-movie busy state, `finalize`, and generic error copy. Use `window.location.origin + publicPath` for the displayed URL and never log the raw token.
-- [ ] **Step 4: Run recommendation component tests**
+- [x] **Step 3: Implement the minimal share state/action** with per-movie busy state, `finalize`, and generic error copy. Use `window.location.origin + publicPath` for the displayed URL and never log the raw token.
+- [x] **Step 4: Run recommendation component tests**
 
 Run: `npm test -- --watch=false --include='src/app/features/recommendations/recommendations.component.spec.ts'`
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```text
 git add frontend/src/app/features/recommendations frontend/src/app/core/recommendation-share-api.service.ts
@@ -249,7 +249,7 @@ git commit -m "feat: add recommendation share action"
 - Modify: `docs/superpowers/ACTIVE_BATCH_CONTEXT.md`
 - Modify: `00_MASTER_EXECUTION_PLAN.md`
 
-- [ ] **Step 1: Run backend focused and full tests**
+- [x] **Step 1: Run backend focused and full tests**
 
 Run:
 
@@ -260,7 +260,7 @@ mvn -B test
 
 Expected: BUILD SUCCESS, zero failures/errors; record exact module test counts.
 
-- [ ] **Step 2: Run frontend, lint, and build verification**
+- [x] **Step 2: Run frontend, lint, and build verification**
 
 Run:
 
@@ -272,17 +272,17 @@ npm run build
 
 Expected: all tests pass, lint has zero warnings, build succeeds.
 
-- [ ] **Step 3: Run Compose interpolation and serial Playwright share contract** using command-scoped placeholders only; do not create or print `.env`. Record skipped E2E tests explicitly when credentials are absent.
-- [ ] **Step 4: Run `git diff --check` and confirm `git status --short` contains only intended audit/context/plan changes.**
-- [ ] **Step 5: Populate the audit with token non-persistence, ownership, expiry/revocation, public privacy, and deletion evidence. Mark Batch 8 complete in `00_MASTER_EXECUTION_PLAN.md` and update the active context to Batch 9.
-- [ ] **Step 6: Commit the audit/context/plan status update**
+- [x] **Step 3: Run Compose interpolation and serial Playwright share contract** using command-scoped placeholders only; do not create or print `.env`. Record skipped E2E tests explicitly when credentials are absent.
+- [x] **Step 4: Run `git diff --check` and confirm `git status --short` contains only intended audit/context/plan changes.**
+- [x] **Step 5: Populate the audit with token non-persistence, ownership, expiry/revocation, public privacy, and deletion evidence. Mark Batch 8 complete in `00_MASTER_EXECUTION_PLAN.md` and update the active context to Batch 9.
+- [x] **Step 6: Commit the audit/context/plan status update**
 
 ```text
 git add docs/audit/batch-8-verification.md docs/superpowers/ACTIVE_BATCH_CONTEXT.md 00_MASTER_EXECUTION_PLAN.md
 git commit -m "docs: verify batch 8 recommendation sharing"
 ```
 
-- [ ] **Step 7: Push `main` and verify remote equality**
+- [x] **Step 7: Push `main` and verify remote equality**
 
 Run:
 
@@ -293,4 +293,3 @@ git ls-remote origin refs/heads/main
 ```
 
 Expected: local HEAD equals the remote `main` SHA.
-
