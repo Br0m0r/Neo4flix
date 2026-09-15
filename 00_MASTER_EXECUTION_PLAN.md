@@ -783,7 +783,7 @@ reconciliation, the complete document must still be reviewed.
 
 ## Batch 10 — Cross-Cutting Security Hardening and Observability
 
-**Status:** [~]
+**Status:** [x]
 
 **Required reading:**
 

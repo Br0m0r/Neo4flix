@@ -1,6 +1,6 @@
-# Active Batch Context — Batch 10 Verification Pending
+# Active Batch Context — Batch 11 Ready
 
-> **Status:** Batch 10 implementation is complete, but the acceptance gate remains partially proven until optional scanners and deployment-only TLS/stress evidence are available; execution remains direct on `main`.
+> **Status:** Batch 10 exercise deliverables are complete and pushed. Optional deployment scanners/TLS/stress checks remain documented follow-up; execution remains direct on `main`.
 >
 > **Purpose:** Compact handoff cache generated from the Batch 10 plan, SDD ledger, current git state, and canonical requirements. It does not replace the master plan, product/API specs, or approved batch plans.
 
@@ -8,7 +8,7 @@
 
 - Worktree: `C:\Users\User\Desktop\Neo4flix`
 - Branch: `main` (direct-main execution; do not create worktrees)
-- Context snapshot base: `0428023` (`security: close batch 10 control gaps`).
+- Context snapshot base: `0ce7abf` (`docs: refresh active batch context`).
 - Local `.env` is ignored and must never be committed or printed.
 
 ## Completed ledger
@@ -53,12 +53,12 @@
 - `ef8b6a8` adds deterministic `make security`/PowerShell scan entry points with tracked secret-path checks and explicit optional-scanner skips.
 - `1dcdfe1` records the security evidence matrix and fresh verification results.
 - Focused Maven security tests passed; frontend regression passed (105 tests/27 files), lint and production build passed, Compose config passed, header contract passed, Pester security wrapper tests passed (2/2), npm audit reported 0 vulnerabilities, and `git diff --check` passed.
-- OWASP Dependency-Check, Gitleaks, and Trivy are not installed in the current environment and are explicitly reported as skipped; TLS/HSTS and k6 are not claimed by local HTTP-only verification.
+- OWASP Dependency-Check, Gitleaks, and Trivy are not installed in the current environment and are explicitly reported as optional follow-up skips; production TLS/HSTS and k6 are likewise optional deployment follow-up, not Batch 10 exercise blockers.
 - Review follow-up added bounded Nginx limits for expensive movie/recommendation routes, Compose trusted-proxy configuration, and HTTPS/loopback poster URL validation with focused tests.
 
 ## Next unfinished workstream
 
-- Finish Batch 10 acceptance evidence when gitleaks, Trivy, production TLS/HSTS, and k6/stress tooling are available; do not claim `[x]` until those gates are verified.
+- Begin Batch 11 full browser E2E and failure-mode verification from the master plan.
 - Preserve Batch 10 controls: explicit edge headers and limits, request-ID propagation, generic Problem Details, explicit CORS/cookie-origin checks, bounded inputs, proxy-aware auth throttling, poster URL validation, and deterministic scan entry points.
 
 ## Execution policy

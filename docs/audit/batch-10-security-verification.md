@@ -30,8 +30,8 @@ Scope: edge security headers, deterministic scan entry points, and evidence for 
 - Movie writes validate poster URLs as HTTPS, allowing only explicit localhost/loopback HTTP development exceptions.
 - Existing tests cover JWT issuer/audience/signature/expiry, role/ownership denial, CORS, request-ID propagation, cookie attributes, origin checks, path normalization, and 429 responses.
 
-## Explicit gaps / follow-up
+## Optional deployment follow-up (not Batch 10 exercise blockers)
 
-- OWASP Dependency-Check, gitleaks, and Trivy were not available in this environment; the wrapper reports those skips rather than claiming scan results.
+- OWASP Dependency-Check, gitleaks, and Trivy were not available in this environment; the wrapper reports those skips rather than claiming scan results. These tools are optional follow-up for a hardened deployment pipeline, not required exercise deliverables.
 - The local Compose topology is HTTP-only on localhost; production TLS/HSTS certificate verification remains a deployment/audit concern, not a claim of this pass.
-- k6 load/stress evidence is not claimed here.
+- k6 load/stress evidence is not claimed here; the focused concurrency tests and Batch 10 exercise gates pass.

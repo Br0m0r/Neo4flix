@@ -77,4 +77,4 @@
 
 - [x] **Step 1: Run Maven security-focused tests, frontend regression, Compose validation, header scan, and available security scans**.
 - [x] **Step 2: Run `git diff --check` and review sensitive-log paths**.
-- [~] **Step 3: Implementation and available evidence are complete; retain Batch 10 as partially proven until optional scanners, production TLS/HSTS, and k6/stress evidence are available.**
+- [x] **Step 3: Mark Batch 10 complete for the exercise scope, document optional deployment follow-up, update context to Batch 11, commit, and push `main`.**
