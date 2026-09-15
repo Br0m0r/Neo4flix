@@ -69,9 +69,17 @@
 - Standalone ADMIN CRUD contract passed with a freshly registered/promoted disposable fixture (`1 passed`); cleanup confirmed `remaining 0` and all six services remained healthy.
 - Audit record: `docs/audit/batch-11-browser-failure-verification.md`.
 
+## Batch 12 evidence foundation
+
+- Design: `docs/superpowers/specs/2026-09-15-batch-12-audit-evidence-design.md`.
+- Plan: `docs/superpowers/plans/2026-09-15-batch-12-audit-evidence-foundation.md`.
+- Added `docs/audit/AUDIT_RUNBOOK.md`, `GRAPH_DEMO.md`, and `RECOMMENDATION_EXPLANATION.md` from the existing fixture, loader, repository queries, scoring service, and golden tests.
+- Fresh Testcontainers proofs passed: `AuditSeedLoaderIT` 2/2 and `RecommendationGoldenFixtureIT` 2/2; no production behavior or Neo4j volume changed.
+- Verification record: `docs/audit/batch-12-verification.md`.
+
 ## Next unfinished workstream
 
-- Begin Batch 12 audit dataset, Cypher/GDS evidence, usability, and runbook work. k6 remains optional stress follow-up.
+- Complete the remaining Batch 12 usability walkthrough, security checklist, and final test-evidence documents. k6 remains optional stress follow-up.
 - Preserve Batch 10 controls: explicit edge headers and limits, request-ID propagation, generic Problem Details, explicit CORS/cookie-origin checks, bounded inputs, proxy-aware auth throttling, poster URL validation, and deterministic scan entry points.
 
 ## Execution policy
