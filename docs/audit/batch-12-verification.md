@@ -44,6 +44,11 @@ The golden cases proved deterministic hybrid ranking, cold-start strategies, alr
 - Secret-like scans for JWT/private-key/access-token/refresh-token/TOTP material in the new runbook: no matches.
 - Graph and recommendation source-reference searches resolved the cited repository/test symbols.
 
+### Final regression gate
+
+- Full Maven reactor: `131` tests across the backend/migrator modules, `0` failures, `0` errors, `0` skips; `BUILD SUCCESS`.
+- Frontend `npm test`: `27` test files and `105` tests passed; the Docker/Node compatibility check also passed.
+
 ## Explicit limitations
 
 This slice does not claim a human usability walkthrough, completed security checklist, final test-evidence matrix, or k6 stress evidence. Those remain the next Batch 12 workstream. The existing Batch 11 real-stack evidence and direct-main workflow are preserved.
