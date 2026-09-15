@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -82,6 +83,10 @@ public interface RecommendationShareRepository {
 
     Optional<PublicView> findPublic(String tokenHash, Instant now);
 
+    static ZonedDateTime utc(Instant value) {
+        return value.atZone(ZoneOffset.UTC);
+    }
+
     static Map<String, Object> parameters(String ownerId, String movieId, String shareId, String tokenHash,
                                            Instant createdAt, Instant expiresAt) {
         Map<String, Object> parameters = new HashMap<>();
@@ -89,8 +94,8 @@ public interface RecommendationShareRepository {
         parameters.put("movieId", movieId);
         parameters.put("shareId", shareId);
         parameters.put("tokenHash", tokenHash);
-        parameters.put("createdAt", createdAt);
-        parameters.put("expiresAt", expiresAt);
+        parameters.put("createdAt", utc(createdAt));
+        parameters.put("expiresAt", utc(expiresAt));
         return parameters;
     }
 
@@ -131,8 +136,8 @@ public interface RecommendationShareRepository {
         public Optional<OwnerView> updateOwned(String ownerId, String shareId, Instant expiresAt,
                                                boolean revoke, Instant now) {
             return client.query(OWNER_UPDATE_QUERY)
-                    .bindAll(Map.of("ownerId", ownerId, "shareId", shareId, "expiresAt", expiresAt,
-                            "revoke", revoke, "now", now))
+                    .bindAll(Map.of("ownerId", ownerId, "shareId", shareId, "expiresAt", utc(expiresAt),
+                            "revoke", revoke, "now", utc(now)))
                     .fetch()
                     .all().stream().map(RecommendationShareRepository.Neo4j::mapOwner).findFirst();
         }
@@ -150,7 +155,7 @@ public interface RecommendationShareRepository {
         @Override
         public Optional<PublicView> findPublic(String tokenHash, Instant now) {
             return client.query(PUBLIC_QUERY)
-                    .bindAll(Map.of("tokenHash", tokenHash, "now", now))
+                    .bindAll(Map.of("tokenHash", tokenHash, "now", utc(now)))
                     .fetch()
                     .all().stream().map(RecommendationShareRepository.Neo4j::mapPublic).findFirst();
         }

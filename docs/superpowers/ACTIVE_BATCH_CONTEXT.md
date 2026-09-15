@@ -60,14 +60,15 @@
 
 - Plan: `docs/superpowers/plans/2026-09-15-batch-11-browser-failure-verification.md`.
 - Rebuilt the full Compose stack with the existing `.env` and preserved Neo4j data.
-- Playwright against `http://localhost:8080`: 8 tests discovered, 5 passed, 3 skipped for missing disposable credentials (recommendations, recommendation outage, ADMIN CRUD), 0 failed.
+- Playwright against `http://localhost:8080`: 9 tests discovered, 6 passed, 3 skipped for missing disposable credentials (recommendations, recommendation outage, ADMIN CRUD), 0 failed.
+- Added a real sharing regression and fixed Neo4j share timestamp binding by converting `Instant` values to UTC `ZonedDateTime`; focused repository tests and live API smoke pass.
 - Public entry point returned HTTP 200 with request ID and configured browser security headers.
 - Controlled outage check: catalog remained HTTP 200 while recommendation-service was stopped; the service was restored and all six Compose services returned healthy.
 - Audit record: `docs/audit/batch-11-browser-failure-verification.md`.
 
 ## Next unfinished workstream
 
-- Finish Batch 11 with disposable user/admin E2E credentials, browser recommendation-outage coverage, sharing/2FA scenarios, and feasible Neo4j failure injection.
+- Finish Batch 11 with disposable user/admin E2E credentials, browser recommendation-outage coverage, a 2FA browser scenario, and feasible Neo4j failure injection.
 - Preserve Batch 10 controls: explicit edge headers and limits, request-ID propagation, generic Problem Details, explicit CORS/cookie-origin checks, bounded inputs, proxy-aware auth throttling, poster URL validation, and deterministic scan entry points.
 
 ## Execution policy

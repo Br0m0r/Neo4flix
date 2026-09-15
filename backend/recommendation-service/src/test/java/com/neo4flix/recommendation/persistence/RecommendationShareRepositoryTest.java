@@ -3,6 +3,7 @@ package com.neo4flix.recommendation.persistence;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,7 +33,7 @@ class RecommendationShareRepositoryTest {
                 .containsEntry("movieId", "movie-1")
                 .containsEntry("shareId", "share-1")
                 .containsEntry("tokenHash", "hash")
-                .containsEntry("createdAt", createdAt)
-                .containsEntry("expiresAt", createdAt.plusSeconds(86400));
+                .containsEntry("createdAt", createdAt.atZone(ZoneOffset.UTC))
+                .containsEntry("expiresAt", createdAt.plusSeconds(86400).atZone(ZoneOffset.UTC));
     }
 }
