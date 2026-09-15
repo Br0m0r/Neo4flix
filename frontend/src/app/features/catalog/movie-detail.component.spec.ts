@@ -56,4 +56,13 @@ describe('MovieDetailComponent watchlist actions', () => {
     expect(watchlist.add).toHaveBeenCalledWith('movie-1');
     expect(fixture.nativeElement.querySelector('[role="status"]')?.textContent).toContain('Added to watchlist.');
   });
+
+  it('renders the public poster and genre summary fields', () => {
+    catalog.movie.mockReturnValue(of({ ...movie, posterUrl: 'https://example.test/arrival.jpg', genres: [{ id: 'g1', name: 'Science Fiction' }] }));
+    fixture = TestBed.createComponent(MovieDetailComponent);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('img[alt="Arrival poster"]')).not.toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('Science Fiction');
+  });
 });

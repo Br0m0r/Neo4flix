@@ -10,7 +10,29 @@ import { WatchlistApiService } from '../../core/watchlist-api.service';
 
 @Component({
   selector: 'app-movie-detail', standalone: true, imports: [AsyncPipe, RouterLink],
-  template: `<a routerLink="/movies">← Movies</a>@if (movie$ | async; as movie) {<article><h1>{{ movie.title }}</h1><p>{{ movie.overview }}</p><p>{{ movie.releaseYear }} · {{ movie.runtimeMinutes ?? '—' }} minutes</p><section aria-labelledby="rating-title"><h2 id="rating-title">Rating</h2>@if (summary$ | async; as summary) {<p>{{ summary.averageRating === null ? 'No ratings yet' : summary.averageRating }} ({{ summary.ratingCount }} ratings)</p>} @if (authenticated()) {<a [routerLink]="['/movies', movie.id, 'rate']">Rate this movie</a>} @else {<a [routerLink]="['/auth/login']">Sign in to rate this movie</a>}</section><section aria-labelledby="watchlist-title"><h2 id="watchlist-title">Watchlist</h2>@if (authenticated()) {<button type="button" data-testid="watchlist-action" [disabled]="watchlistBusy()" (click)="toggleWatchlist(movie.id)">{{ watchlisted() ? 'Remove from watchlist' : 'Add to watchlist' }}</button>} @else {<a [routerLink]="['/auth/login']">Sign in to save this movie</a>} @if (watchlistStatus()) {<p role="status">{{ watchlistStatus() }}</p>} @if (watchlistError()) {<p role="alert">{{ watchlistError() }}</p>}</section></article>} @else {<p role="status">Movie not found.</p>}`,
+  template: `
+    <a routerLink="/movies">← Movies</a>
+    @if (movie$ | async; as movie) {
+      <article>
+        @if (movie.posterUrl) { <img [src]="movie.posterUrl" [alt]="movie.title + ' poster'" /> }
+        <h1>{{ movie.title }}</h1>
+        <p>{{ movie.overview }}</p>
+        <p>{{ movie.releaseYear }} · {{ movie.runtimeMinutes ?? '—' }} minutes</p>
+        @if (movie.genres.length) { <p>Genres: {{ movie.genres.map(genreName).join(', ') }}</p> }
+        <section aria-labelledby="rating-title">
+          <h2 id="rating-title">Rating</h2>
+          @if (summary$ | async; as summary) { <p>{{ summary.averageRating === null ? 'No ratings yet' : summary.averageRating }} ({{ summary.ratingCount }} ratings)</p> }
+          @if (authenticated()) { <a [routerLink]="['/movies', movie.id, 'rate']">Rate this movie</a> } @else { <a [routerLink]="['/auth/login']">Sign in to rate this movie</a> }
+        </section>
+        <section aria-labelledby="watchlist-title">
+          <h2 id="watchlist-title">Watchlist</h2>
+          @if (authenticated()) { <button type="button" data-testid="watchlist-action" [disabled]="watchlistBusy()" (click)="toggleWatchlist(movie.id)">{{ watchlisted() ? 'Remove from watchlist' : 'Add to watchlist' }}</button> } @else { <a [routerLink]="['/auth/login']">Sign in to save this movie</a> }
+          @if (watchlistStatus()) { <p role="status">{{ watchlistStatus() }}</p> }
+          @if (watchlistError()) { <p role="alert">{{ watchlistError() }}</p> }
+        </section>
+      </article>
+    } @else { <p role="status">Movie not found.</p> }
+  `,
 })
 export class MovieDetailComponent {
   private readonly route = inject(ActivatedRoute); private readonly api = inject(CatalogApiService);
@@ -21,6 +43,7 @@ export class MovieDetailComponent {
   readonly watchlistStatus = signal<string | null>(null);
   readonly watchlistError = signal<string | null>(null);
   readonly authenticated = () => this.auth.accessToken() !== null;
+  readonly genreName = (genre: { name: string }) => genre.name;
   readonly movie$ = this.route.paramMap.pipe(map(params => params.get('id')), switchMap(id => id ? this.api.movie(id) : of(null)), catchError(() => of(null)));
   readonly summary$ = this.route.paramMap.pipe(map(params => params.get('id')), switchMap(id => id ? this.ratingApi.summary(id) : of(null)), catchError(() => of(null)));
 
