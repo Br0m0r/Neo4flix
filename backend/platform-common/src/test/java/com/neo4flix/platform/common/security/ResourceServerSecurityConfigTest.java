@@ -146,6 +146,8 @@ class ResourceServerSecurityConfigTest {
             assertThat(publicResult.getRequest().getSession(false)).isNull();
             mvc.perform(get("/protected")).andExpect(status().isUnauthorized());
             mvc.perform(get("/api/v1/movies")).andExpect(status().isOk());
+            mvc.perform(get("/api/v1/shares/random-token")).andExpect(status().isOk());
+            mvc.perform(post("/api/v1/recommendation-shares")).andExpect(status().isUnauthorized());
             mvc.perform(post("/api/v1/movies")).andExpect(status().isUnauthorized());
             Instant now = Instant.now();
             String validUser = token(privateKey, publicKey, ISSUER, AUDIENCE,
@@ -225,6 +227,11 @@ class ResourceServerSecurityConfigTest {
         @GetMapping("/api/v1/movies")
         String publicMovies() {
             return "movies";
+        }
+
+        @GetMapping("/api/v1/shares/{token}")
+        String publicShare() {
+            return "share";
         }
 
         @GetMapping("/admin")

@@ -18,6 +18,15 @@ import java.util.UUID;
 import static com.neo4flix.movie.catalog.CatalogModels.*;
 
 public interface MovieCatalogRepository {
+    String DELETE_MOVIE_QUERY = """
+            MATCH (m:Movie {id:$id})
+            OPTIONAL MATCH (s:RecommendationShare)-[:SHARES]->(m)
+            WITH m, collect(s) AS shares
+            FOREACH (share IN shares | DETACH DELETE share)
+            DETACH DELETE m
+            RETURN count(m) AS deleted
+            """;
+
     PageResult<MovieSummary> search(MovieQuery query);
     Optional<MovieDetail> findMovie(String id);
     List<MovieSummary> findRelated(String id, int limit);
@@ -109,7 +118,7 @@ public interface MovieCatalogRepository {
         }
 
         @Override public boolean deleteMovie(String id) {
-            return client.query("MATCH (m:Movie {id:$id}) DETACH DELETE m RETURN count(m) AS deleted").bind(id).to("id").fetchAs(Long.class).mappedBy((ts, r) -> r.get("deleted").asLong()).one().orElse(0L) == 1;
+            return client.query(DELETE_MOVIE_QUERY).bind(id).to("id").fetchAs(Long.class).mappedBy((ts, r) -> r.get("deleted").asLong()).one().orElse(0L) == 1;
         }
 
         @Override public GenreSummary createGenre(String name) {

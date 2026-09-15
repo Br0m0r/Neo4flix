@@ -89,6 +89,8 @@ public class ResourceServerSecurityConfig {
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/ratings/movies/*/summary")
                         .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/shares/**")
+                        .permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(resourceServer -> resourceServer
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)))

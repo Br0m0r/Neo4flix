@@ -41,4 +41,12 @@ class MovieCatalogRepositoryTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("sort");
     }
+
+    @Test
+    void movieDeletionRemovesRecommendationSharesBeforeDetachingMovie() {
+        assertThat(MovieCatalogRepository.DELETE_MOVIE_QUERY)
+                .contains("RecommendationShare")
+                .contains("DETACH DELETE")
+                .contains("$id");
+    }
 }
