@@ -60,11 +60,12 @@ The golden cases proved deterministic hybrid ranking, cold-start strategies, alr
 - `scripts/k6/smoke.js` and `STRESS_TEST.md` provide a bounded anonymous catalog
   smoke profile. Native k6 was not installed, so no run metrics are claimed.
 - `scripts/backup-neo4j.ps1` and `scripts/restore-neo4j.ps1` provide explicit,
-  guarded Community dump/load helpers. They refuse ambiguous restore targets;
-  a disposable recovery cycle still requires an operator-run container.
+  guarded Community offline dump/load helpers. They refuse ambiguous restore
+  targets; a disposable two-container marker recovery cycle passed without
+  touching the project volume.
 
 ## Explicit limitations
 
 This slice does not claim a human usability walkthrough, authenticated k6 load
-evidence, HTTPS/redirect evidence, or a completed disposable restore cycle. The
-existing Batch 11 real-stack evidence and direct-main workflow are preserved.
+evidence, or HTTPS/redirect evidence. The existing Batch 11 real-stack evidence
+and direct-main workflow are preserved.

@@ -24,7 +24,7 @@ if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
     throw 'Docker CLI is required.'
 }
 
-$dumpPath = [System.IO.Path]::GetFullPath((Join-Path (Get-Location) $DumpFile))
+$dumpPath = [System.IO.Path]::GetFullPath($DumpFile)
 if (-not (Test-Path -LiteralPath $dumpPath -PathType Leaf)) {
     throw "Dump file does not exist: $dumpPath"
 }
@@ -37,19 +37,24 @@ $image = $inspectParts[1]
 if ([string]::IsNullOrWhiteSpace($image)) { throw "Could not resolve the image for '$ContainerName'." }
 
 $stopped = $false
+$stagingPath = Join-Path (Split-Path -Parent $dumpPath) ('.neo4j-restore-' + [guid]::NewGuid().ToString('N'))
 try {
     if ($wasRunning) {
         & docker stop $ContainerName | Out-Null
         if ($LASTEXITCODE -ne 0) { throw "Could not stop container '$ContainerName'." }
         $stopped = $true
     }
-    $dumpDirectory = Split-Path -Parent $dumpPath
-    & docker run --rm --volumes-from $ContainerName -v "${dumpDirectory}:/restore:ro" --entrypoint neo4j-admin $image database load neo4j --from-path=/restore --overwrite-destination | Out-Null
+    New-Item -ItemType Directory -Path $stagingPath -Force | Out-Null
+    Copy-Item -LiteralPath $dumpPath -Destination (Join-Path $stagingPath 'neo4j.dump')
+    & docker run --rm --volumes-from $ContainerName -v "${stagingPath}:/restore:ro" --user neo4j --entrypoint neo4j-admin $image database load neo4j --from-path=/restore --overwrite-destination | Out-Null
     if ($LASTEXITCODE -ne 0) { throw 'neo4j-admin database load failed.' }
     Write-Output "Neo4j dump restored into explicitly named container '$ContainerName'."
 }
 finally {
     if ($stopped) {
         & docker start $ContainerName | Out-Null
+    }
+    if (Test-Path -LiteralPath $stagingPath) {
+        Remove-Item -LiteralPath $stagingPath -Recurse -Force
     }
 }

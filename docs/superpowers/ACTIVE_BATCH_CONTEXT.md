@@ -1,6 +1,6 @@
 # Active Batch Context — Batch 12 Partial
 
-> **Status:** Batches 10 and 11 exercise deliverables are complete and pushed. Batch 12 evidence foundation plus minimum audit/readme artifacts are present; human usability, full load, HTTPS, and tested restore remain open. Execution remains direct on `main`.
+> **Status:** Batches 10 and 11 exercise deliverables are complete and pushed. Batch 12 evidence foundation plus minimum audit/readme artifacts are present; human usability, full load, and HTTPS remain open. Guarded disposable Neo4j backup/restore smoke passed. Execution remains direct on `main`.
 >
 > **Purpose:** Compact handoff cache generated from the Batch 10 plan, SDD ledger, current git state, and canonical requirements. It does not replace the master plan, product/API specs, or approved batch plans.
 
@@ -79,7 +79,7 @@
 
 ## Next unfinished workstream
 
-- Run the human usability session, then complete the authenticated Batch 13 load/integrity gate. Batch 14 still requires deployment HTTPS and an operator-run disposable restore cycle.
+- Run the human usability session, then complete the authenticated Batch 13 load/integrity gate. Batch 14 still requires deployment HTTPS and release-ingress evidence.
 - Preserve Batch 10 controls: explicit edge headers and limits, request-ID propagation, generic Problem Details, explicit CORS/cookie-origin checks, bounded inputs, proxy-aware auth throttling, poster URL validation, and deterministic scan entry points.
 
 ## Execution policy

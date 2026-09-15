@@ -16,6 +16,7 @@ wrapper, Node/npm frontend toolchain
 | Standalone ADMIN browser contract | Disposable registration/promotion and cleanup | 1 passed; cleanup count 0 |
 | Compose runtime | `docker compose ... ps` and `scripts/smoke-compose.ps1` | Six services healthy; web returned HTTP 200 with request ID |
 | Recommendation/Neo4j outage handling | Batch 11 controlled outage record | Catalog remained available; recommendation outage returned a request-traceable error; stack restored |
+| Disposable Neo4j recovery | Guarded backup/restore helpers with separate temporary source/target containers and volumes | Marker node dumped, restored, and read back successfully; temporary resources removed |
 
 ## Explicit limitations
 
