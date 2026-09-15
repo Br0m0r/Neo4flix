@@ -853,7 +853,7 @@ reconciliation, the complete document must still be reviewed.
 
 ## Batch 12 — Audit Dataset, Cypher/GDS Evidence, Usability, Runbook
 
-**Status:** [ ]
+**Status:** [~]
 
 **Required reading:**
 
@@ -870,6 +870,7 @@ reconciliation, the complete document must still be reviewed.
 - `SECURITY_CHECKLIST.md`
 - `TEST_EVIDENCE.md`
 - `USABILITY_TEST.md`
+- `STRESS_TEST.md` (bounded smoke profile; full load gate remains Batch 13)
 - Cypher docs matching code
 - real human usability walkthrough
 

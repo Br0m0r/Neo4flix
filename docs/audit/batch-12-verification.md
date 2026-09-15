@@ -49,6 +49,22 @@ The golden cases proved deterministic hybrid ranking, cold-start strategies, alr
 - Full Maven reactor: `131` tests across the backend/migrator modules, `0` failures, `0` errors, `0` skips; `BUILD SUCCESS`.
 - Frontend `npm test`: `27` test files and `105` tests passed; the Docker/Node compatibility check also passed.
 
+## Added minimum-completion evidence
+
+- `SECURITY_CHECKLIST.md` maps verified controls to the existing tests and
+  records deployment-only and optional-scanner gaps.
+- `TEST_EVIDENCE.md` consolidates the fresh Maven, frontend, browser, Compose,
+  and outage evidence without treating skipped credentials as passes.
+- `USABILITY_TEST.md` defines the required seven-step human journey and keeps
+  the participant result pending rather than fabricating observations.
+- `scripts/k6/smoke.js` and `STRESS_TEST.md` provide a bounded anonymous catalog
+  smoke profile. Native k6 was not installed, so no run metrics are claimed.
+- `scripts/backup-neo4j.ps1` and `scripts/restore-neo4j.ps1` provide explicit,
+  guarded Community dump/load helpers. They refuse ambiguous restore targets;
+  a disposable recovery cycle still requires an operator-run container.
+
 ## Explicit limitations
 
-This slice does not claim a human usability walkthrough, completed security checklist, final test-evidence matrix, or k6 stress evidence. Those remain the next Batch 12 workstream. The existing Batch 11 real-stack evidence and direct-main workflow are preserved.
+This slice does not claim a human usability walkthrough, authenticated k6 load
+evidence, HTTPS/redirect evidence, or a completed disposable restore cycle. The
+existing Batch 11 real-stack evidence and direct-main workflow are preserved.

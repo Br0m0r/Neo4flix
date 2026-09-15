@@ -1,6 +1,6 @@
-# Active Batch Context — Batch 11 Complete
+# Active Batch Context — Batch 12 Partial
 
-> **Status:** Batches 10 and 11 exercise deliverables are complete and pushed. Batch 11 real-stack browser, outage, authorization, sharing, and 2FA verification is complete; k6 remains optional follow-up. Execution remains direct on `main`.
+> **Status:** Batches 10 and 11 exercise deliverables are complete and pushed. Batch 12 evidence foundation plus minimum audit/readme artifacts are present; human usability, full load, HTTPS, and tested restore remain open. Execution remains direct on `main`.
 >
 > **Purpose:** Compact handoff cache generated from the Batch 10 plan, SDD ledger, current git state, and canonical requirements. It does not replace the master plan, product/API specs, or approved batch plans.
 
@@ -8,7 +8,7 @@
 
 - Worktree: `C:\Users\User\Desktop\Neo4flix`
 - Branch: `main` (direct-main execution; do not create worktrees)
-- Context snapshot base: `bf7b544` (`docs: close batch 11 verification`).
+- Context snapshot base: current `main` after the Batch 12 minimum-completion checkpoint.
 - Local `.env` is ignored and must never be committed or printed.
 
 ## Completed ledger
@@ -79,7 +79,7 @@
 
 ## Next unfinished workstream
 
-- Complete the remaining Batch 12 usability walkthrough, security checklist, and final test-evidence documents. k6 remains optional stress follow-up.
+- Run the human usability session, then complete the authenticated Batch 13 load/integrity gate. Batch 14 still requires deployment HTTPS and an operator-run disposable restore cycle.
 - Preserve Batch 10 controls: explicit edge headers and limits, request-ID propagation, generic Problem Details, explicit CORS/cookie-origin checks, bounded inputs, proxy-aware auth throttling, poster URL validation, and deterministic scan entry points.
 
 ## Execution policy

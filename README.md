@@ -1,5 +1,86 @@
 # Neo4flix — Canonical Planning Set
 
+## Run the project locally
+
+The supported local path uses Docker Compose for Neo4j, the four Spring Boot
+services, and the Angular/Nginx frontend. Run these commands from the repository
+root in PowerShell 7.
+
+### Prerequisites
+
+- Docker Desktop with Compose v2.17 or newer, running before the stack starts.
+- Java 21 JDK (`JAVA_HOME` set), Node.js 24 LTS/npm 11, Git, and PowerShell 7.
+- Network access for the first Maven/npm/Docker image build.
+
+### Configure and start
+
+Create the ignored local environment file, then replace every `change-me` and
+`replace-with-*` value with local, non-production values. Protected runtime
+routes require a matching RSA JWT key pair and a base64 32-byte TOTP key; the
+repository's integration tests generate ephemeral keys in memory, but a live
+Compose stack must be configured explicitly. Never commit `.env`, keys, tokens,
+or passwords.
+
+```powershell
+Copy-Item .env.example .env
+make dev-up
+pwsh -NoProfile -File scripts/smoke-compose.ps1
+```
+
+Without GNU Make, use the equivalent Compose command:
+
+```powershell
+docker compose --env-file .env -f infra/compose.yml -f infra/compose.dev.yml up --build -d --wait --wait-timeout 600
+```
+
+Open <http://localhost:8080/>. Backend health endpoints are exposed on
+`localhost:8081` through `localhost:8084`; Neo4j Browser is at
+<http://localhost:7474/>. `make dev-down` stops and removes containers while
+preserving the named Neo4j data volume. Do not use `down -v` unless you have
+explicitly decided to destroy local graph data.
+
+### Seed and verify
+
+The seed script does not read `.env`; export the connection values in the shell
+that invokes it, then load only the fixture you need:
+
+```powershell
+$env:NEO4J_URI='neo4j://localhost:7687'
+$env:NEO4J_USERNAME='neo4j'
+$env:NEO4J_PASSWORD='<your-local-password>'
+make seed-audit       # or: make seed-demo / make seed-load
+```
+
+Run the repository checks with Docker available:
+
+```powershell
+make verify
+make security
+npm.cmd --prefix frontend run e2e   # requires an auth-configured live stack
+```
+
+The Maven wrapper and frontend scripts can also be run directly (`.\mvnw.cmd
+test`, `npm.cmd --prefix frontend test`, `npm.cmd --prefix frontend run lint`,
+and `npm.cmd --prefix frontend run build`).
+
+### Backup and restore helpers
+
+Backups require an explicit destination. Restore is intentionally guarded and
+requires an explicit disposable container plus `-ConfirmRestore`; it refuses
+the normal project Neo4j container unless `-AllowProjectContainer` is supplied.
+Never restore over the project volume during normal development.
+
+```powershell
+pwsh -NoProfile -File scripts/backup-neo4j.ps1 -Destination .\backups\neo4j
+pwsh -NoProfile -File scripts/restore-neo4j.ps1 -DumpFile .\backups\neo4j\neo4j-<timestamp>.dump -ContainerName neo4j-disposable -ConfirmRestore
+```
+
+See [Local development](docs/DEVELOPMENT.md), the [audit runbook](docs/audit/AUDIT_RUNBOOK.md),
+and [stress-test notes](docs/audit/STRESS_TEST.md) for the complete command
+contracts and current limitations. The local profile is HTTP-only; deployment
+HTTPS, a human usability session, and the full k6/backup-restore audit gates
+remain separate release evidence.
+
 This directory is the **single entrypoint** for humans and agentic coding workers implementing the 01-edu **Neo4flix** project.
 
 The external assignment and audit remain non-negotiable requirements. This canonical set resolves their ambiguities into one implementable architecture while keeping the required technologies and behaviors intact.
