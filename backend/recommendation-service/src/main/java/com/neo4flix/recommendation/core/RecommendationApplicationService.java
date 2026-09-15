@@ -35,7 +35,15 @@ public final class RecommendationApplicationService {
                         row.posterUrl(),
                         scoring.score(strategy, row, weights),
                         strategy,
-                        scoring.reason(strategy, row)))
+                        scoring.reason(strategy, row),
+                        row.genres(),
+                        row.genreIds(),
+                        row.releaseDate(),
+                        row.averageRating(),
+                        row.ratingCount(),
+                        row.collaborativeScore(),
+                        row.contentScore(),
+                        row.popularityScore()))
                 .sorted(Comparator.comparingDouble(RecommendationDtos.Result::score).reversed()
                         .thenComparing(RecommendationDtos.Result::movieId))
                 .limit(bounded.limit())

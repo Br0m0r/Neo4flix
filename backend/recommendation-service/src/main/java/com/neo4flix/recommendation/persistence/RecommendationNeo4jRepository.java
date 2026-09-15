@@ -73,15 +73,15 @@ public class RecommendationNeo4jRepository implements RecommendationRepository {
             WHERE NOT (me)-[:RATED]->(movie)
             OPTIONAL MATCH (movie)-[:IN_GENRE]->(genre:Genre)
             OPTIONAL MATCH (movie)<-[rated:RATED]-(:User)
-            WITH movie, collect(DISTINCT genre.name) AS genres,
+            WITH movie, collect(DISTINCT CASE WHEN genre IS NULL THEN null ELSE {id: genre.id, name: genre.name} END) AS genres,
                  avg(rated.score) AS averageRating, count(rated) AS ratingCount
-            WHERE ($genre IS NULL OR $genre IN genres)
+            WHERE ($genre IS NULL OR $genre IN [g IN genres WHERE g IS NOT NULL | g.name])
               AND ($fromYear IS NULL OR movie.releaseYear >= $fromYear)
               AND ($toYear IS NULL OR movie.releaseYear <= $toYear)
               AND ($minimumAverageRating IS NULL OR averageRating >= $minimumAverageRating)
             RETURN movie.id AS movieId, movie.title AS title, movie.overview AS overview,
-                   movie.releaseYear AS releaseYear, movie.posterUrl AS posterUrl,
-                   genres, averageRating, ratingCount
+                   movie.releaseYear AS releaseYear, movie.releaseDate AS releaseDate,
+                   movie.posterUrl AS posterUrl, genres, averageRating, ratingCount
             ORDER BY movie.id ASC
             LIMIT $candidateLimit
             """;
@@ -173,7 +173,9 @@ public class RecommendationNeo4jRepository implements RecommendationRepository {
                 integerOrZero(row.get("peerCount")),
                 integerOrZero(row.get("commonMovies")),
                 number(row.get("averageRating")),
-                longOrZero(row.get("ratingCount")));
+                longOrZero(row.get("ratingCount")),
+                string(row.get("releaseDate")),
+                genreIds(row.get("genres")));
     }
 
     private RecommendationDtos.SignalRow enrich(Map<String, Object> movie,
@@ -181,7 +183,7 @@ public class RecommendationNeo4jRepository implements RecommendationRepository {
                                                 Map<String, Double> genrePreferences,
                                                 double priorCount) {
         Map<String, Object> row = new HashMap<>(movie);
-        List<String> genres = strings(movie.get("genres"));
+        List<String> genres = genreNames(movie.get("genres"));
         row.put("contentScore", contentScore(genres, genrePreferences));
         row.put("popularityScore", scoring.popularityScore(
                 number(movie.get("averageRating")), longOrZero(movie.get("ratingCount")), priorCount));
@@ -230,5 +232,32 @@ public class RecommendationNeo4jRepository implements RecommendationRepository {
             return List.of();
         }
         return values.stream().filter(String.class::isInstance).map(String.class::cast).toList();
+    }
+
+    private static List<String> genreNames(Object value) {
+        if (value instanceof List<?> values && values.stream().allMatch(String.class::isInstance)) {
+            return strings(value);
+        }
+        if (!(value instanceof List<?> values)) {
+            return List.of();
+        }
+        return values.stream().filter(Map.class::isInstance)
+                .map(Map.class::cast)
+                .map(row -> row.get("name"))
+                .filter(String.class::isInstance)
+                .map(String.class::cast)
+                .toList();
+    }
+
+    private static List<String> genreIds(Object value) {
+        if (!(value instanceof List<?> values)) {
+            return List.of();
+        }
+        return values.stream().filter(Map.class::isInstance)
+                .map(Map.class::cast)
+                .map(row -> row.get("id"))
+                .filter(String.class::isInstance)
+                .map(String.class::cast)
+                .toList();
     }
 }
