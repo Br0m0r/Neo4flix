@@ -22,6 +22,10 @@ const releaseYearDateValidator: ValidatorFn = (control: AbstractControl) => {
     <section class="admin-catalog" aria-labelledby="admin-catalog-title">
       <h1 id="admin-catalog-title">Catalog administration</h1>
       <p class="status" role="status">{{ status() }}</p>
+      @if (catalogError()) {
+        <p class="field-error" role="alert">{{ catalogError() }}</p>
+        <button mat-button data-testid="retry-catalog" type="button" (click)="retryCatalog()">Retry catalog loading</button>
+      }
 
       <mat-card>
         <mat-card-header><mat-card-title>{{ editingMovieId() ? 'Edit movie' : 'Create movie' }}</mat-card-title></mat-card-header>
@@ -113,6 +117,7 @@ export class AdminCatalogComponent implements OnInit {
   readonly loadingMovies = signal(true);
   readonly loadingGenres = signal(true);
   readonly loadingMovieDetails = signal(false);
+  readonly catalogError = signal<string | null>(null);
   readonly editingMovieId = signal<string | null>(null);
   readonly editingMovieDetails = signal<MovieDetail | null>(null);
   readonly editingGenreId = signal<string | null>(null);
@@ -131,11 +136,14 @@ export class AdminCatalogComponent implements OnInit {
 
   ngOnInit(): void { this.loadCatalog(); }
 
+  retryCatalog(): void { this.loadCatalog(); }
+
   private loadCatalog(): void {
+    this.catalogError.set(null);
     this.loadingMovies.set(true);
     this.loadingGenres.set(true);
-    this.api.movies().subscribe({ next: (page) => this.movies.set(page.content), error: () => { this.loadingMovies.set(false); this.status.set('Movies could not be loaded.'); }, complete: () => this.loadingMovies.set(false) });
-    this.api.genres().subscribe({ next: (genres) => this.genres.set(genres), error: () => { this.loadingGenres.set(false); this.status.set('Genres could not be loaded.'); }, complete: () => this.loadingGenres.set(false) });
+    this.api.movies().subscribe({ next: (page) => this.movies.set(page.content), error: () => { this.loadingMovies.set(false); this.catalogError.set('Movies could not be loaded. Please try again.'); }, complete: () => this.loadingMovies.set(false) });
+    this.api.genres().subscribe({ next: (genres) => this.genres.set(genres), error: () => { this.loadingGenres.set(false); this.catalogError.set('Genres could not be loaded. Please try again.'); }, complete: () => this.loadingGenres.set(false) });
   }
 
   private toMovieSummary(movie: MovieDetail): MovieSummary {

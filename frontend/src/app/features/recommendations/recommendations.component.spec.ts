@@ -72,6 +72,7 @@ describe('RecommendationsComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('First contact');
     expect(fixture.nativeElement.textContent).toContain('4.4');
     expect(fixture.nativeElement.querySelector('[data-testid="movie-details"]')).not.toBeNull();
+    expect(fixture.nativeElement.textContent).not.toContain('collaborative');
   });
 
   it('associates every recommendation filter with a real label target', () => {
@@ -118,6 +119,15 @@ describe('RecommendationsComponent', () => {
 
     expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent).toContain('temporarily unavailable');
     expect(fixture.nativeElement.textContent).toContain('Browse movies');
+  });
+
+  it('maps rate limiting to a controlled user-facing message', () => {
+    api.list.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 429, statusText: 'Too Many Requests' })));
+    create();
+
+    expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent)
+      .toContain('temporarily rate limited');
+    expect(fixture.nativeElement.textContent).not.toContain('Too Many Requests');
   });
 
   it('delegates watchlist actions to the existing service', () => {

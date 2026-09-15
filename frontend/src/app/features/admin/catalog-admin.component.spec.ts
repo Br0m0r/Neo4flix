@@ -162,4 +162,18 @@ describe('AdminCatalogComponent', () => {
 
     expect(fixture.nativeElement.textContent).toContain('Genre cannot be deleted while movies reference it.');
   });
+
+  it('offers a retry when catalog loading fails', () => {
+    api.movies
+      .mockReturnValueOnce(throwError(() => new Error('offline')))
+      .mockReturnValueOnce(of({ content: [movie], page: 0, size: 24, totalElements: 1, totalPages: 1 }));
+    fixture.componentInstance.retryCatalog();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent).toContain('Movies could not be loaded.');
+    (fixture.nativeElement.querySelector('[data-testid="retry-catalog"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(api.movies).toHaveBeenCalledTimes(3);
+    expect(fixture.nativeElement.textContent).toContain('Arrival');
+  });
 });

@@ -70,9 +70,9 @@ Commit: `feat: close frontend route and page gaps`
 
 **Files:** `frontend/src/app/core/recommendation.models.ts`, `frontend/src/app/features/recommendations/recommendations.component.ts`, `frontend/src/app/features/admin/catalog-admin.component.ts`, `frontend/src/app/app.routes.ts`, and adjacent specs.
 
-- [ ] **Step 1: Add failing tests** for all backend strategy values, score/movie summary rendering, admin route aliases, validation messages, and controlled 400/401/403/404/409/429/503 mapping.
-- [ ] **Step 2: Implement typed DTO and UX corrections** while preserving server-side authorization and recommendation privacy.
-- [ ] **Step 3: Run focused suites and commit**
+- [x] **Step 1: Add failing tests** for all backend strategy values, score/movie summary rendering, admin route aliases, validation messages, and controlled 400/401/403/404/409/429/503 mapping.
+- [x] **Step 2: Implement typed DTO and UX corrections** while preserving server-side authorization and recommendation privacy.
+- [x] **Step 3: Run focused suites and commit**
 
 ### Task 5: Browser contract and Batch 9 audit
 

@@ -266,11 +266,24 @@ export class RecommendationsComponent implements OnInit {
       error: (failure: unknown) => {
         const status = failure instanceof HttpErrorResponse ? failure.status : null;
         this.errorStatus.set(status);
-        this.error.set(status === 503 ? null : 'Unable to load recommendations. Please try again.');
+        this.error.set(this.errorMessage(status));
         this.response.set(null);
         this.items.set([]);
       },
     });
+  }
+
+  private errorMessage(status: number | null): string | null {
+    switch (status) {
+      case 400: return 'Adjust the recommendation filters and try again.';
+      case 401: return 'Sign in to view recommendations.';
+      case 403: return 'Recommendations are not available for this account.';
+      case 404: return 'No recommendations are available right now.';
+      case 409: return 'Recommendations changed. Please try again.';
+      case 429: return 'Recommendation requests are temporarily rate limited. Please try again shortly.';
+      case 503: return null;
+      default: return 'Unable to load recommendations. Please try again.';
+    }
   }
 
   private filtersFromQuery(params: import('@angular/router').ParamMap): RecommendationFilters {
