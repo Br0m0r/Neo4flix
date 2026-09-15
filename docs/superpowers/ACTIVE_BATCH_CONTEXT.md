@@ -8,7 +8,7 @@
 
 - Worktree: `C:\Users\User\Desktop\Neo4flix`
 - Branch: `main` (direct-main execution; do not create worktrees)
-- Context snapshot base: `b6491ab` (`docs: track batch 9 frontend progress`)
+- Context snapshot base: `c8fb101` (`fix: associate recommendation filter labels`)
 - Local `.env` is ignored and must never be committed or printed.
 
 ## Completed ledger
@@ -39,7 +39,8 @@
 - `18ad9f3` adds URL-backed catalog title state, explicit loading/empty/error UI, retry behavior, and typed catalog filters.
 - `4e09100` removes the duplicate shell heading and adds visible focus/responsive shell styling.
 - `27bec5a` renders movie poster and genre summary fields on movie detail.
-- Frontend regression after these changes: 98 tests passed; lint and production build passed.
+- `c8fb101` associates recommendation filters with explicit label/control IDs.
+- Frontend regression after these changes: 100 tests passed; lint and production build passed.
 
 ## Next unfinished Batch 9 workstream
 
