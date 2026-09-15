@@ -5,6 +5,7 @@ import { BehaviorSubject, of, throwError } from 'rxjs';
 import { RecommendationApiService } from '../../core/recommendation-api.service';
 import { RecommendationResponse } from '../../core/recommendation.models';
 import { WatchlistApiService } from '../../core/watchlist-api.service';
+import { RecommendationShareApiService } from '../../core/recommendation-share-api.service';
 import { RecommendationsComponent } from './recommendations.component';
 
 const response = (items: RecommendationResponse['items']): RecommendationResponse => ({
@@ -32,12 +33,14 @@ describe('RecommendationsComponent', () => {
   let fixture: ComponentFixture<RecommendationsComponent>;
   const api = { list: vi.fn() };
   const watchlist = { add: vi.fn() };
+  const shareApi = { create: vi.fn() };
   const router = { navigate: vi.fn() };
   const queryParamMap = new BehaviorSubject(convertToParamMap({ genre: 'Science Fiction', sort: 'rating', page: '0', size: '20' }));
 
   beforeEach(async () => {
     api.list.mockReset();
     watchlist.add.mockReset();
+    shareApi.create.mockReset();
     router.navigate.mockReset();
     queryParamMap.next(convertToParamMap({ genre: 'Science Fiction', sort: 'rating', page: '0', size: '20' }));
     api.list.mockReturnValue(of(response([])));
@@ -46,6 +49,7 @@ describe('RecommendationsComponent', () => {
       providers: [
         { provide: RecommendationApiService, useValue: api },
         { provide: WatchlistApiService, useValue: watchlist },
+        { provide: RecommendationShareApiService, useValue: shareApi },
         { provide: ActivatedRoute, useValue: { queryParamMap: queryParamMap.asObservable() } },
         { provide: Router, useValue: router },
       ],
@@ -115,5 +119,36 @@ describe('RecommendationsComponent', () => {
     fixture.nativeElement.querySelector('button[data-testid="watchlist-add"]').click();
 
     expect(watchlist.add).toHaveBeenCalledWith('movie-1');
+  });
+
+  it('creates a share and renders the public URL for a recommendation', () => {
+    api.list.mockReturnValue(of(response([item])));
+    shareApi.create.mockReturnValue(of({
+      id: 'share-1', movieId: 'movie-1', publicToken: 'raw-token', publicPath: '/share/raw-token',
+      createdAt: '2026-09-15T12:00:00Z', expiresAt: '2026-10-15T12:00:00Z', revoked: false,
+    }));
+    create();
+
+    fixture.nativeElement.querySelector('button[data-testid="share-action"]').click();
+    fixture.detectChanges();
+
+    expect(shareApi.create).toHaveBeenCalledWith('movie-1', 30);
+    expect(fixture.nativeElement.textContent).toContain('/share/raw-token');
+  });
+
+  it('copies a created public path through the Clipboard API when available', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
+    api.list.mockReturnValue(of(response([item])));
+    shareApi.create.mockReturnValue(of({
+      id: 'share-1', movieId: 'movie-1', publicToken: 'raw-token', publicPath: '/share/raw-token',
+      createdAt: '2026-09-15T12:00:00Z', expiresAt: '2026-10-15T12:00:00Z', revoked: false,
+    }));
+    create();
+
+    fixture.nativeElement.querySelector('button[data-testid="share-action"]').click();
+    await Promise.resolve();
+
+    expect(writeText).toHaveBeenCalledWith('/share/raw-token');
   });
 });

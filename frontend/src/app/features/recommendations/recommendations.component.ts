@@ -6,6 +6,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { RecommendationApiService } from '../../core/recommendation-api.service';
 import { RecommendationFilters, RecommendationItem, RecommendationResponse } from '../../core/recommendation.models';
+import { RecommendationShareApiService } from '../../core/recommendation-share-api.service';
 import { WatchlistApiService } from '../../core/watchlist-api.service';
 
 const DEFAULT_SORT = 'recommendation';
@@ -73,12 +74,20 @@ type FilterForm = {
               <p>Rating: {{ item.movie.averageRating }} ({{ item.movie.ratingCount }} ratings)</p>
               <p>{{ item.reason.text }}</p>
               <a data-testid="movie-details" [routerLink]="['/movies', item.movie.id]">Details</a>
+              <button data-testid="share-action" type="button" [disabled]="shareBusyMovieId() === item.movie.id" (click)="createShare(item)">
+                {{ shareBusyMovieId() === item.movie.id ? 'Creating link…' : 'Share' }}
+              </button>
+              @if (shareMovieId() === item.movie.id && shareUrl()) {
+                <p data-testid="share-url">{{ shareUrl() }}</p>
+                @if (shareStatus()) { <p role="status">{{ shareStatus() }}</p> }
+              }
               <button data-testid="watchlist-add" type="button" [disabled]="busyMovieId() === item.movie.id" (click)="addToWatchlist(item)">
                 {{ busyMovieId() === item.movie.id ? 'Adding…' : 'Add to watchlist' }}
               </button>
             </article>
           }
         </div>
+        @if (shareError()) { <p role="alert">{{ shareError() }}</p> }
         @if (watchlistError()) { <p role="alert">{{ watchlistError() }}</p> }
         <nav aria-label="Recommendation pages">
           <button type="button" [disabled]="!hasPreviousPage()" (click)="changePage(currentPage() - 1)">Previous</button>
@@ -92,6 +101,7 @@ type FilterForm = {
 })
 export class RecommendationsComponent implements OnInit {
   private readonly api = inject(RecommendationApiService);
+  private readonly shareApi = inject(RecommendationShareApiService);
   private readonly watchlist = inject(WatchlistApiService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -114,6 +124,11 @@ export class RecommendationsComponent implements OnInit {
   protected readonly items = signal<RecommendationItem[]>([]);
   protected readonly busyMovieId = signal<string | null>(null);
   protected readonly watchlistError = signal<string | null>(null);
+  protected readonly shareBusyMovieId = signal<string | null>(null);
+  protected readonly shareMovieId = signal<string | null>(null);
+  protected readonly shareUrl = signal<string | null>(null);
+  protected readonly shareStatus = signal<string | null>(null);
+  protected readonly shareError = signal<string | null>(null);
   private skipNextQueryLoad: string | null = null;
 
   ngOnInit(): void {
@@ -163,6 +178,48 @@ export class RecommendationsComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef),
       finalize(() => this.busyMovieId.set(null)),
     ).subscribe({ error: () => this.watchlistError.set('Unable to update your watchlist. Please try again.') });
+  }
+
+  protected createShare(item: RecommendationItem): void {
+    if (this.shareBusyMovieId()) return;
+    this.shareBusyMovieId.set(item.movie.id);
+    this.shareMovieId.set(item.movie.id);
+    this.shareUrl.set(null);
+    this.shareStatus.set(null);
+    this.shareError.set(null);
+    this.shareApi.create(item.movie.id, 30).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.shareBusyMovieId.set(null)),
+    ).subscribe({
+      next: (created) => {
+        const url = created.publicPath;
+        this.shareUrl.set(url);
+        void this.copyPublicUrl(url);
+      },
+      error: () => this.shareError.set('Unable to create a share link. Please try again.'),
+    });
+  }
+
+  private async copyPublicUrl(url: string): Promise<void> {
+    try {
+      if (globalThis.navigator.clipboard?.writeText) {
+        await globalThis.navigator.clipboard.writeText(url);
+        this.shareStatus.set('Share link copied.');
+        return;
+      }
+      const textarea = document.createElement('textarea');
+      textarea.value = url;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      const copied = typeof document.execCommand === 'function' && document.execCommand('copy');
+      textarea.remove();
+      this.shareStatus.set(copied ? 'Share link copied.' : 'Share link ready to copy.');
+    } catch {
+      this.shareStatus.set('Share link ready to copy.');
+    }
   }
 
   protected strategyLabel(strategy: RecommendationResponse['strategy'] | undefined): string {
