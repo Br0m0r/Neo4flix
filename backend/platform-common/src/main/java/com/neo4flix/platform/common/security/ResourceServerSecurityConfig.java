@@ -83,6 +83,8 @@ public class ResourceServerSecurityConfig {
                                 "/api/v1/auth/logout",
                                 "/api/v1/auth/2fa/verify")
                         .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/movies/recommended")
+                        .authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/v1/movies", "/api/v1/movies/**", "/api/v1/genres", "/api/v1/genres/**")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/ratings/movies/*/summary")

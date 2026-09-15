@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.util.LinkedMultiValueMap;
+import com.neo4flix.platform.common.web.RequestIdFilter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -43,6 +44,20 @@ class MovieRecommendationControllerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
         assertThat(response.getHeaders().getFirst(HttpHeaders.CONTENT_TYPE)).startsWith("application/problem+json");
         assertThat(response.getBody().toString()).contains("RECOMMENDATION_SERVICE_UNAVAILABLE");
+        assertThat(response.getBody().toString()).contains("instance");
+    }
+
+    @Test
+    void forwardsRequestIdGeneratedBySharedFilterWhenInboundHeaderIsAbsent() {
+        when(client.fetch(any(), any())).thenReturn(ResponseEntity.ok("{\"items\":[]}"));
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/v1/movies/recommended");
+        request.setAttribute(RequestIdFilter.REQUEST_ATTRIBUTE, "generated-1");
+
+        controller.recommend(new MovieRecommendationQueryParams(null, null, null, null, null, null, null), request);
+
+        HttpHeaders expected = new HttpHeaders();
+        expected.set("X-Request-Id", "generated-1");
+        verify(client).fetch(eq(expected), eq(new LinkedMultiValueMap<>()));
     }
 
     private static MockHttpServletRequest request(String authorization, String requestId) {

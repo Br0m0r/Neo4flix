@@ -27,4 +27,11 @@ class MovieServiceApplicationTest {
         assertThat(response.getBody()).contains("UP");
         assertThat(response.getHeaders().getFirst("X-Request-Id")).isNotBlank();
     }
+
+    @Test
+    void recommendationFacadeRequiresAuthentication() {
+        var response = restTemplate.getForEntity("/api/v1/movies/recommended", String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
 }

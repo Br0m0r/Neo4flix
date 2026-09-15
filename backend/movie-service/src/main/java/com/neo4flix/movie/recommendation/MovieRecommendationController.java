@@ -3,6 +3,8 @@ package com.neo4flix.movie.recommendation;
 import java.util.LinkedHashMap;
 
 import jakarta.servlet.http.HttpServletRequest;
+import com.neo4flix.platform.common.web.RequestId;
+import com.neo4flix.platform.common.web.RequestIdFilter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,24 +29,36 @@ public class MovieRecommendationController {
                                        HttpServletRequest request) {
         HttpHeaders headers = new HttpHeaders();
         copyHeader(request, headers, HttpHeaders.AUTHORIZATION);
-        copyHeader(request, headers, "X-Request-Id");
+        String requestId = requestId(request);
+        if (requestId != null) {
+            headers.set(RequestIdFilter.HEADER_NAME, requestId);
+        }
         try {
             return client.fetch(headers, query(params));
         } catch (RecommendationUnavailableException exception) {
-            String requestId = request.getHeader("X-Request-Id");
             var body = new LinkedHashMap<String, Object>();
-            body.put("type", "https://neo4flix.dev/problems/recommendation-service-unavailable");
-            body.put("title", "Recommendation service unavailable");
+            body.put("type", "about:blank");
+            body.put("title", "Service Unavailable");
             body.put("status", 503);
             body.put("detail", "Recommendations are temporarily unavailable");
+            body.put("instance", request.getRequestURI());
             body.put("code", "RECOMMENDATION_SERVICE_UNAVAILABLE");
-            if (requestId != null && !requestId.isBlank()) {
-                body.put("traceId", requestId);
-            }
+            body.put("traceId", requestId);
+            HttpHeaders responseHeaders = new HttpHeaders();
+            responseHeaders.set(RequestIdFilter.HEADER_NAME, requestId);
             return ResponseEntity.status(503)
+                    .headers(responseHeaders)
                     .contentType(MediaType.APPLICATION_PROBLEM_JSON)
                     .body(body);
         }
+    }
+
+    private static String requestId(HttpServletRequest request) {
+        Object generated = request.getAttribute(RequestIdFilter.REQUEST_ATTRIBUTE);
+        if (generated instanceof String value && !value.isBlank()) {
+            return value;
+        }
+        return RequestId.resolve(request.getHeader(RequestIdFilter.HEADER_NAME));
     }
 
     private static LinkedMultiValueMap<String, String> query(MovieRecommendationQueryParams params) {
