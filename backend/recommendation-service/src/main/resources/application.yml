@@ -27,6 +27,10 @@ neo4flix:
     candidate-limit: ${NEO4FLIX_RECOMMENDATION_CANDIDATE_LIMIT:50}
     mature-rating-threshold: ${NEO4FLIX_RECOMMENDATION_MATURE_RATING_THRESHOLD:3}
     max-page-size: ${NEO4FLIX_RECOMMENDATION_MAX_PAGE_SIZE:50}
+    share:
+      default-expiry-days: ${NEO4FLIX_RECOMMENDATION_SHARE_DEFAULT_EXPIRY_DAYS:30}
+      min-expiry-days: ${NEO4FLIX_RECOMMENDATION_SHARE_MIN_EXPIRY_DAYS:1}
+      max-expiry-days: ${NEO4FLIX_RECOMMENDATION_SHARE_MAX_EXPIRY_DAYS:365}
   security:
     jwt:
       public-key: ${NEO4FLIX_JWT_PUBLIC_KEY:}
