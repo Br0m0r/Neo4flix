@@ -17,6 +17,10 @@ management:
         include: health
 
 neo4flix:
+  recommendation:
+    base-url: ${NEO4FLIX_RECOMMENDATION_BASE_URL:http://recommendation-service:8084}
+    connect-timeout-millis: ${NEO4FLIX_RECOMMENDATION_CONNECT_TIMEOUT_MILLIS:2000}
+    read-timeout-millis: ${NEO4FLIX_RECOMMENDATION_READ_TIMEOUT_MILLIS:5000}
   security:
     jwt:
       public-key: ${NEO4FLIX_JWT_PUBLIC_KEY:}
