@@ -1,6 +1,6 @@
-# Active Batch Context — Batch 8 Complete; Batch 9 Next
+# Active Batch Context — Batch 9 In Progress
 
-> **Status:** Batch 8 is implemented, verified, and ready to push from direct `main` execution. Batch 9 is the next unfinished workstream.
+> **Status:** Batch 8 is complete and pushed. Batch 9 is in progress on direct `main` execution; route/page closure, catalog state, movie summaries, and shell accessibility are complete.
 >
 > **Purpose:** Compact handoff cache generated from the Batch 8 plan, SDD ledger, current git state, and canonical requirements. It does not replace the master plan, product/API specs, or approved batch plans.
 
@@ -8,7 +8,7 @@
 
 - Worktree: `C:\Users\User\Desktop\Neo4flix`
 - Branch: `main` (direct-main execution; do not create worktrees)
-- Context snapshot base: final Batch 8 implementation plus audit/context updates
+- Context snapshot base: `b6491ab` (`docs: track batch 9 frontend progress`)
 - Local `.env` is ignored and must never be committed or printed.
 
 ## Completed ledger
@@ -32,9 +32,18 @@
 - Playwright share-specific coverage is not present; existing authenticated specs skip without configured E2E credentials. This is recorded explicitly in `docs/audit/batch-8-verification.md`.
 - Audit record: `docs/audit/batch-8-verification.md`.
 
-## Next workstream: Batch 9
+## Batch 9 progress
 
-- Canonical section: `00_MASTER_EXECUTION_PLAN.md` → “Batch 9 — Frontend Completion, Accessibility, Responsive, Contract Reconciliation”.
+- Plan: `docs/superpowers/plans/2026-09-15-batch-9-frontend-completion.md`.
+- `e99dd23` closes `/`, `/home`, `/search`, and canonical admin aliases with focused route/home/search coverage.
+- `18ad9f3` adds URL-backed catalog title state, explicit loading/empty/error UI, retry behavior, and typed catalog filters.
+- `4e09100` removes the duplicate shell heading and adds visible focus/responsive shell styling.
+- `27bec5a` renders movie poster and genre summary fields on movie detail.
+- Frontend regression after these changes: 98 tests passed; lint and production build passed.
+
+## Next unfinished Batch 9 workstream
+
+- Continue Task 2 in the Batch 9 plan with profile/watchlist/detail state coverage, then complete accessibility/responsive and recommendation/admin contract reconciliation.
 - Preserve Batch 8 contracts: public links remain hash-only and owner-scoped; public pages must not leak private recommendation data; recommendation failures must not break normal catalog browsing.
 
 ## Execution policy
