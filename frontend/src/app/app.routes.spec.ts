@@ -6,6 +6,8 @@ import { ProfileComponent } from './features/profile/profile.component';
 import { routes } from './app.routes';
 import { AdminCatalogComponent } from './features/admin/catalog-admin.component';
 import { ShareComponent } from './features/share/share.component';
+import { HomeComponent } from './features/home/home.component';
+import { SearchComponent } from './features/search/search.component';
 
 describe('auth routes', () => {
   it('registers the three lazy auth pages with anonymous-only protection', async () => {
@@ -47,5 +49,23 @@ describe('auth routes', () => {
 
     expect(share?.canActivate).toBeUndefined();
     expect(await share?.loadComponent?.()).toBe(ShareComponent);
+  });
+
+  it('registers authenticated home and search pages', async () => {
+    const home = routes.find((route) => route.path === 'home');
+    const search = routes.find((route) => route.path === 'search');
+
+    expect(home?.canActivate).toContain(authGuard);
+    expect(await home?.loadComponent?.()).toBe(HomeComponent);
+    expect(home?.pathMatch).toBeUndefined();
+    expect(search?.canActivate).toContain(authGuard);
+    expect(await search?.loadComponent?.()).toBe(SearchComponent);
+  });
+
+  it('registers canonical admin aliases with the admin guard', () => {
+    for (const path of ['admin', 'admin/movies', 'admin/movies/new', 'admin/movies/:id/edit', 'admin/genres']) {
+      const route = routes.find((candidate) => candidate.path === path);
+      expect(route?.canActivate, path).toContain(adminGuard);
+    }
   });
 });

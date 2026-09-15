@@ -6,7 +6,7 @@ export const routes: Routes = [
     path: '',
     pathMatch: 'full',
     canActivate: [authGuard],
-    children: [],
+    loadComponent: () => import('./features/home/home.component').then((module) => module.HomeComponent),
   },
   {
     path: 'auth/login',
@@ -33,12 +33,19 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/profile/profile.component').then((module) => module.ProfileComponent),
   },
+  { path: 'home', canActivate: [authGuard], loadComponent: () => import('./features/home/home.component').then((m) => m.HomeComponent) },
+  { path: 'search', canActivate: [authGuard], loadComponent: () => import('./features/search/search.component').then((m) => m.SearchComponent) },
   { path: 'watchlist', canActivate: [authGuard], loadComponent: () => import('./features/watchlist/watchlist.component').then((m) => m.WatchlistComponent) },
   { path: 'recommendations', canActivate: [authGuard], loadComponent: () => import('./features/recommendations/recommendations.component').then((m) => m.RecommendationsComponent) },
   { path: 'share/:publicToken', loadComponent: () => import('./features/share/share.component').then((m) => m.ShareComponent) },
   { path: 'movies', loadComponent: () => import('./features/catalog/catalog.component').then((m) => m.CatalogComponent) },
   { path: 'movies/:id/rate', canActivate: [authGuard], loadComponent: () => import('./features/catalog/rating-page.component').then((m) => m.RatingPageComponent) },
   { path: 'movies/:id', loadComponent: () => import('./features/catalog/movie-detail.component').then((m) => m.MovieDetailComponent) },
+  { path: 'admin', canActivate: [adminGuard], loadComponent: () => import('./features/admin/catalog-admin.component').then((m) => m.AdminCatalogComponent) },
   { path: 'admin/catalog', canActivate: [adminGuard], loadComponent: () => import('./features/admin/catalog-admin.component').then((m) => m.AdminCatalogComponent) },
+  { path: 'admin/movies', canActivate: [adminGuard], loadComponent: () => import('./features/admin/catalog-admin.component').then((m) => m.AdminCatalogComponent) },
+  { path: 'admin/movies/new', canActivate: [adminGuard], loadComponent: () => import('./features/admin/catalog-admin.component').then((m) => m.AdminCatalogComponent) },
+  { path: 'admin/movies/:id/edit', canActivate: [adminGuard], loadComponent: () => import('./features/admin/catalog-admin.component').then((m) => m.AdminCatalogComponent) },
+  { path: 'admin/genres', canActivate: [adminGuard], loadComponent: () => import('./features/admin/catalog-admin.component').then((m) => m.AdminCatalogComponent) },
   { path: '**', redirectTo: '' },
 ];
