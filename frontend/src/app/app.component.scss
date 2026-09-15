@@ -40,6 +40,15 @@ main {
   padding: 2rem 1rem;
 }
 
+:host a:focus-visible,
+:host button:focus-visible,
+:host input:focus-visible,
+:host select:focus-visible,
+:host textarea:focus-visible {
+  outline: 3px solid var(--mat-sys-primary);
+  outline-offset: 2px;
+}
+
 @media (max-width: 37.5rem) {
   mat-toolbar {
     height: auto;
@@ -54,5 +63,9 @@ main {
 
   .mobile-menu-trigger {
     display: inline-flex;
+  }
+
+  main {
+    padding: 1rem .75rem;
   }
 }

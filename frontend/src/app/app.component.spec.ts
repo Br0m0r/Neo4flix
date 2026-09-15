@@ -50,9 +50,7 @@ describe('AppComponent', () => {
     expect(fixture.nativeElement.querySelector('mat-toolbar').textContent).toContain(
       'Neo4flix preview',
     );
-    expect(fixture.nativeElement.querySelector('main h1').textContent).toContain(
-      'Neo4flix preview',
-    );
+    expect(fixture.nativeElement.querySelector('main h1')).toBeNull();
   });
 
   it('shows anonymous actions and logs an authenticated user out through the store', async () => {

@@ -46,8 +46,6 @@
     <a mat-menu-item routerLink="/auth/register">Register</a>
   }
 </mat-menu>
-<main>
-  <h1>Welcome to {{ applicationName() }}</h1>
-  <p>Your movie discovery experience starts here.</p>
+<main aria-live="polite">
   <router-outlet />
 </main>
