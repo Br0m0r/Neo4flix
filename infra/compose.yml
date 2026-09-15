@@ -34,6 +34,8 @@ x-protected-service-environment: &protected-service-environment
 
 x-user-service-environment: &user-service-environment
   <<: *protected-service-environment
+  # Nginx is the only trusted reverse proxy in the Compose network; override this CIDR in deployments with a fixed proxy subnet.
+  NEO4FLIX_AUTH_TRUSTED_PROXIES: ${NEO4FLIX_AUTH_TRUSTED_PROXIES:-172.16.0.0/12}
   NEO4FLIX_JWT_PRIVATE_KEY: ${NEO4FLIX_JWT_PRIVATE_KEY:?Set NEO4FLIX_JWT_PRIVATE_KEY}
   NEO4FLIX_TOTP_ENCRYPTION_KEY: ${NEO4FLIX_TOTP_ENCRYPTION_KEY:?Set NEO4FLIX_TOTP_ENCRYPTION_KEY}
   NEO4FLIX_RATING_SERVICE_URL: http://rating-service:8083

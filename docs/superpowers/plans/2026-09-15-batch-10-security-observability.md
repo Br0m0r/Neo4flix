@@ -34,7 +34,7 @@
 - [x] **Step 2: Run the script and confirm it fails** because the current config lacks the new directives.
 - [x] **Step 3: Add the minimal Nginx headers** and keep `X-Request-Id` proxy propagation unchanged.
 - [x] **Step 4: Run the script and `git diff --check`**.
-- [ ] **Step 5: Commit** `feat: harden nginx security headers`.
+- [x] **Step 5: Commit** `feat: harden nginx security headers`.
 
 ### Task 2: Add deterministic security scan entry points
 
@@ -52,7 +52,7 @@
 - [x] **Step 2: Run the script tests and confirm failure** because the wrapper/target does not exist.
 - [x] **Step 3: Implement the wrapper and Make target** with strict exit handling and explicit scanner skips.
 - [x] **Step 4: Run script tests, `npm audit --audit-level=high`, and the wrapper in WhatIf mode**.
-- [ ] **Step 5: Commit** `chore: add security scan entry points`.
+- [x] **Step 5: Commit** `chore: add security scan entry points`.
 
 ### Task 3: Reconcile the security evidence matrix
 
@@ -67,7 +67,7 @@
 - [x] **Step 1: Add failing checklist assertions** for the new Nginx and scan commands.
 - [x] **Step 2: Implement the checklist/evidence updates** without claiming unavailable TLS, gitleaks, Trivy, or k6 results.
 - [x] **Step 3: Run focused security tests and record exact outputs**.
-- [ ] **Step 4: Commit** `docs: record batch 10 security verification`.
+- [x] **Step 4: Commit** `docs: record batch 10 security verification`.
 
 ### Task 4: Batch 10 verification and handoff
 
@@ -75,6 +75,6 @@
 - Modify: `00_MASTER_EXECUTION_PLAN.md`
 - Modify: `docs/superpowers/ACTIVE_BATCH_CONTEXT.md`
 
-- [ ] **Step 1: Run Maven security-focused tests, frontend regression, Compose validation, header scan, and available security scans**.
-- [ ] **Step 2: Run `git diff --check` and review sensitive-log paths**.
-- [ ] **Step 3: Mark Batch 10 complete only with fresh evidence, update context to Batch 11, commit, and push `main`**.
+- [x] **Step 1: Run Maven security-focused tests, frontend regression, Compose validation, header scan, and available security scans**.
+- [x] **Step 2: Run `git diff --check` and review sensitive-log paths**.
+- [~] **Step 3: Implementation and available evidence are complete; retain Batch 10 as partially proven until optional scanners, production TLS/HSTS, and k6/stress evidence are available.**

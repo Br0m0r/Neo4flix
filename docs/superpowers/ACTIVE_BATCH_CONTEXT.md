@@ -1,14 +1,14 @@
-# Active Batch Context — Batch 10 Ready
+# Active Batch Context — Batch 10 Verification Pending
 
-> **Status:** Batch 9 is complete and pushed. Batch 10 is the next unfinished batch; execution remains direct on `main`.
+> **Status:** Batch 10 implementation is complete, but the acceptance gate remains partially proven until optional scanners and deployment-only TLS/stress evidence are available; execution remains direct on `main`.
 >
-> **Purpose:** Compact handoff cache generated from the Batch 8 plan, SDD ledger, current git state, and canonical requirements. It does not replace the master plan, product/API specs, or approved batch plans.
+> **Purpose:** Compact handoff cache generated from the Batch 10 plan, SDD ledger, current git state, and canonical requirements. It does not replace the master plan, product/API specs, or approved batch plans.
 
 ## Repository state
 
 - Worktree: `C:\Users\User\Desktop\Neo4flix`
 - Branch: `main` (direct-main execution; do not create worktrees)
-- Context snapshot base: `ce467e4` (`fix: preserve browser rating selection`)
+- Context snapshot base: `1dcdfe1` (`docs: record batch 10 security verification`); update to the final handoff commit after push.
 - Local `.env` is ignored and must never be committed or printed.
 
 ## Completed ledger
@@ -46,10 +46,20 @@
 - `ce467e4` preserves a user-selected rating when the existing-rating lookup completes later.
 - Final verification: Maven 129 tests; frontend 105 tests; lint/build; Compose interpolation; Playwright 5 passed and 3 credential-gated skips.
 
+## Batch 10 completion
+
+- Plan: `docs/superpowers/plans/2026-09-15-batch-10-security-observability.md`.
+- `6dbd6bf` adds Nginx `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, and CSP headers while preserving request-ID propagation.
+- `ef8b6a8` adds deterministic `make security`/PowerShell scan entry points with tracked secret-path checks and explicit optional-scanner skips.
+- `1dcdfe1` records the security evidence matrix and fresh verification results.
+- Focused Maven security tests passed; frontend regression passed (105 tests/27 files), lint and production build passed, Compose config passed, header contract passed, Pester security wrapper tests passed (2/2), npm audit reported 0 vulnerabilities, and `git diff --check` passed.
+- OWASP Dependency-Check, Gitleaks, and Trivy are not installed in the current environment and are explicitly reported as skipped; TLS/HSTS and k6 are not claimed by local HTTP-only verification.
+- Review follow-up added bounded Nginx limits for expensive movie/recommendation routes, Compose trusted-proxy configuration, and HTTPS/loopback poster URL validation with focused tests.
+
 ## Next unfinished workstream
 
-- Begin Batch 10 security hardening and observability from the master plan.
-- Preserve Batch 8 contracts: public links remain hash-only and owner-scoped; public pages must not leak private recommendation data; recommendation failures must not break normal catalog browsing.
+- Finish Batch 10 acceptance evidence when gitleaks, Trivy, production TLS/HSTS, and k6/stress tooling are available; do not claim `[x]` until those gates are verified.
+- Preserve Batch 10 controls: explicit edge headers and limits, request-ID propagation, generic Problem Details, explicit CORS/cookie-origin checks, bounded inputs, proxy-aware auth throttling, poster URL validation, and deterministic scan entry points.
 
 ## Execution policy
 

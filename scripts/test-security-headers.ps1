@@ -20,6 +20,9 @@ Assert-Contains "style-src 'self' 'unsafe-inline'" 'Nginx CSP must allow Angular
 Assert-Contains "img-src 'self' https:" 'Nginx CSP must allow same-origin and HTTPS poster images.'
 Assert-Contains "object-src 'none'" 'Nginx CSP must disable plugin objects.'
 Assert-Contains "frame-ancestors 'none'" 'Nginx CSP must prevent framing.'
+Assert-Contains 'limit_req_zone $binary_remote_addr zone=expensive:' 'Nginx must define a bounded expensive-request limit.'
+Assert-Contains 'limit_req zone=expensive' 'Nginx must apply a bounded expensive-request limit.'
+Assert-Contains 'limit_req_status 429;' 'Nginx rate-limit violations must return 429.'
 if ($config -match 'Access-Control-Allow-Origin\s+\*') { throw 'Nginx must not enable wildcard credentialed CORS.' }
 
 Write-Output 'Nginx security header contract passed.'

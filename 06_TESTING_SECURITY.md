@@ -441,8 +441,10 @@ make verify-all
 ### Batch 10 security entry points
 
 - `pwsh -NoProfile -File scripts/test-security-headers.ps1` verifies the Nginx browser-security header contract without reading secrets.
-- `pwsh -NoProfile -File scripts/security.ps1` runs the frontend high-severity dependency audit and tracked secret-path review, then runs gitleaks and Trivy when those tools are installed; missing external scanners are reported as explicit skips.
+- `pwsh -NoProfile -File scripts/security.ps1` runs the frontend high-severity dependency audit, an OWASP Dependency-Check backend entry point, tracked secret-path review, and Trivy image scans when those tools/images are available; missing external scanners are reported as explicit skips.
 - `make security` invokes the same wrapper from the repository root.
+- Nginx applies a bounded `30r/m` edge limit with burst handling to movie/catalog and recommendation routes; user-service auth throttling remains keyed by the configured trusted proxy's `X-Real-IP`.
+- Movie writes accept HTTPS poster URLs plus explicit localhost/loopback HTTP development exceptions and reject dangerous schemes.
 
 ### make verify
 - backend compile/static/style
@@ -463,23 +465,23 @@ Backup/restore remains required final deployment proof.
 
 ## 44. Final Security Matrix
 
-- [ ] password hashing/policy
-- [ ] JWT signature/issuer/audience/expiry
-- [ ] refresh rotation/replay/logout
-- [ ] TOTP enrollment/login/disable/challenge expiry
-- [ ] USER/ADMIN
-- [ ] horizontal ownership
-- [ ] Cypher injection
-- [ ] sort allowlist
-- [ ] XSS
-- [ ] URL validation
-- [ ] request/query bounds
-- [ ] rate limiting
-- [ ] sensitive log review
-- [ ] secret scan
-- [ ] dependency review
-- [ ] container review
-- [ ] HTTPS/cookies/headers
-- [ ] stress/concurrency integrity
+- [x] password hashing/policy
+- [x] JWT signature/issuer/audience/expiry
+- [x] refresh rotation/replay/logout
+- [x] TOTP enrollment/login/disable/challenge expiry
+- [x] USER/ADMIN
+- [x] horizontal ownership
+- [x] Cypher injection
+- [x] sort allowlist
+- [x] XSS
+- [x] URL validation
+- [x] request/query bounds
+- [x] rate limiting
+- [x] sensitive log review
+- [~] secret scan (tracked-path and npm audit passed; gitleaks unavailable)
+- [~] dependency review (npm audit: 0 vulnerabilities; OWASP Dependency-Check unavailable)
+- [~] container review (Trivy unavailable)
+- [~] HTTPS/cookies/headers (cookie/header contracts pass; local Compose is HTTP-only)
+- [~] stress/concurrency integrity (focused concurrency tests pass; k6 audit profile not run)
 
 No completion claim without fresh verification output.

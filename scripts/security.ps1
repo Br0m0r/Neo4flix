@@ -37,6 +37,13 @@ if ($secretPaths.Count -gt 0) {
 
 Invoke-Checked '.' 'npm' @('audit', '--prefix', 'frontend', '--audit-level', 'high')
 
+if (Get-Command dependency-check -ErrorAction SilentlyContinue) {
+    Invoke-Checked '.' 'dependency-check' @('--project', 'Neo4flix', '--scan', (Join-Path $repository 'backend'), '--format', 'JSON', '--failOnCVSS', '7', '--out', (Join-Path $repository 'target\dependency-check'))
+}
+else {
+    Show-Step 'dependency-check --failOnCVSS 7 [SKIP: OWASP Dependency-Check CLI is not installed]'
+}
+
 if (Get-Command gitleaks -ErrorAction SilentlyContinue) {
     Invoke-Checked '.' 'gitleaks' @('detect', '--source', $repository, '--no-banner', '--redact', '--exit-code', '1')
 }
@@ -45,10 +52,19 @@ else {
 }
 
 if (Get-Command trivy -ErrorAction SilentlyContinue) {
-    Invoke-Checked '.' 'trivy' @('fs', '--scanners', 'vuln,secret,misconfig', '--severity', 'HIGH,CRITICAL', '--exit-code', '1', $repository)
+    $images = @(& docker image ls --format '{{.Repository}}:{{.Tag}}' | Where-Object { $_ -match '^neo4flix/(web|user-service|movie-service|rating-service|recommendation-service):' })
+    if ($LASTEXITCODE -ne 0) { throw 'Could not enumerate local service images.' }
+    if ($images.Count -eq 0) {
+        Show-Step 'trivy image [SKIP: no local Neo4flix service images are available]'
+    }
+    else {
+        foreach ($image in $images) {
+            Invoke-Checked '.' 'trivy' @('image', '--scanners', 'vuln,secret,misconfig', '--severity', 'HIGH,CRITICAL', '--exit-code', '1', $image)
+        }
+    }
 }
 else {
-    Show-Step 'trivy fs [SKIP: trivy is not installed]'
+    Show-Step 'trivy image [SKIP: trivy is not installed]'
 }
 
 Write-Output 'Security scan entry point completed.'
