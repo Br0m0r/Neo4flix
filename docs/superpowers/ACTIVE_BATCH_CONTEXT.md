@@ -1,6 +1,6 @@
-# Active Batch Context — Batch 11 Ready
+# Active Batch Context — Batch 11 Verification Pending
 
-> **Status:** Batch 10 exercise deliverables are complete and pushed. Optional deployment scanners/TLS/stress checks remain documented follow-up; execution remains direct on `main`.
+> **Status:** Batch 10 exercise deliverables are complete and pushed. Batch 11 real-stack browser verification is partially proven; credential-gated and failure-injection scenarios remain open. Execution remains direct on `main`.
 >
 > **Purpose:** Compact handoff cache generated from the Batch 10 plan, SDD ledger, current git state, and canonical requirements. It does not replace the master plan, product/API specs, or approved batch plans.
 
@@ -56,9 +56,17 @@
 - OWASP Dependency-Check, Gitleaks, and Trivy are not installed in the current environment and are explicitly reported as optional follow-up skips; production TLS/HSTS and k6 are likewise optional deployment follow-up, not Batch 10 exercise blockers.
 - Review follow-up added bounded Nginx limits for expensive movie/recommendation routes, Compose trusted-proxy configuration, and HTTPS/loopback poster URL validation with focused tests.
 
+## Batch 11 verification
+
+- Plan: `docs/superpowers/plans/2026-09-15-batch-11-browser-failure-verification.md`.
+- Rebuilt the full Compose stack with the existing `.env` and preserved Neo4j data.
+- Playwright against `http://localhost:8080`: 8 tests discovered, 5 passed, 3 skipped for missing disposable credentials (recommendations, recommendation outage, ADMIN CRUD), 0 failed.
+- Public entry point returned HTTP 200 with request ID and configured browser security headers.
+- Audit record: `docs/audit/batch-11-browser-failure-verification.md`.
+
 ## Next unfinished workstream
 
-- Begin Batch 11 full browser E2E and failure-mode verification from the master plan.
+- Finish Batch 11 with disposable user/admin E2E credentials, browser recommendation-outage coverage, sharing/2FA scenarios, and feasible Neo4j failure injection.
 - Preserve Batch 10 controls: explicit edge headers and limits, request-ID propagation, generic Problem Details, explicit CORS/cookie-origin checks, bounded inputs, proxy-aware auth throttling, poster URL validation, and deterministic scan entry points.
 
 ## Execution policy

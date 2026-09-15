@@ -821,7 +821,7 @@ reconciliation, the complete document must still be reviewed.
 
 ## Batch 11 — Full Browser E2E and Failure-Mode Verification
 
-**Status:** [ ]
+**Status:** [~]
 
 **Required reading:**
 
