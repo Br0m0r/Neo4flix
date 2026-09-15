@@ -55,6 +55,7 @@ Run the repository checks with Docker available:
 
 ```powershell
 make verify
+make verify-all       # full local gate: build, Compose smoke, browser, security, k6
 make security
 npm.cmd --prefix frontend run e2e   # requires an auth-configured live stack
 ```
