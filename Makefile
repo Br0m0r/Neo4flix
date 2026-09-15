@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := verify
-.PHONY: verify test test-integration dev-up dev-down seed-demo seed-audit seed-load
+.PHONY: verify test test-integration security dev-up dev-down seed-demo seed-audit seed-load
 
 verify:
 	pwsh -NoProfile -File scripts/verify.ps1
@@ -9,6 +9,9 @@ test:
 
 test-integration:
 	pwsh -NoProfile -File scripts/verify.ps1 -Integration
+
+security:
+	pwsh -NoProfile -File scripts/security.ps1
 
 dev-up:
 	docker compose --env-file .env -f infra/compose.yml -f infra/compose.dev.yml up --build -d --wait --wait-timeout 600

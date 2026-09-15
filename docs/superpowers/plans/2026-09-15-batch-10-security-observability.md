@@ -48,10 +48,10 @@
 - The wrapper runs `npm audit --audit-level=high`, checks for tracked secret-shaped files, and runs gitleaks/Trivy when installed; missing optional scanners are reported as explicit skips.
 - No command prints environment values or file contents containing secrets.
 
-- [ ] **Step 1: Write failing script tests** for WhatIf command ordering and secret-value redaction.
-- [ ] **Step 2: Run the script tests and confirm failure** because the wrapper/target does not exist.
-- [ ] **Step 3: Implement the wrapper and Make target** with strict exit handling and explicit scanner skips.
-- [ ] **Step 4: Run script tests, `npm audit --audit-level=high`, and the wrapper in WhatIf mode**.
+- [x] **Step 1: Write failing script tests** for WhatIf command ordering and secret-value redaction.
+- [x] **Step 2: Run the script tests and confirm failure** because the wrapper/target does not exist.
+- [x] **Step 3: Implement the wrapper and Make target** with strict exit handling and explicit scanner skips.
+- [x] **Step 4: Run script tests, `npm audit --audit-level=high`, and the wrapper in WhatIf mode**.
 - [ ] **Step 5: Commit** `chore: add security scan entry points`.
 
 ### Task 3: Reconcile the security evidence matrix
