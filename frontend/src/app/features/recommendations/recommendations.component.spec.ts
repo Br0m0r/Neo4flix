@@ -24,7 +24,7 @@ const item = {
   },
   recommendationScore: 0.91,
   signals: { collaborative: 0.8, content: 0.9, popularity: 0.7 },
-  strategy: 'PERSONALIZED' as const,
+  strategy: 'HYBRID' as const,
   reason: { type: 'GENRE_MATCH' as const, text: 'Because you enjoy Science Fiction' },
 };
 
@@ -64,6 +64,9 @@ describe('RecommendationsComponent', () => {
     expect(api.list).toHaveBeenCalledWith(expect.objectContaining({ genre: 'Science Fiction', sort: 'rating', page: 0, size: 20 }));
     expect(fixture.nativeElement.textContent).toContain('Personalized');
     expect(fixture.nativeElement.textContent).toContain('Because you enjoy Science Fiction');
+    expect(fixture.nativeElement.textContent).toContain('0.91');
+    expect(fixture.nativeElement.textContent).toContain('First contact');
+    expect(fixture.nativeElement.textContent).toContain('4.4');
     expect(fixture.nativeElement.querySelector('[data-testid="movie-details"]')).not.toBeNull();
   });
 
@@ -75,6 +78,18 @@ describe('RecommendationsComponent', () => {
     fixture.nativeElement.querySelector('button[data-testid="apply-filters"]').click();
 
     expect(router.navigate).toHaveBeenCalledWith([], expect.objectContaining({ queryParams: expect.objectContaining({ genre: 'Drama', sort: 'rating', page: 0, size: 20 }) }));
+  });
+
+  it('does not issue a second request when navigation echoes applied filters', () => {
+    create();
+    api.list.mockClear();
+    const genre = fixture.nativeElement.querySelector('[formControlName="genre"]') as HTMLInputElement;
+    genre.value = 'Drama';
+    genre.dispatchEvent(new Event('input'));
+    fixture.nativeElement.querySelector('button[data-testid="apply-filters"]').click();
+    queryParamMap.next(convertToParamMap({ genre: 'Drama', sort: 'rating', page: '0', size: '20' }));
+
+    expect(api.list).toHaveBeenCalledTimes(1);
   });
 
   it('renders explicit empty cold-start guidance', () => {

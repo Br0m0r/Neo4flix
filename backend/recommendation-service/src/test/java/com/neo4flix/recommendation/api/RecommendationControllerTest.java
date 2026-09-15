@@ -66,6 +66,12 @@ class RecommendationControllerTest {
     }
 
     @Test
+    void rejectsMalformedHttpQueryNumbersAsValidationErrors() {
+        assertThatIllegalArgumentException().isThrownBy(() -> controller.recommendHttp(
+                "Science Fiction", "not-a-year", null, "NaN", "recommendation", "0", "20", jwt));
+    }
+
+    @Test
     void mapsStrategySignalsReasonsAndSlicesDeterministically() {
         when(service.recommend(any())).thenReturn(List.of(
                 new RecommendationDtos.Result("movie-b", "B", null, 2000, null, .8,

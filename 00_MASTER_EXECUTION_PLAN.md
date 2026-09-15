@@ -678,7 +678,7 @@ reconciliation, the complete document must still be reviewed.
 
 ## Batch 7 — Recommendation API, Filters, UI, and Movie Facade
 
-**Status:** [ ]
+**Status:** [x]
 
 **Required reading:**
 

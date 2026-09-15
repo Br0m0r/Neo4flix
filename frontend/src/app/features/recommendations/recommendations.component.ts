@@ -56,7 +56,8 @@ type FilterForm = {
         <p role="alert">{{ error() }}</p>
         <button type="button" (click)="retry()">Retry</button>
       } @else if (!items().length) {
-        <p class="empty" role="status">Rate a few movies to get personalized recommendations.</p>
+        <p data-testid="strategy">{{ strategyLabel(response()?.strategy) }}</p>
+        <p class="empty" role="status">{{ emptyGuidance(response()?.strategy) }}</p>
         <a routerLink="/movies">Browse movies</a>
       } @else {
         <p data-testid="strategy">{{ strategyLabel(response()?.strategy) }}</p>
@@ -65,6 +66,11 @@ type FilterForm = {
             <article>
               <h2>{{ item.movie.title }}</h2>
               @if (item.movie.releaseYear) { <p>{{ item.movie.releaseYear }}</p> }
+              @if (item.movie.posterUrl) { <img [src]="item.movie.posterUrl" [alt]="item.movie.title" /> }
+              @if (item.movie.overview) { <p>{{ item.movie.overview }}</p> }
+              @if (item.movie.genres.length) { <p>Genres: {{ genreNames(item) }}</p> }
+              <p data-testid="recommendation-score">Recommendation score: {{ item.recommendationScore }}</p>
+              <p>Rating: {{ item.movie.averageRating }} ({{ item.movie.ratingCount }} ratings)</p>
               <p>{{ item.reason.text }}</p>
               <a data-testid="movie-details" [routerLink]="['/movies', item.movie.id]">Details</a>
               <button data-testid="watchlist-add" type="button" [disabled]="busyMovieId() === item.movie.id" (click)="addToWatchlist(item)">
@@ -108,17 +114,24 @@ export class RecommendationsComponent implements OnInit {
   protected readonly items = signal<RecommendationItem[]>([]);
   protected readonly busyMovieId = signal<string | null>(null);
   protected readonly watchlistError = signal<string | null>(null);
+  private skipNextQueryLoad: string | null = null;
 
   ngOnInit(): void {
     this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const filters = this.filtersFromQuery(params);
       this.patchForm(filters);
+      const key = this.filterKey(filters);
+      if (this.skipNextQueryLoad === key) {
+        this.skipNextQueryLoad = null;
+        return;
+      }
       this.load(filters);
     });
   }
 
   protected applyFilters(): void {
     const filters = this.formFilters();
+    this.skipNextQueryLoad = this.filterKey(filters);
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: this.queryParams(filters),
@@ -153,7 +166,19 @@ export class RecommendationsComponent implements OnInit {
   }
 
   protected strategyLabel(strategy: RecommendationResponse['strategy'] | undefined): string {
-    return strategy === 'PERSONALIZED' ? 'Personalized recommendations' : 'Popular recommendations';
+    if (strategy === 'HYBRID') return 'Personalized recommendations';
+    if (strategy === 'CONTENT_PLUS_POPULARITY') return 'Taste-based recommendations';
+    return 'Popular recommendations';
+  }
+
+  protected emptyGuidance(strategy: RecommendationResponse['strategy'] | undefined): string {
+    return strategy === 'POPULARITY'
+      ? 'Rate a few movies to get personalized recommendations.'
+      : 'Rate more movies to improve these recommendations.';
+  }
+
+  protected genreNames(item: RecommendationItem): string {
+    return item.movie.genres.map((genre) => genre.name).join(', ');
   }
 
   protected currentPage(): number {
@@ -240,6 +265,10 @@ export class RecommendationsComponent implements OnInit {
     if (filters.toYear !== null && filters.toYear !== undefined) result['toYear'] = filters.toYear;
     if (filters.minimumAverageRating !== null && filters.minimumAverageRating !== undefined) result['minimumAverageRating'] = filters.minimumAverageRating;
     return result;
+  }
+
+  private filterKey(filters: RecommendationFilters): string {
+    return JSON.stringify(this.queryParams(filters));
   }
 
   private numberParam(value: string | number | null): number | null {

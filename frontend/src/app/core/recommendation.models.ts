@@ -31,7 +31,7 @@ export interface RecommendationSignals {
   popularity: number;
 }
 
-export type RecommendationStrategy = 'PERSONALIZED' | 'POPULARITY';
+export type RecommendationStrategy = 'HYBRID' | 'CONTENT_PLUS_POPULARITY' | 'POPULARITY';
 export type RecommendationReasonType = 'SIMILAR_USERS' | 'GENRE_MATCH' | 'POPULAR';
 
 export interface RecommendationReason {

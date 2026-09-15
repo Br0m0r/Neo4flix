@@ -6,7 +6,7 @@ import com.neo4flix.recommendation.core.RecommendationDtos;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,7 +30,21 @@ public class RecommendationController {
     }
 
     @GetMapping("/me")
-    public Response recommend(@ModelAttribute QueryParams params, @AuthenticationPrincipal Jwt jwt) {
+    public Response recommendHttp(
+            @RequestParam(value = "genre", required = false) String genre,
+            @RequestParam(value = "fromYear", required = false) String fromYear,
+            @RequestParam(value = "toYear", required = false) String toYear,
+            @RequestParam(value = "minimumAverageRating", required = false) String minimumAverageRating,
+            @RequestParam(value = "sort", required = false) String sort,
+            @RequestParam(value = "page", required = false) String page,
+            @RequestParam(value = "size", required = false) String size,
+            @AuthenticationPrincipal Jwt jwt) {
+        return recommend(new QueryParams(genre, parseInteger("fromYear", fromYear), parseInteger("toYear", toYear),
+                parseDouble("minimumAverageRating", minimumAverageRating), sort,
+                parseInteger("page", page), parseInteger("size", size)), jwt);
+    }
+
+    public Response recommend(QueryParams params, Jwt jwt) {
         QueryParams normalized = normalize(params);
         String userId = new JwtClaims(Objects.requireNonNull(jwt, "authenticated JWT is required")).subject();
         List<RecommendationDtos.Result> ranked = service.recommend(new RecommendationDtos.Query(
@@ -47,6 +61,24 @@ public class RecommendationController {
                 ? RecommendationDtos.Strategy.POPULARITY : sorted.getFirst().strategy();
         return new Response(items, strategy, normalized.page(), normalized.size(), sorted.size(),
                 (int) Math.ceil((double) sorted.size() / normalized.size()));
+    }
+
+    private static Integer parseInteger(String name, String value) {
+        if (value == null || value.isBlank()) return null;
+        try {
+            return Integer.valueOf(value);
+        } catch (NumberFormatException exception) {
+            throw new IllegalArgumentException(name + " must be an integer", exception);
+        }
+    }
+
+    private static Double parseDouble(String name, String value) {
+        if (value == null || value.isBlank()) return null;
+        try {
+            return Double.valueOf(value);
+        } catch (NumberFormatException exception) {
+            throw new IllegalArgumentException(name + " must be a number", exception);
+        }
     }
 
     static QueryParams normalize(QueryParams params) {
