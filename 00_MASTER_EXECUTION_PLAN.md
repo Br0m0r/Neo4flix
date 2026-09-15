@@ -887,7 +887,7 @@ reconciliation, the complete document must still be reviewed.
 
 ## Batch 13 — Load/Stress and Performance Integrity
 
-**Status:** [ ]
+**Status:** [~]
 
 **Required reading:**
 

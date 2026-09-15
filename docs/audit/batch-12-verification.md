@@ -58,7 +58,8 @@ The golden cases proved deterministic hybrid ranking, cold-start strategies, alr
 - `USABILITY_TEST.md` defines the required seven-step human journey and keeps
   the participant result pending rather than fabricating observations.
 - `scripts/k6/smoke.js` and `STRESS_TEST.md` provide a bounded anonymous catalog
-  smoke profile. Native k6 was not installed, so no run metrics are claimed.
+  smoke profile. The pinned Docker runner passed 30 requests with 0% HTTP
+  failures and p95 latency of 14.83 ms; this is not authenticated load evidence.
 - `scripts/backup-neo4j.ps1` and `scripts/restore-neo4j.ps1` provide explicit,
   guarded Community offline dump/load helpers. They refuse ambiguous restore
   targets; a disposable two-container marker recovery cycle passed without
