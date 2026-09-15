@@ -93,7 +93,7 @@ public interface RecommendationShareRepository {
     }
 
     @Repository("recommendationShareRepository")
-    final class Neo4j implements RecommendationShareRepository {
+    class Neo4j implements RecommendationShareRepository {
         private final Neo4jClient client;
 
         public Neo4j(Neo4jClient client) {
