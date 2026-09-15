@@ -8,7 +8,7 @@
 
 - Worktree: `C:\Users\User\Desktop\Neo4flix`
 - Branch: `main` (direct-main execution; do not create worktrees)
-- Context snapshot base: `f8d64e7` (`feat: verify recommendation integration`)
+- Context snapshot base: `5e58720` (`fix: reconcile recommendation contracts`)
 - Batch 7 commits: `576a9f4`, `1c9f3c2`, `83cbfb6`, `d78c05f`, `39af0b1`, `f8d64e7`
 - Local `.env` is ignored and must never be committed or printed.
 

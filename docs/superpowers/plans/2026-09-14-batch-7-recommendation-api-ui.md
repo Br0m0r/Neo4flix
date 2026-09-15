@@ -117,4 +117,4 @@
 - [x] **Step 2: Run the focused browser test against Compose** with `npx playwright test e2e/recommendations.spec.ts --workers=1 --reporter=line`; keep credentials out of output. The two tests were safely skipped because credentials were not configured.
 - [x] **Step 3: Run final verification:** full Maven reactor, focused recommendation and movie facade suites, `npm test`, `npm run lint`, `npm run build`, Compose interpolation validation, serial Playwright, and `git diff --check`. Compose health and authenticated browser execution remain environment-dependent.
 - [x] **Step 4: Record exact commands, counts, endpoint/privacy evidence, facade equivalence, outage behavior, and any skipped fixture in `docs/audit/batch-7-verification.md`.
-- [ ] **Step 5: Self-review for Critical/Important findings, change only Batch 7 status to `[x]`, update `ACTIVE_BATCH_CONTEXT.md` to Batch 8, commit, push `main`, and verify local `HEAD` equals `origin/main`.
+- [x] **Step 5: Self-review for Critical/Important findings, change only Batch 7 status to `[x]`, update `ACTIVE_BATCH_CONTEXT.md` to Batch 8, commit, push `main`, and verify local `HEAD` equals `origin/main`.
