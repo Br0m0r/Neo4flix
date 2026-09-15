@@ -14,3 +14,15 @@ export interface MovieWrite {
   externalId: string | null; genreIds: string[];
 }
 export interface PageResult<T> { content: T[]; page: number; size: number; totalElements: number; totalPages: number; }
+
+export interface CatalogFilters {
+  title?: string;
+  genre?: string;
+  minYear?: number;
+  maxYear?: number;
+  fromDate?: string;
+  sort?: string;
+  direction?: 'asc' | 'desc';
+  page?: number;
+  size?: number;
+}

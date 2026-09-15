@@ -1,12 +1,12 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { GenreSummary, MovieDetail, MovieSummary, MovieWrite, PageResult } from './catalog.models';
+import { CatalogFilters, GenreSummary, MovieDetail, MovieSummary, MovieWrite, PageResult } from './catalog.models';
 
 @Injectable({ providedIn: 'root' })
 export class CatalogApiService {
   private readonly http = inject(HttpClient);
-  movies(filters: { title?: string; genre?: string; page?: number; size?: number } = {}): Observable<PageResult<MovieSummary>> {
+  movies(filters: CatalogFilters = {}): Observable<PageResult<MovieSummary>> {
     let params = new HttpParams();
     Object.entries(filters).forEach(([key, value]) => { if (value !== undefined && value !== '') params = params.set(key, String(value)); });
     return this.http.get<PageResult<MovieSummary>>('/api/v1/movies', { params });
