@@ -1,5 +1,9 @@
 # Neo4j and GDS bootstrap
 
+This directory documents the Neo4j side of the local Neo4flix stack. It is
+useful when diagnosing startup, schema, or graph-data-science issues; the normal
+developer path remains the [local development guide](../../docs/DEVELOPMENT.md).
+
 Batch 0 uses `neo4j:2026.07.1-community` and the development convenience setting
 `NEO4J_PLUGINS=["graph-data-science"]`. Neo4j downloads the compatible GDS plugin
 at startup, so this development stack needs network access. The intended

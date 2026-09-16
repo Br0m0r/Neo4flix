@@ -1,4 +1,43 @@
-# Neo4flix — Canonical Planning Set
+# Neo4flix
+
+[![Verify](https://github.com/Br0m0r/Neo4flix/actions/workflows/verify.yml/badge.svg)](https://github.com/Br0m0r/Neo4flix/actions/workflows/verify.yml)
+
+Neo4flix is a graph-powered movie discovery and recommendation platform built for
+the 01-edu Neo4flix assignment. It combines four Spring Boot services, a shared
+Neo4j graph, an Angular frontend, and an Nginx edge container into one runnable
+local stack.
+
+The project is intentionally an educational MVP: it demonstrates catalog search,
+ratings, watchlists, authentication with optional TOTP, graph-based
+recommendations, recommendation sharing, and an admin catalog workflow. It is
+not a streaming service.
+
+## Highlights
+
+- **Graph-first recommendations** with human-readable explanations.
+- **Service boundaries** for users, movies, ratings, and recommendations over a
+  shared Neo4j graph.
+- **Secure auth flow** with RS256 access tokens, rotating refresh cookies, rate
+  limiting, and optional two-factor authentication.
+- **Real verification** through Maven tests, Angular/Vitest tests, Playwright,
+  k6 smoke profiles, Docker Compose smoke checks, and security wrappers.
+- **Reproducible local setup** using pinned Java, Node, Maven, Angular, Neo4j,
+  and Docker image versions.
+
+## Architecture at a glance
+
+```text
+Angular + Nginx (8080)
+          |
+          +--> User Service (8081) --------+
+          +--> Movie Service (8082) -------+--> Neo4j (7474 / 7687)
+          +--> Rating Service (8083) ------+
+          +--> Recommendation Service (8084)
+```
+
+The `database-migrator` container applies and verifies graph migrations before
+the business services start. Movie Service delegates personalized ranking to
+Recommendation Service rather than maintaining a second algorithm.
 
 ## Run the project locally
 
@@ -78,14 +117,19 @@ pwsh -NoProfile -File scripts/backup-neo4j.ps1 -Destination .\backups\neo4j
 pwsh -NoProfile -File scripts/restore-neo4j.ps1 -DumpFile .\backups\neo4j\neo4j-<timestamp>.dump -ContainerName neo4j-disposable -ConfirmRestore
 ```
 
-See [Local development](docs/DEVELOPMENT.md), the [audit runbook](docs/audit/AUDIT_RUNBOOK.md),
+See the [documentation index](docs/README.md), [local development guide](docs/DEVELOPMENT.md), the [audit runbook](docs/audit/AUDIT_RUNBOOK.md),
 the [01-edu audit question checklist](docs/audit/01-EDU_AUDIT_QUESTION_CHECKLIST.md),
 the [stress-test notes](docs/audit/STRESS_TEST.md), and the [final status reconciliation](docs/audit/FINAL_STATUS.md) for the complete command
 contracts and current limitations. The local profile is HTTP-only; deployment
 HTTPS, a human usability session, and the full k6/backup-restore audit gates
 remain separate release evidence.
 
-This directory is the **single entrypoint** for humans and agentic coding workers implementing the 01-edu **Neo4flix** project.
+## Repository reference
+
+This repository also contains the canonical planning set used to implement the
+01-edu **Neo4flix** project. Those documents are intentionally kept alongside
+the runnable application so the design, implementation decisions, and audit
+evidence remain inspectable.
 
 The external assignment and audit remain non-negotiable requirements. This canonical set resolves their ambiguities into one implementable architecture while keeping the required technologies and behaviors intact.
 

@@ -1,10 +1,16 @@
 # Neo4flix frontend
 
-Angular 22.1.5 standalone baseline with Angular Material 22.1.5, TypeScript 6.0.3,
-SCSS, and Vitest. The root shell and empty route list are ready for later features.
-Future browser API calls use the reserved `/api/v1` contract.
+The frontend is an Angular 22 standalone application styled with Angular
+Material and SCSS. It provides the catalog, movie detail, ratings, watchlist,
+recommendation, sharing, authentication, and admin views served by the main
+Docker Compose stack.
 
-Run from `frontend/`:
+API calls use the `/api/v1` contract and are proxied through the Nginx container
+when the full stack is running.
+
+## Local development
+
+Run these commands from `frontend/`:
 
 ```sh
 npm ci
@@ -13,7 +19,7 @@ npm start
 
 The development server listens at `http://localhost:4200/`.
 
-Verification:
+## Verification
 
 ```sh
 npm run lint

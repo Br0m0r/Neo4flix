@@ -1,7 +1,11 @@
 # Local development
 
-Run commands from the repository root. This guide covers bootstrap and auth verification;
-the [canonical planning set](../README.md) remains the implementation authority.
+Run commands from the repository root. This is the detailed companion to the
+[project README](../README.md): it covers clean-checkout setup, authentication
+verification, Compose lifecycle, seed data, and the checks used by CI.
+
+For a first run, use **Required tools**, **Clean checkout**, and **Start and check
+the stack**. The later sections are targeted verification and operational notes.
 
 ## Required tools
 
