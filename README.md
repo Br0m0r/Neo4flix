@@ -45,10 +45,12 @@ The seed script does not read `.env`; export the connection values in the shell
 that invokes it, then load only the fixture you need:
 
 ```powershell
-$env:NEO4J_URI='neo4j://localhost:7687'
-$env:NEO4J_USERNAME='neo4j'
-$env:NEO4J_PASSWORD='<your-local-password>'
-make seed-audit       # or: make seed-demo / make seed-load
+$env:NEO4J_URI = 'neo4j://localhost:7687'
+$env:NEO4J_USERNAME = 'neo4j'
+$env:NEO4J_PASSWORD = ((Get-Content .env | Where-Object { $_ -match '^NEO4J_PASSWORD=' } | Select-Object -First 1) -replace '^NEO4J_PASSWORD=', '')
+
+& .\scripts\seed.ps1 audit
+# Or, when GNU Make is installed: make seed-audit
 ```
 
 Run the repository checks with Docker available:
