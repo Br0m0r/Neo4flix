@@ -247,7 +247,7 @@ git commit -m "feat: add recommendation share action"
 **Files:**
 - Create: `docs/audit/batch-8-verification.md`
 - Modify: `docs/superpowers/ACTIVE_BATCH_CONTEXT.md`
-- Modify: `00_MASTER_EXECUTION_PLAN.md`
+- Modify: `docs/reference/00_MASTER_EXECUTION_PLAN.md`
 
 - [x] **Step 1: Run backend focused and full tests**
 
@@ -274,11 +274,11 @@ Expected: all tests pass, lint has zero warnings, build succeeds.
 
 - [x] **Step 3: Run Compose interpolation and serial Playwright share contract** using command-scoped placeholders only; do not create or print `.env`. Record skipped E2E tests explicitly when credentials are absent.
 - [x] **Step 4: Run `git diff --check` and confirm `git status --short` contains only intended audit/context/plan changes.**
-- [x] **Step 5: Populate the audit with token non-persistence, ownership, expiry/revocation, public privacy, and deletion evidence. Mark Batch 8 complete in `00_MASTER_EXECUTION_PLAN.md` and update the active context to Batch 9.
+- [x] **Step 5: Populate the audit with token non-persistence, ownership, expiry/revocation, public privacy, and deletion evidence. Mark Batch 8 complete in `docs/reference/00_MASTER_EXECUTION_PLAN.md` and update the active context to Batch 9.
 - [x] **Step 6: Commit the audit/context/plan status update**
 
 ```text
-git add docs/audit/batch-8-verification.md docs/superpowers/ACTIVE_BATCH_CONTEXT.md 00_MASTER_EXECUTION_PLAN.md
+git add docs/audit/batch-8-verification.md docs/superpowers/ACTIVE_BATCH_CONTEXT.md docs/reference/00_MASTER_EXECUTION_PLAN.md
 git commit -m "docs: verify batch 8 recommendation sharing"
 ```
 

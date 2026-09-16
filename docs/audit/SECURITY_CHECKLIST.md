@@ -16,7 +16,7 @@ production deployment has been independently certified.
 | Generic Problem Details, request IDs, no credential/token logging | `docs/audit/batch-10-verification.md`; security wrapper tests and service tests | Verified |
 | Security headers, explicit CORS, refresh-cookie origin checks, trusted-proxy handling | `docs/audit/batch-10-verification.md`; Nginx/header and auth tests | Verified for local HTTP configuration |
 | Dependency and repository secret scans | `make security`; `scripts/security.ps1` | Optional scanners are unavailable in this environment; repository checks pass |
-| TLS termination, HTTPS redirect, HSTS, certificate rotation | `08_DEPLOYMENT_OPERATIONS.md` | Deployment evidence required; not provided by the local HTTP stack |
+| TLS termination, HTTPS redirect, HSTS, certificate rotation | `docs/reference/08_DEPLOYMENT_OPERATIONS.md` | Deployment evidence required; not provided by the local HTTP stack |
 | Authenticated k6 load and rate-limit profile | `docs/audit/STRESS_TEST.md`, `scripts/k6/smoke.js` | Public smoke profile only; full profile remains open |
 | Backup/restore recovery evidence | `scripts/backup-neo4j.ps1`, `scripts/restore-neo4j.ps1` | Helpers are guarded; disposable recovery run is required before release sign-off |
 

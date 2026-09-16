@@ -334,7 +334,7 @@ git commit -m "feat: add deterministic graph seed loaders"
 
 **Files:**
 - Create: `docs/audit/batch-1-verification.md`
-- Modify: `scripts/smoke-compose.ps1`, `00_MASTER_EXECUTION_PLAN.md`
+- Modify: `scripts/smoke-compose.ps1`, `docs/reference/00_MASTER_EXECUTION_PLAN.md`
 
 **Interfaces:**
 - Consumes: completed migration, integration, and seed commands.
@@ -388,7 +388,7 @@ git commit -m "docs: record batch 1 verification"
 - [ ] **Step 6: Update only Batch 1 after acceptance passes**
 
 ```bash
-git add 00_MASTER_EXECUTION_PLAN.md
+git add docs/reference/00_MASTER_EXECUTION_PLAN.md
 git commit -m "docs: mark batch 1 complete"
 ```
 

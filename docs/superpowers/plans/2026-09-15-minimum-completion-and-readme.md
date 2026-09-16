@@ -8,7 +8,7 @@
 
 **Tech Stack:** Markdown, PowerShell, k6 (native or Docker fallback), Docker Compose, Neo4j Community `neo4j-admin`.
 
-**Spec:** `docs/superpowers/specs/2026-09-15-batch-12-final-evidence-design.md`, `00_MASTER_EXECUTION_PLAN.md`, `08_DEPLOYMENT_OPERATIONS.md`.
+**Spec:** `docs/superpowers/specs/2026-09-15-batch-12-final-evidence-design.md`, `docs/reference/00_MASTER_EXECUTION_PLAN.md`, `docs/reference/08_DEPLOYMENT_OPERATIONS.md`.
 
 ## Global Constraints
 
@@ -107,7 +107,7 @@ Use a temporary Neo4j container/volume or isolated database, insert one marker n
 **Files:**
 - Modify: `docs/audit/batch-12-verification.md`
 - Modify: `docs/superpowers/ACTIVE_BATCH_CONTEXT.md`
-- Modify: `00_MASTER_EXECUTION_PLAN.md`
+- Modify: `docs/reference/00_MASTER_EXECUTION_PLAN.md`
 
 - [ ] **Step 1: Record actual k6 and backup outcomes**
 

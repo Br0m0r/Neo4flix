@@ -76,7 +76,7 @@ Expected: no diff errors and no secret-like match.
 - Create: `docs/audit/GRAPH_DEMO.md`
 - Inspect: `backend/recommendation-service/src/main/java/com/neo4flix/recommendation/persistence/RecommendationNeo4jRepository.java`
 - Inspect: `backend/recommendation-service/src/test/java/com/neo4flix/recommendation/RecommendationGoldenFixtureIT.java`
-- Inspect: `03_GRAPH_DATABASE_SPEC.md`
+- Inspect: `docs/reference/03_GRAPH_DATABASE_SPEC.md`
 
 **Interfaces:**
 - Consumes: seeded IDs and current repository query semantics.
@@ -112,7 +112,7 @@ Run `rg -n "COLLABORATIVE_QUERY|gds\.similarity\.cosine|RecommendationGoldenFixt
 - Inspect: `backend/recommendation-service/src/main/java/com/neo4flix/recommendation/core/RecommendationApplicationService.java`
 - Inspect: `backend/recommendation-service/src/main/java/com/neo4flix/recommendation/persistence/RecommendationNeo4jRepository.java`
 - Inspect: `backend/recommendation-service/src/test/java/com/neo4flix/recommendation/RecommendationGoldenFixtureIT.java`
-- Inspect: `07_RECOMMENDATION_AUDIT_VALIDATION.md`
+- Inspect: `docs/reference/07_RECOMMENDATION_AUDIT_VALIDATION.md`
 
 **Interfaces:**
 - Consumes: current strategy enum, weights, query result fields, fixture personas, and golden assertions.
@@ -145,7 +145,7 @@ Run `rg -n "POPULARITY|CONTENT_PLUS_POPULARITY|HYBRID|score\(\)|reason\(|doesNot
 **Files:**
 - Create: `docs/audit/batch-12-verification.md`
 - Modify: `docs/superpowers/ACTIVE_BATCH_CONTEXT.md`
-- Modify: `00_MASTER_EXECUTION_PLAN.md`
+- Modify: `docs/reference/00_MASTER_EXECUTION_PLAN.md`
 
 **Interfaces:**
 - Consumes: Tasks 1–3 documents and fresh test output.

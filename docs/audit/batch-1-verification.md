@@ -274,7 +274,7 @@ fca6db7 docs: add batch 1 implementation plan
 ```
 
 `git check-ignore .env` returned `.env`, exit 0.
-`git diff --exit-code -- 00_MASTER_EXECUTION_PLAN.md` returned no output, exit 0.
+`git diff --exit-code -- docs/reference/00_MASTER_EXECUTION_PLAN.md` returned no output, exit 0.
 The fresh evidence resolves the missing live Compose/GDS/schema/seed gate.
 Independent Task 6 and final whole-branch reviews are still required; no batch
 status was changed. Existing host-JDK warnings and later-batch public business
@@ -600,5 +600,5 @@ requested globs; it is not a comprehensive secret scanner.
 Final focused verification ran from `2026-09-10T01:03:57.6317038+03:00` to
 `2026-09-10T01:03:58.2073742+03:00`: `git diff --check` exit 0, all seven
 `pwsh -NoProfile -File scripts/test-smoke-compose.ps1` cases exit 0, and
-`git diff --exit-code -- 00_MASTER_EXECUTION_PLAN.md` exit 0. The batch-status
+`git diff --exit-code -- docs/reference/00_MASTER_EXECUTION_PLAN.md` exit 0. The batch-status
 source was not modified.

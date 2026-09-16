@@ -342,7 +342,7 @@ Recommendation Service is allowed to read:
 
 It must not expose other users' private identities in API results.
 
-Recommendation scoring details live in `07_RECOMMENDATION_AUDIT_VALIDATION.md`.
+Recommendation scoring details live in `docs/reference/07_RECOMMENDATION_AUDIT_VALIDATION.md`.
 
 ## 18. Service Mutation Ownership
 

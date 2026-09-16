@@ -8,7 +8,7 @@
 
 **Tech Stack:** Spring Boot 4.1.1, Spring Security resource server, Spring Data Neo4j/Neo4j Java Driver, Testcontainers Neo4j/GDS, Angular 22 standalone components, RxJS, Angular Material, Playwright.
 
-**Spec:** `docs/superpowers/specs/2026-09-14-batch-4-rating-design.md`, `04_API_SPEC.md` sections 29–34, `03_GRAPH_DATABASE_SPEC.md` sections 6/12/15, `05_FRONTEND_SPEC.md` sections 15–16/23, `06_TESTING_SECURITY.md` sections 5/9/19.
+**Spec:** `docs/superpowers/specs/2026-09-14-batch-4-rating-design.md`, `docs/reference/04_API_SPEC.md` sections 29–34, `docs/reference/03_GRAPH_DATABASE_SPEC.md` sections 6/12/15, `docs/reference/05_FRONTEND_SPEC.md` sections 15–16/23, `docs/reference/06_TESTING_SECURITY.md` sections 5/9/19.
 
 ## Global Constraints
 
@@ -28,7 +28,7 @@
 
 **Files:**
 - Create: `docs/superpowers/ACTIVE_BATCH_CONTEXT.md` (replace the completed Batch 3 handoff with Batch 4 context while preserving Batch 3 audit links)
-- Modify: `00_MASTER_EXECUTION_PLAN.md:570-604` only when Batch 4 is finally complete
+- Modify: `docs/reference/00_MASTER_EXECUTION_PLAN.md:570-604` only when Batch 4 is finally complete
 - Create: `backend/rating-service/src/main/java/com/neo4flix/rating/api/RatingWriteRequest.java`
 - Create: `backend/rating-service/src/main/java/com/neo4flix/rating/api/RatingResponse.java`
 - Create: `backend/rating-service/src/main/java/com/neo4flix/rating/api/RatingHistoryEntry.java`
@@ -173,7 +173,7 @@
 - Create: `frontend/e2e/ratings.spec.ts`
 - Create: `docs/audit/batch-4-verification.md`
 - Modify: `docs/superpowers/ACTIVE_BATCH_CONTEXT.md`
-- Modify: `00_MASTER_EXECUTION_PLAN.md:570-604` only after every gate passes
+- Modify: `docs/reference/00_MASTER_EXECUTION_PLAN.md:570-604` only after every gate passes
 
 - [ ] **Step 1: Write the credential-gated Playwright flow**: register disposable user, seed/locate an existing movie, rate it, edit the score, remove it, verify profile history, and clean up the disposable user/relationship.
 - [ ] **Step 2: Run the default browser suite** and confirm existing auth/catalog/admin contracts still pass.
@@ -181,4 +181,4 @@
 - [ ] **Step 4: Run final verification**: `./scripts/verify.ps1`, `./scripts/smoke-compose.ps1 -EnvFile .env`, full frontend tests/lint/build, focused rating concurrency tests, and `git diff --check`.
 - [ ] **Step 5: Record exact counts, commands, fixture cleanup, and any non-blocking review notes** in `docs/audit/batch-4-verification.md`; never record secrets.
 - [ ] **Step 6: Obtain independent review and resolve all Critical/Important findings.**
-- [ ] **Step 7: Change only Batch 4 status to `[x]` in `00_MASTER_EXECUTION_PLAN.md`, update active context to the next unfinished Batch 5 workstream, commit, push `main`, and verify `HEAD == origin/main`.
+- [ ] **Step 7: Change only Batch 4 status to `[x]` in `docs/reference/00_MASTER_EXECUTION_PLAN.md`, update active context to the next unfinished Batch 5 workstream, commit, push `main`, and verify `HEAD == origin/main`.

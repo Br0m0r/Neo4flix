@@ -8,7 +8,7 @@
 
 **Tech Stack:** Java 21, Spring Boot 4.1.1, Spring MVC, Spring Security OAuth2 Resource Server/Jose, Spring Data Neo4j, BCrypt, AES-256-GCM, RFC 6238 TOTP, ZXing QR generation, Angular 22.1.5 standalone components/signals, RxJS 7.8.2, Vitest, JUnit 5, Mockito, Testcontainers Neo4j, and Playwright-ready browser contracts.
 
-**Spec:** `01_PRODUCT_SPEC.md` §§5–7, 21, 24, 26.G; `02_TECHNICAL_ARCHITECTURE.md` §§8–12; `03_GRAPH_DATABASE_SPEC.md` §§3, 9–11, 19, 23; `04_API_SPEC.md` §§8–17, 18, 39–45; `05_FRONTEND_SPEC.md` §§4–10, 22–23, 28–32; `06_TESTING_SECURITY.md` §§13–20, 28–32, 35–36.
+**Spec:** `docs/reference/01_PRODUCT_SPEC.md` §§5–7, 21, 24, 26.G; `docs/reference/02_TECHNICAL_ARCHITECTURE.md` §§8–12; `docs/reference/03_GRAPH_DATABASE_SPEC.md` §§3, 9–11, 19, 23; `docs/reference/04_API_SPEC.md` §§8–17, 18, 39–45; `docs/reference/05_FRONTEND_SPEC.md` §§4–10, 22–23, 28–32; `docs/reference/06_TESTING_SECURITY.md` §§13–20, 28–32, 35–36.
 
 ## Global Constraints
 
@@ -150,7 +150,7 @@
 **Files:**
 - Create: `docs/audit/batch-2-verification.md`
 - Modify: `docs/DEVELOPMENT.md`, `scripts/verify.ps1`, `scripts/verify.Tests.ps1` only where auth setup/verification commands are missing
-- Modify: `00_MASTER_EXECUTION_PLAN.md`, `docs/superpowers/ACTIVE_BATCH_CONTEXT.md`
+- Modify: `docs/reference/00_MASTER_EXECUTION_PLAN.md`, `docs/superpowers/ACTIVE_BATCH_CONTEXT.md`
 
 **Interfaces:**
 - The evidence report records exact commands, commit SHAs, environment prerequisites, and pass/fail output for backend, frontend, integration, and browser security gates.

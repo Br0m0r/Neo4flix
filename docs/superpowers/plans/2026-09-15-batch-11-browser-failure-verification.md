@@ -8,7 +8,7 @@
 
 **Tech Stack:** Docker Compose, Nginx, Angular Playwright, PowerShell, Spring Boot health endpoints.
 
-**Spec:** `05_FRONTEND_SPEC.md`, `06_TESTING_SECURITY.md`, `07_RECOMMENDATION_AUDIT_VALIDATION.md`.
+**Spec:** `docs/reference/05_FRONTEND_SPEC.md`, `docs/reference/06_TESTING_SECURITY.md`, `docs/reference/07_RECOMMENDATION_AUDIT_VALIDATION.md`.
 
 ## Global Constraints
 
@@ -73,9 +73,9 @@ Record that the normal catalog route remains usable and recommendation failure i
 ### Task 4: Verify service-health and handoff evidence
 
 **Files:**
-- Inspect: `infra/compose.yml`, `08_DEPLOYMENT_OPERATIONS.md`
+- Inspect: `infra/compose.yml`, `docs/reference/08_DEPLOYMENT_OPERATIONS.md`
 - Create: `docs/audit/batch-11-browser-failure-verification.md`
-- Modify: `docs/superpowers/ACTIVE_BATCH_CONTEXT.md`, `00_MASTER_EXECUTION_PLAN.md`
+- Modify: `docs/superpowers/ACTIVE_BATCH_CONTEXT.md`, `docs/reference/00_MASTER_EXECUTION_PLAN.md`
 
 - [x] **Step 1: Run health and diff gates**
 

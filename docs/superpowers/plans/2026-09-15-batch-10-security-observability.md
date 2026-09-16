@@ -8,7 +8,7 @@
 
 **Tech Stack:** Spring Boot 4, Spring Security, Servlet filters, Nginx, PowerShell, npm audit, Docker Compose.
 
-**Spec:** `02_TECHNICAL_ARCHITECTURE.md`, `04_API_SPEC.md`, `06_TESTING_SECURITY.md`, `08_DEPLOYMENT_OPERATIONS.md`.
+**Spec:** `docs/reference/02_TECHNICAL_ARCHITECTURE.md`, `docs/reference/04_API_SPEC.md`, `docs/reference/06_TESTING_SECURITY.md`, `docs/reference/08_DEPLOYMENT_OPERATIONS.md`.
 
 ## Global Constraints
 
@@ -57,8 +57,8 @@
 ### Task 3: Reconcile the security evidence matrix
 
 **Files:**
-- Modify: `06_TESTING_SECURITY.md`
-- Modify: `08_DEPLOYMENT_OPERATIONS.md`
+- Modify: `docs/reference/06_TESTING_SECURITY.md`
+- Modify: `docs/reference/08_DEPLOYMENT_OPERATIONS.md`
 - Create: `docs/audit/batch-10-security-verification.md`
 
 **Interfaces:**
@@ -72,7 +72,7 @@
 ### Task 4: Batch 10 verification and handoff
 
 **Files:**
-- Modify: `00_MASTER_EXECUTION_PLAN.md`
+- Modify: `docs/reference/00_MASTER_EXECUTION_PLAN.md`
 - Modify: `docs/superpowers/ACTIVE_BATCH_CONTEXT.md`
 
 - [x] **Step 1: Run Maven security-focused tests, frontend regression, Compose validation, header scan, and available security scans**.

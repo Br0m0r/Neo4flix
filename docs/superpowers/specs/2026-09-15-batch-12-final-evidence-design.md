@@ -12,7 +12,7 @@ Create:
 2. `docs/audit/TEST_EVIDENCE.md` — exact commands, fresh result counts, browser/failure-mode evidence, and explicit skips/limitations.
 3. `docs/audit/USABILITY_TEST.md` — the seven-step novice journey from the canonical validation document, with observed completion/confusion/dead-end/feedback fields. Automated browser evidence must be labeled as automated; a human-participant result must not be claimed without an actual participant.
 
-Modify the active context and Batch 12 verification record; keep `00_MASTER_EXECUTION_PLAN.md` at `[~]` unless the human usability gate is genuinely satisfied.
+Modify the active context and Batch 12 verification record; keep `docs/reference/00_MASTER_EXECUTION_PLAN.md` at `[~]` unless the human usability gate is genuinely satisfied.
 
 ## Evidence rules
 

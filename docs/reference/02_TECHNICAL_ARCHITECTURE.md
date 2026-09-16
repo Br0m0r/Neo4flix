@@ -103,7 +103,7 @@ Recommendation Service ────┘
 
 Reason: splitting the data into four physical databases would destroy the natural user-rating-movie-genre traversal central to the assignment.
 
-This does **not** mean every service may mutate every graph element. Mutation ownership is an architectural invariant defined in `03_GRAPH_DATABASE_SPEC.md`.
+This does **not** mean every service may mutate every graph element. Mutation ownership is an architectural invariant defined in `docs/reference/03_GRAPH_DATABASE_SPEC.md`.
 
 ## 5. HTTP Topology
 
@@ -364,7 +364,7 @@ Authentication interceptor:
 
 Each Spring service exposes development OpenAPI through springdoc.
 
-Generated OpenAPI describes the current implementation; `04_API_SPEC.md` remains the requirement authority.
+Generated OpenAPI describes the current implementation; `docs/reference/04_API_SPEC.md` remains the requirement authority.
 
 A mismatch means code/docs must be reconciled, not that generated OpenAPI silently overrides the canonical specification.
 
@@ -393,7 +393,7 @@ Every service:
 
 Local logs may be human-readable; deployed logs are structured JSON.
 
-Never log secrets listed in `06_TESTING_SECURITY.md`.
+Never log secrets listed in `docs/reference/06_TESTING_SECURITY.md`.
 
 ## 20. Health/Actuator
 
@@ -511,15 +511,16 @@ Weights must validate to sum to 1.0.
 ```text
 neo4flix/
 ├── README.md
-├── 00_MASTER_EXECUTION_PLAN.md
-├── 01_PRODUCT_SPEC.md
-├── 02_TECHNICAL_ARCHITECTURE.md
-├── 03_GRAPH_DATABASE_SPEC.md
-├── 04_API_SPEC.md
-├── 05_FRONTEND_SPEC.md
-├── 06_TESTING_SECURITY.md
-├── 07_RECOMMENDATION_AUDIT_VALIDATION.md
-├── 08_DEPLOYMENT_OPERATIONS.md
+├── docs/reference/
+│   ├── 00_MASTER_EXECUTION_PLAN.md
+│   ├── 01_PRODUCT_SPEC.md
+│   ├── 02_TECHNICAL_ARCHITECTURE.md
+│   ├── 03_GRAPH_DATABASE_SPEC.md
+│   ├── 04_API_SPEC.md
+│   ├── 05_FRONTEND_SPEC.md
+│   ├── 06_TESTING_SECURITY.md
+│   ├── 07_RECOMMENDATION_AUDIT_VALIDATION.md
+│   └── 08_DEPLOYMENT_OPERATIONS.md
 ├── pom.xml
 ├── mvnw
 ├── mvnw.cmd

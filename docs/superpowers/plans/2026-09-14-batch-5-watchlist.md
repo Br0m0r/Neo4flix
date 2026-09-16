@@ -117,7 +117,7 @@
 - Create: `frontend/e2e/watchlist.spec.ts`
 - Create: `docs/audit/batch-5-verification.md`
 - Modify: `docs/superpowers/ACTIVE_BATCH_CONTEXT.md`
-- Modify: `00_MASTER_EXECUTION_PLAN.md` only after every gate passes
+- Modify: `docs/reference/00_MASTER_EXECUTION_PLAN.md` only after every gate passes
 
 - [ ] **Step 1: Write the credential-gated Playwright flow**: register a disposable user, locate an audit movie, add it from detail, verify the watchlist page and movie link, remove it, assert POST/GET/DELETE statuses and visible states, and delete the user in `finally`.
 - [ ] **Step 2: Rebuild Compose and run the browser flow** against explicit audit seed data without recording `.env` values.

@@ -166,7 +166,7 @@ Open an exact canonical section when:
 If no active batch exists:
 
 1. read this `README.md`
-2. read `00_MASTER_EXECUTION_PLAN.md`
+2. read `docs/reference/00_MASTER_EXECUTION_PLAN.md`
 3. identify the first incomplete authorized batch
 4. read only that batch's required canonical material
 5. invoke `superpowers:writing-plans`
@@ -197,15 +197,15 @@ If the external subject/audit changes after this planning set was generated, do 
 
 ```text
 README.md
-00_MASTER_EXECUTION_PLAN.md
-01_PRODUCT_SPEC.md
-02_TECHNICAL_ARCHITECTURE.md
-03_GRAPH_DATABASE_SPEC.md
-04_API_SPEC.md
-05_FRONTEND_SPEC.md
-06_TESTING_SECURITY.md
-07_RECOMMENDATION_AUDIT_VALIDATION.md
-08_DEPLOYMENT_OPERATIONS.md
+docs/reference/00_MASTER_EXECUTION_PLAN.md
+docs/reference/01_PRODUCT_SPEC.md
+docs/reference/02_TECHNICAL_ARCHITECTURE.md
+docs/reference/03_GRAPH_DATABASE_SPEC.md
+docs/reference/04_API_SPEC.md
+docs/reference/05_FRONTEND_SPEC.md
+docs/reference/06_TESTING_SECURITY.md
+docs/reference/07_RECOMMENDATION_AUDIT_VALIDATION.md
+docs/reference/08_DEPLOYMENT_OPERATIONS.md
 
 CODEX_BOOTSTRAP_PROMPT.md          # helper, not a specification authority
 MANIFEST.json
@@ -221,15 +221,15 @@ docs/
 
 | Need | Read |
 |---|---|
-| What is/isn't Neo4flix MVP? | `01_PRODUCT_SPEC.md` |
-| What technologies/repository/runtime shape are required? | `02_TECHNICAL_ARCHITECTURE.md` |
-| What graph data exists and how is it constrained/migrated? | `03_GRAPH_DATABASE_SPEC.md` |
-| What HTTP contract must be implemented? | `04_API_SPEC.md` |
-| What routes/pages/components/UX must exist? | `05_FRONTEND_SPEC.md` |
-| What test and security proof is mandatory? | `06_TESTING_SECURITY.md` |
-| How must the recommendation engine and 01-edu audit be demonstrated? | `07_RECOMMENDATION_AUDIT_VALIDATION.md` |
-| How is the stack run, deployed, backed up, restored, and smoke-tested? | `08_DEPLOYMENT_OPERATIONS.md` |
-| What do we implement next? | `00_MASTER_EXECUTION_PLAN.md` |
+| What is/isn't Neo4flix MVP? | `docs/reference/01_PRODUCT_SPEC.md` |
+| What technologies/repository/runtime shape are required? | `docs/reference/02_TECHNICAL_ARCHITECTURE.md` |
+| What graph data exists and how is it constrained/migrated? | `docs/reference/03_GRAPH_DATABASE_SPEC.md` |
+| What HTTP contract must be implemented? | `docs/reference/04_API_SPEC.md` |
+| What routes/pages/components/UX must exist? | `docs/reference/05_FRONTEND_SPEC.md` |
+| What test and security proof is mandatory? | `docs/reference/06_TESTING_SECURITY.md` |
+| How must the recommendation engine and 01-edu audit be demonstrated? | `docs/reference/07_RECOMMENDATION_AUDIT_VALIDATION.md` |
+| How is the stack run, deployed, backed up, restored, and smoke-tested? | `docs/reference/08_DEPLOYMENT_OPERATIONS.md` |
+| What do we implement next? | `docs/reference/00_MASTER_EXECUTION_PLAN.md` |
 
 ## Pinned MVP Choices
 

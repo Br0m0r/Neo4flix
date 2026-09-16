@@ -20,14 +20,14 @@ The final project must be straightforward to audit: graph, Cypher/GDS logic, fou
 
 | Document | Owns |
 |---|---|
-| `01_PRODUCT_SPEC.md` | MVP scope, roles, workflows, exclusions, business invariants |
-| `02_TECHNICAL_ARCHITECTURE.md` | stack, services, repo/package/runtime shape, build/config tooling |
-| `03_GRAPH_DATABASE_SPEC.md` | graph labels/relationships/properties, constraints, migrations, transactions, ownership |
-| `04_API_SPEC.md` | HTTP contract, auth/status/pagination/endpoint semantics |
-| `05_FRONTEND_SPEC.md` | Angular routes/pages/components/state/UX/accessibility |
-| `06_TESTING_SECURITY.md` | tests, negative paths, auth/security, load/security gates |
-| `07_RECOMMENDATION_AUDIT_VALIDATION.md` | recommendation algorithm, GDS/Cypher proof, audit/usability evidence |
-| `08_DEPLOYMENT_OPERATIONS.md` | Compose, GDS, TLS, secrets, seed, backup/restore, operational smoke |
+| `docs/reference/01_PRODUCT_SPEC.md` | MVP scope, roles, workflows, exclusions, business invariants |
+| `docs/reference/02_TECHNICAL_ARCHITECTURE.md` | stack, services, repo/package/runtime shape, build/config tooling |
+| `docs/reference/03_GRAPH_DATABASE_SPEC.md` | graph labels/relationships/properties, constraints, migrations, transactions, ownership |
+| `docs/reference/04_API_SPEC.md` | HTTP contract, auth/status/pagination/endpoint semantics |
+| `docs/reference/05_FRONTEND_SPEC.md` | Angular routes/pages/components/state/UX/accessibility |
+| `docs/reference/06_TESTING_SECURITY.md` | tests, negative paths, auth/security, load/security gates |
+| `docs/reference/07_RECOMMENDATION_AUDIT_VALIDATION.md` | recommendation algorithm, GDS/Cypher proof, audit/usability evidence |
+| `docs/reference/08_DEPLOYMENT_OPERATIONS.md` | Compose, GDS, TLS, secrets, seed, backup/restore, operational smoke |
 | `docs/superpowers/plans/*.md` | generated task plans for one implementation batch only |
 
 ## 3. Source-of-Truth Rules
@@ -35,9 +35,9 @@ The final project must be straightforward to audit: graph, Cypher/GDS logic, fou
 When information overlaps:
 
 1. current official 01-edu subject/audit is the external assignment requirement; if it changes, explicitly reconcile before implementation
-2. `01_PRODUCT_SPEC.md` governs approved product/MVP semantics
+2. `docs/reference/01_PRODUCT_SPEC.md` governs approved product/MVP semantics
 3. domain-specific canonical spec governs its technical concern
-4. `02_TECHNICAL_ARCHITECTURE.md` governs cross-cutting implementation shape
+4. `docs/reference/02_TECHNICAL_ARCHITECTURE.md` governs cross-cutting implementation shape
 5. this master plan governs order/progress only
 6. generated Superpowers plans execute approved requirements and may not silently override them
 7. existing code is current-state evidence, not authority over explicit canonical requirements
@@ -415,10 +415,10 @@ reconciliation, the complete document must still be reviewed.
 
 **Required reading:**
 
-- `01_PRODUCT_SPEC.md`
-- `02_TECHNICAL_ARCHITECTURE.md`
-- `06_TESTING_SECURITY.md`
-- `08_DEPLOYMENT_OPERATIONS.md` startup/config sections
+- `docs/reference/01_PRODUCT_SPEC.md`
+- `docs/reference/02_TECHNICAL_ARCHITECTURE.md`
+- `docs/reference/06_TESTING_SECURITY.md`
+- `docs/reference/08_DEPLOYMENT_OPERATIONS.md` startup/config sections
 
 **Deliverables:**
 
@@ -454,10 +454,10 @@ reconciliation, the complete document must still be reviewed.
 
 **Required reading:**
 
-- `02_TECHNICAL_ARCHITECTURE.md` migration/GDS sections
-- `03_GRAPH_DATABASE_SPEC.md`
-- `06_TESTING_SECURITY.md` Neo4j/concurrency sections
-- `08_DEPLOYMENT_OPERATIONS.md` migrations/seeds
+- `docs/reference/02_TECHNICAL_ARCHITECTURE.md` migration/GDS sections
+- `docs/reference/03_GRAPH_DATABASE_SPEC.md`
+- `docs/reference/06_TESTING_SECURITY.md` Neo4j/concurrency sections
+- `docs/reference/08_DEPLOYMENT_OPERATIONS.md` migrations/seeds
 
 **Deliverables:**
 
@@ -490,12 +490,12 @@ reconciliation, the complete document must still be reviewed.
 
 **Required reading:**
 
-- `01_PRODUCT_SPEC.md` auth/profile/2FA
-- `02_TECHNICAL_ARCHITECTURE.md` auth
-- `03_GRAPH_DATABASE_SPEC.md` User/AuthSession/AuthChallenge/TOTP
-- `04_API_SPEC.md` auth/users
-- `05_FRONTEND_SPEC.md` auth/profile
-- `06_TESTING_SECURITY.md` authentication/security
+- `docs/reference/01_PRODUCT_SPEC.md` auth/profile/2FA
+- `docs/reference/02_TECHNICAL_ARCHITECTURE.md` auth
+- `docs/reference/03_GRAPH_DATABASE_SPEC.md` User/AuthSession/AuthChallenge/TOTP
+- `docs/reference/04_API_SPEC.md` auth/users
+- `docs/reference/05_FRONTEND_SPEC.md` auth/profile
+- `docs/reference/06_TESTING_SECURITY.md` authentication/security
 
 **Deliverables:**
 
@@ -534,11 +534,11 @@ reconciliation, the complete document must still be reviewed.
 
 **Required reading:**
 
-- `01_PRODUCT_SPEC.md` browse/search/admin
-- `03_GRAPH_DATABASE_SPEC.md` Movie/Genre/IN_GENRE/search/deletion
-- `04_API_SPEC.md` movies/genres
-- `05_FRONTEND_SPEC.md` movie/search/admin
-- `06_TESTING_SECURITY.md` movie/search/security
+- `docs/reference/01_PRODUCT_SPEC.md` browse/search/admin
+- `docs/reference/03_GRAPH_DATABASE_SPEC.md` Movie/Genre/IN_GENRE/search/deletion
+- `docs/reference/04_API_SPEC.md` movies/genres
+- `docs/reference/05_FRONTEND_SPEC.md` movie/search/admin
+- `docs/reference/06_TESTING_SECURITY.md` movie/search/security
 
 **Deliverables:**
 
@@ -573,11 +573,11 @@ reconciliation, the complete document must still be reviewed.
 
 **Required reading:**
 
-- `01_PRODUCT_SPEC.md` rating semantics
-- `03_GRAPH_DATABASE_SPEC.md` RATED
-- `04_API_SPEC.md` ratings + user facade
-- `05_FRONTEND_SPEC.md` rating/profile
-- `06_TESTING_SECURITY.md` rating/concurrency
+- `docs/reference/01_PRODUCT_SPEC.md` rating semantics
+- `docs/reference/03_GRAPH_DATABASE_SPEC.md` RATED
+- `docs/reference/04_API_SPEC.md` ratings + user facade
+- `docs/reference/05_FRONTEND_SPEC.md` rating/profile
+- `docs/reference/06_TESTING_SECURITY.md` rating/concurrency
 
 **Deliverables:**
 
@@ -611,11 +611,11 @@ reconciliation, the complete document must still be reviewed.
 
 **Required reading:**
 
-- `01_PRODUCT_SPEC.md` watchlist
-- `03_GRAPH_DATABASE_SPEC.md` WATCHLISTED
-- `04_API_SPEC.md` watchlist
-- `05_FRONTEND_SPEC.md` watchlist/movie cards
-- `06_TESTING_SECURITY.md` watchlist/concurrency
+- `docs/reference/01_PRODUCT_SPEC.md` watchlist
+- `docs/reference/03_GRAPH_DATABASE_SPEC.md` WATCHLISTED
+- `docs/reference/04_API_SPEC.md` watchlist
+- `docs/reference/05_FRONTEND_SPEC.md` watchlist/movie cards
+- `docs/reference/06_TESTING_SECURITY.md` watchlist/concurrency
 
 **Deliverables:**
 
@@ -643,10 +643,10 @@ reconciliation, the complete document must still be reviewed.
 
 **Required reading:**
 
-- `01_PRODUCT_SPEC.md` recommendations
-- `03_GRAPH_DATABASE_SPEC.md` recommendation reads
-- `06_TESTING_SECURITY.md` golden fixture/performance
-- `07_RECOMMENDATION_AUDIT_VALIDATION.md`
+- `docs/reference/01_PRODUCT_SPEC.md` recommendations
+- `docs/reference/03_GRAPH_DATABASE_SPEC.md` recommendation reads
+- `docs/reference/06_TESTING_SECURITY.md` golden fixture/performance
+- `docs/reference/07_RECOMMENDATION_AUDIT_VALIDATION.md`
 
 **Deliverables:**
 
@@ -682,11 +682,11 @@ reconciliation, the complete document must still be reviewed.
 
 **Required reading:**
 
-- `01_PRODUCT_SPEC.md` recommendation UX
-- `04_API_SPEC.md` recommendation/facade
-- `05_FRONTEND_SPEC.md` recommendations
-- `06_TESTING_SECURITY.md` cross-service/failure
-- `07_RECOMMENDATION_AUDIT_VALIDATION.md`
+- `docs/reference/01_PRODUCT_SPEC.md` recommendation UX
+- `docs/reference/04_API_SPEC.md` recommendation/facade
+- `docs/reference/05_FRONTEND_SPEC.md` recommendations
+- `docs/reference/06_TESTING_SECURITY.md` cross-service/failure
+- `docs/reference/07_RECOMMENDATION_AUDIT_VALIDATION.md`
 
 **Deliverables:**
 
@@ -719,11 +719,11 @@ reconciliation, the complete document must still be reviewed.
 
 **Required reading:**
 
-- `01_PRODUCT_SPEC.md` sharing
-- `03_GRAPH_DATABASE_SPEC.md` RecommendationShare
-- `04_API_SPEC.md` share CRUD
-- `05_FRONTEND_SPEC.md` sharing
-- `06_TESTING_SECURITY.md` share privacy
+- `docs/reference/01_PRODUCT_SPEC.md` sharing
+- `docs/reference/03_GRAPH_DATABASE_SPEC.md` RecommendationShare
+- `docs/reference/04_API_SPEC.md` share CRUD
+- `docs/reference/05_FRONTEND_SPEC.md` sharing
+- `docs/reference/06_TESTING_SECURITY.md` share privacy
 
 **Deliverables:**
 
@@ -753,10 +753,10 @@ reconciliation, the complete document must still be reviewed.
 
 **Required reading:**
 
-- `01_PRODUCT_SPEC.md`
-- `04_API_SPEC.md`
-- `05_FRONTEND_SPEC.md`
-- `06_TESTING_SECURITY.md` frontend/accessibility
+- `docs/reference/01_PRODUCT_SPEC.md`
+- `docs/reference/04_API_SPEC.md`
+- `docs/reference/05_FRONTEND_SPEC.md`
+- `docs/reference/06_TESTING_SECURITY.md` frontend/accessibility
 
 **Deliverables:**
 
@@ -787,10 +787,10 @@ reconciliation, the complete document must still be reviewed.
 
 **Required reading:**
 
-- `02_TECHNICAL_ARCHITECTURE.md` security/logging
-- `04_API_SPEC.md` cross-cutting
-- `06_TESTING_SECURITY.md`
-- `08_DEPLOYMENT_OPERATIONS.md` secrets/headers
+- `docs/reference/02_TECHNICAL_ARCHITECTURE.md` security/logging
+- `docs/reference/04_API_SPEC.md` cross-cutting
+- `docs/reference/06_TESTING_SECURITY.md`
+- `docs/reference/08_DEPLOYMENT_OPERATIONS.md` secrets/headers
 
 **Deliverables:**
 
@@ -825,9 +825,9 @@ reconciliation, the complete document must still be reviewed.
 
 **Required reading:**
 
-- `05_FRONTEND_SPEC.md`
-- `06_TESTING_SECURITY.md` Playwright/failure
-- `07_RECOMMENDATION_AUDIT_VALIDATION.md` runbook
+- `docs/reference/05_FRONTEND_SPEC.md`
+- `docs/reference/06_TESTING_SECURITY.md` Playwright/failure
+- `docs/reference/07_RECOMMENDATION_AUDIT_VALIDATION.md` runbook
 
 **Deliverables:**
 
@@ -857,9 +857,9 @@ reconciliation, the complete document must still be reviewed.
 
 **Required reading:**
 
-- `07_RECOMMENDATION_AUDIT_VALIDATION.md`
-- `06_TESTING_SECURITY.md` usability/evidence
-- `08_DEPLOYMENT_OPERATIONS.md` audit seed
+- `docs/reference/07_RECOMMENDATION_AUDIT_VALIDATION.md`
+- `docs/reference/06_TESTING_SECURITY.md` usability/evidence
+- `docs/reference/08_DEPLOYMENT_OPERATIONS.md` audit seed
 
 **Deliverables:**
 
@@ -891,10 +891,10 @@ reconciliation, the complete document must still be reviewed.
 
 **Required reading:**
 
-- `03_GRAPH_DATABASE_SPEC.md` load seed/invariants
-- `06_TESTING_SECURITY.md` load/concurrency
-- `07_RECOMMENDATION_AUDIT_VALIDATION.md` performance
-- `08_DEPLOYMENT_OPERATIONS.md` seeds
+- `docs/reference/03_GRAPH_DATABASE_SPEC.md` load seed/invariants
+- `docs/reference/06_TESTING_SECURITY.md` load/concurrency
+- `docs/reference/07_RECOMMENDATION_AUDIT_VALIDATION.md` performance
+- `docs/reference/08_DEPLOYMENT_OPERATIONS.md` seeds
 
 **Deliverables:**
 
@@ -922,9 +922,9 @@ reconciliation, the complete document must still be reviewed.
 
 **Required reading:**
 
-- `06_TESTING_SECURITY.md` transport
-- `08_DEPLOYMENT_OPERATIONS.md`
-- `07_RECOMMENDATION_AUDIT_VALIDATION.md` startup
+- `docs/reference/06_TESTING_SECURITY.md` transport
+- `docs/reference/08_DEPLOYMENT_OPERATIONS.md`
+- `docs/reference/07_RECOMMENDATION_AUDIT_VALIDATION.md` startup
 
 **Deliverables:**
 

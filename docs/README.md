@@ -33,17 +33,18 @@ project overview and local quick start.
 
 ## Engineering reference
 
-The numbered documents in the repository root are the canonical specifications:
+The numbered documents in [`docs/reference`](reference/) are the canonical
+specifications:
 
-1. [Master execution plan](../00_MASTER_EXECUTION_PLAN.md)
-2. [Product specification](../01_PRODUCT_SPEC.md)
-3. [Technical architecture](../02_TECHNICAL_ARCHITECTURE.md)
-4. [Graph database specification](../03_GRAPH_DATABASE_SPEC.md)
-5. [API specification](../04_API_SPEC.md)
-6. [Frontend specification](../05_FRONTEND_SPEC.md)
-7. [Testing and security](../06_TESTING_SECURITY.md)
-8. [Recommendation and audit validation](../07_RECOMMENDATION_AUDIT_VALIDATION.md)
-9. [Deployment and operations](../08_DEPLOYMENT_OPERATIONS.md)
+1. [Master execution plan](reference/00_MASTER_EXECUTION_PLAN.md)
+2. [Product specification](reference/01_PRODUCT_SPEC.md)
+3. [Technical architecture](reference/02_TECHNICAL_ARCHITECTURE.md)
+4. [Graph database specification](reference/03_GRAPH_DATABASE_SPEC.md)
+5. [API specification](reference/04_API_SPEC.md)
+6. [Frontend specification](reference/05_FRONTEND_SPEC.md)
+7. [Testing and security](reference/06_TESTING_SECURITY.md)
+8. [Recommendation and audit validation](reference/07_RECOMMENDATION_AUDIT_VALIDATION.md)
+9. [Deployment and operations](reference/08_DEPLOYMENT_OPERATIONS.md)
 
 The `superpowers/` directory is an internal implementation ledger containing
 batch plans, design records, and active context. It is retained for traceability

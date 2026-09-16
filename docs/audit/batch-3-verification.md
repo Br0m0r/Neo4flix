@@ -25,7 +25,7 @@ Batch 3 is complete. Code-level, live Compose, authenticated ADMIN browser CRUD,
 
 ## Pending live gate
 
-Final clean-checkout-equivalent verification and review passed; Batch 3 status is now complete in `00_MASTER_EXECUTION_PLAN.md`.
+Final clean-checkout-equivalent verification and review passed; Batch 3 status is now complete in `docs/reference/00_MASTER_EXECUTION_PLAN.md`.
 
 ## Commits
 

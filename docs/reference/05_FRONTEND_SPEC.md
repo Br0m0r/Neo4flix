@@ -420,7 +420,7 @@ core/api/rating-api.service.ts
 core/api/recommendation-api.service.ts
 ```
 
-DTOs reflect `04_API_SPEC.md`.
+DTOs reflect `docs/reference/04_API_SPEC.md`.
 
 ## 27. State Ownership
 

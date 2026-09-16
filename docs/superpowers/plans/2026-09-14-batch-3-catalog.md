@@ -8,7 +8,7 @@
 
 **Tech Stack:** Spring Boot 4.1, Spring Security resource server, Spring Data Neo4j/Neo4jClient, Neo4j 2026.07.1, Angular 22, Material, Vitest, Playwright.
 
-**Spec:** `01_PRODUCT_SPEC.md` §§9–12, 19, 22; `03_GRAPH_DATABASE_SPEC.md` §§4–5, 14, 16, 20–21; `04_API_SPEC.md` §§21–28; `05_FRONTEND_SPEC.md` §§12–15, 24; `06_TESTING_SECURITY.md` §§7–10, 21, 33.
+**Spec:** `docs/reference/01_PRODUCT_SPEC.md` §§9–12, 19, 22; `docs/reference/03_GRAPH_DATABASE_SPEC.md` §§4–5, 14, 16, 20–21; `docs/reference/04_API_SPEC.md` §§21–28; `docs/reference/05_FRONTEND_SPEC.md` §§12–15, 24; `docs/reference/06_TESTING_SECURITY.md` §§7–10, 21, 33.
 
 ## Global Constraints
 
@@ -107,7 +107,7 @@
 **Files:**
 - Modify: `docs/audit/batch-3-verification.md`
 - Modify: `docs/superpowers/ACTIVE_BATCH_CONTEXT.md`
-- Modify: `00_MASTER_EXECUTION_PLAN.md`
+- Modify: `docs/reference/00_MASTER_EXECUTION_PLAN.md`
 
 - [ ] Run the complete backend and frontend verification commands from a clean direct-main checkout.
 - [ ] Run live Compose registration/login, anonymous catalog reads, USER mutation denial, ADMIN CRUD, combined filters, related reads, and deletion cleanup.

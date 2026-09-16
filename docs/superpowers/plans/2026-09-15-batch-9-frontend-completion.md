@@ -8,7 +8,7 @@
 
 **Tech Stack:** Angular 22.1.5, Angular Material 22.1.5, TypeScript 6, standalone components, Reactive Forms, signals/RxJS, Vitest, Playwright.
 
-**Spec:** `01_PRODUCT_SPEC.md`, `04_API_SPEC.md`, `05_FRONTEND_SPEC.md`, `06_TESTING_SECURITY.md`
+**Spec:** `docs/reference/01_PRODUCT_SPEC.md`, `docs/reference/04_API_SPEC.md`, `docs/reference/05_FRONTEND_SPEC.md`, `docs/reference/06_TESTING_SECURITY.md`
 
 ## Global Constraints
 
@@ -55,7 +55,7 @@ Commit: `feat: close frontend route and page gaps`
 - Test: adjacent `catalog`, `movie-detail`, `watchlist`, and `profile` specs
 
 - [x] **Step 1: Add failing tests** for URL-backed browse filters, pagination/empty/error states, movie poster/genre/rating fields, retry controls, and profile/watchlist errors.
-- [x] **Step 2: Implement route-query filter serialization, retryable error signals, empty-state actions, poster/genre/rating rendering, and DTO fields from `04_API_SPEC.md` without duplicating API calls or storing entities globally.
+- [x] **Step 2: Implement route-query filter serialization, retryable error signals, empty-state actions, poster/genre/rating rendering, and DTO fields from `docs/reference/04_API_SPEC.md` without duplicating API calls or storing entities globally.
 - [x] **Step 3: Run the focused catalog/detail/watchlist/profile suites and commit**
 
 ### Task 3: Accessibility and responsive baseline
@@ -76,7 +76,7 @@ Commit: `feat: close frontend route and page gaps`
 
 ### Task 5: Browser contract and Batch 9 audit
 
-**Files:** `frontend/e2e/*.spec.ts`, `docs/audit/batch-9-verification.md`, `docs/superpowers/ACTIVE_BATCH_CONTEXT.md`, `00_MASTER_EXECUTION_PLAN.md`.
+**Files:** `frontend/e2e/*.spec.ts`, `docs/audit/batch-9-verification.md`, `docs/superpowers/ACTIVE_BATCH_CONTEXT.md`, `docs/reference/00_MASTER_EXECUTION_PLAN.md`.
 
 - [x] **Step 1: Add serial Playwright coverage** for route reachability, anonymous search/detail, authenticated rating/watchlist/recommendation flows, anonymous sharing, USER/admin denial, and XSS-as-text.
 - [x] **Step 2: Run full Maven, frontend test/lint/build, Compose interpolation, and serial Playwright**; record credential-gated skips explicitly.

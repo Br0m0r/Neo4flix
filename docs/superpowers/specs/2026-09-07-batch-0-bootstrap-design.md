@@ -83,8 +83,8 @@ slices will use red-green-refactor TDD.
 
 ## Canonical references
 
-- `00_MASTER_EXECUTION_PLAN.md`, Batch 0
-- `01_PRODUCT_SPEC.md`, sections 1–3 and 23–28
-- `02_TECHNICAL_ARCHITECTURE.md`, sections 2–6, 10–30
-- `06_TESTING_SECURITY.md`, sections 1–2, 26–27, and 43
-- `08_DEPLOYMENT_OPERATIONS.md`, sections 2–20 and 25–27
+- `docs/reference/00_MASTER_EXECUTION_PLAN.md`, Batch 0
+- `docs/reference/01_PRODUCT_SPEC.md`, sections 1–3 and 23–28
+- `docs/reference/02_TECHNICAL_ARCHITECTURE.md`, sections 2–6, 10–30
+- `docs/reference/06_TESTING_SECURITY.md`, sections 1–2, 26–27, and 43
+- `docs/reference/08_DEPLOYMENT_OPERATIONS.md`, sections 2–20 and 25–27

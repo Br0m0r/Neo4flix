@@ -107,7 +107,7 @@
 **Files:**
 - Create: `docs/audit/batch-6-verification.md`
 - Create: `backend/recommendation-service/src/test/java/com/neo4flix/recommendation/RecommendationQueryPlanIT.java`
-- Modify: `00_MASTER_EXECUTION_PLAN.md` only after every gate passes.
+- Modify: `docs/reference/00_MASTER_EXECUTION_PLAN.md` only after every gate passes.
 - Modify: `docs/superpowers/ACTIVE_BATCH_CONTEXT.md` only after the final commit hash is known.
 
 - [x] **Step 1: Add a focused query-plan test** using package-visible repository statements and the Neo4j driver to run `EXPLAIN` for the peer/candidate statements and `PROFILE` once against the deterministic fixture, asserting successful execution and recording only operator names, row counts, and bounded-plan observations.

@@ -545,10 +545,10 @@ git commit -m "docs: record batch 0 verification"
 
 - [ ] **Step 6: Update Batch 0 status only after all acceptance evidence and reviews pass**
 
-Change only `## Batch 0` status in `00_MASTER_EXECUTION_PLAN.md` from `[ ]` to `[x]`. Do not alter any later batch status. Commit this change separately:
+Change only `## Batch 0` status in `docs/reference/00_MASTER_EXECUTION_PLAN.md` from `[ ]` to `[x]`. Do not alter any later batch status. Commit this change separately:
 
 ```powershell
-git add 00_MASTER_EXECUTION_PLAN.md
+git add docs/reference/00_MASTER_EXECUTION_PLAN.md
 git commit -m "docs: mark batch 0 complete"
 ```
 
