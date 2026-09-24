@@ -4,14 +4,24 @@ This folder contains the practical guides, engineering reference, and audit
 evidence for Neo4flix. Start with the root [README](../README.md) for the
 project overview and local quick start.
 
+New to the project or to its technologies? Read the ordered
+[Learning Neo4flix](learning/README.md) guide. It begins with what the
+application is and how a user interacts with it, then introduces the services,
+Neo4j graph, Spring Boot annotations, Angular frontend, security,
+recommendations, migrations, and tests.
+
 ## Use the project
 
+- [Beginner learning guide](learning/README.md) — a chapter-by-chapter book
+  explaining the project from first principles.
 - [Local development](DEVELOPMENT.md) — prerequisites, environment setup,
   Compose lifecycle, seed data, and verification commands.
 - [Neo4j bootstrap](../infra/neo4j/README.md) — graph database and GDS startup
   details.
 - [Audit runbook](audit/AUDIT_RUNBOOK.md) — repeatable audit and evidence
   workflow.
+- [Audit report](audit/AUDIT_REPORT.md) — latest full scan, evidence status,
+  and prioritized remaining-work checklist.
 - [01-edu audit checklist](audit/01-EDU_AUDIT_QUESTION_CHECKLIST.md) — the
   assignment questions mapped to project evidence.
 

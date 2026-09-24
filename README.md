@@ -117,7 +117,7 @@ pwsh -NoProfile -File scripts/backup-neo4j.ps1 -Destination .\backups\neo4j
 pwsh -NoProfile -File scripts/restore-neo4j.ps1 -DumpFile .\backups\neo4j\neo4j-<timestamp>.dump -ContainerName neo4j-disposable -ConfirmRestore
 ```
 
-See the [documentation index](docs/README.md), [local development guide](docs/DEVELOPMENT.md), the [audit runbook](docs/audit/AUDIT_RUNBOOK.md),
+See the [beginner learning guide](docs/learning/README.md), [documentation index](docs/README.md), [local development guide](docs/DEVELOPMENT.md), the [audit runbook](docs/audit/AUDIT_RUNBOOK.md),
 the [01-edu audit question checklist](docs/audit/01-EDU_AUDIT_QUESTION_CHECKLIST.md),
 the [stress-test notes](docs/audit/STRESS_TEST.md), and the [final status reconciliation](docs/audit/FINAL_STATUS.md) for the complete command
 contracts and current limitations. The local profile is HTTP-only; deployment
