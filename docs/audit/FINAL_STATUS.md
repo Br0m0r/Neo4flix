@@ -1,27 +1,33 @@
 # Final Status Reconciliation
 
-Date: 2026-09-15
+Date: 2026-09-24
 Branch: `main`
-Latest verified commit: `05ff334`
+Latest verified commit: `1704c62` (current local working tree also contains
+uncommitted verification fixes; do not treat this file as a commit record)
 
 ## Current state
 
-The application is runnable locally through Docker Compose. The latest runtime
-check found all six services healthy and the web entry point returned HTTP 200.
-The full Maven reactor and frontend unit suites are green, and the repository
-contains a `verify-all` gate that composes the existing checks.
+The project is intentionally local-only and will not be deployed. It is
+runnable through Docker Compose: the latest reset/reseed pass found Neo4j,
+migrations, all four backend services, and the web entry point healthy. The
+full Maven reactor and frontend suites are green after the migrator test-class
+path and isolated nested-build fixes, and the repository contains a
+`verify-all` gate that composes the existing checks.
 
-Strict master-plan completion is 12 of 16 batches (75%). Batch 12 and Batch
-13 are partial because their remaining gates require broader or human evidence;
-Batch 14 and Batch 15 remain open.
+The batch ledger may still show partial later batches, but production-only
+Batch 13/14 deployment, HTTPS, release-image, and deployment-scale performance
+rows are N/A for this declared scope rather than unfinished deployment work.
 
 ## Evidence completed
 
-- Backend reactor: 131 tests, 0 failures/errors/skips.
+- Backend reactor: full `mvnw verify` passed with the Testcontainers integration
+  tests; the module summaries reported 131 tests with 0 failures/errors/skips.
+- Executable service JAR smoke passed for user, movie, rating, and
+  recommendation services.
 - Frontend: 27 test files and 105 tests passed.
 - Browser contract: 8 passed, 1 credential-gated ADMIN test skipped; standalone
   ADMIN proof previously passed with cleanup count 0.
-- Public k6 smoke: 30 requests, 0% HTTP failures, p95 14.83 ms.
+- Local k6 smoke: 30 requests, 0% HTTP failures, p95 17.05 ms.
 - Authenticated k6 smoke: disposable account, 45/45 checks, 0% failures, p95
   131.53 ms, teardown left 0 users.
 - Bounded 5-VU/30-second run: 453 requests, 450/450 checks, 0% server failures,
@@ -30,18 +36,24 @@ Batch 14 and Batch 15 remain open.
 - Disposable Neo4j offline dump/load cycle passed using separate temporary
   containers and volumes; the project volume was not touched.
 - Security wrapper completed; npm audit reported 0 vulnerabilities. Optional
-  OWASP Dependency-Check, Gitleaks, and Trivy binaries were unavailable.
+  OWASP Dependency-Check, Gitleaks, and Trivy binaries remain unavailable.
+- The user confirmed that the manual human audit/usability checks were
+  completed; detailed participant notes were not reproduced in this status
+  file.
 
 ## Remaining gates
 
-1. A real participant must complete and record the seven-step usability session
-   in `USABILITY_TEST.md`.
-2. Batch 13 needs a deterministic load-seed run, sustained concurrency targets,
-   profiling, and interpretation for the intended deployment environment.
-3. Batch 14 needs release images, deterministic GDS packaging, HTTPS/redirect/
-   HSTS evidence, intended public exposure, and deployment startup proof.
-4. Batch 15 needs clean/empty-volume startup, final cross-document
-   reconciliation, and broad review against every Definition-of-Done row.
+1. Optionally add the user's detailed human-audit observations to
+   `USABILITY_TEST.md` if a formal participant evidence record is required.
+2. Run the exact documented JDK-21 verification when that JDK is available;
+   the current full verification used JDK 26 and passed.
+3. Install optional Dependency-Check, Gitleaks, and Trivy only if those extra
+   scanner gates are desired for the showcase.
+4. No further reconciliation is pending for the current snapshot; the report,
+   final status, evidence index, security checklist, stress notes, and active
+   batch context agree. Historical batch ledgers intentionally retain their
+   original dates.
 
-These are intentionally not marked complete without the required participant,
-deployment infrastructure, certificates, and release-level evidence.
+Production deployment infrastructure, certificates, release images, and
+deployment-scale evidence are intentionally N/A because this project will not
+be deployed.

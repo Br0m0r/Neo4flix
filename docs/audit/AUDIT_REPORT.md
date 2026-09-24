@@ -9,12 +9,28 @@ This is the working reconciliation checklist. It records what is verified,
 what is only partially evidenced, and what still needs an environment or human
 action. It does not replace the detailed batch documents or the runbook.
 
+## Scope decision: local-only project
+
+Neo4flix is intentionally staying as a local educational/showcase project. It
+will not be deployed to a public host or operated as a production service.
+Therefore, production deployment and release gates are **not applicable**, not
+failed. The audit still covers the local Compose runtime, local security
+controls, migrations and reseeding, API/browser behavior, bounded local load,
+and reproducibility of the build and test commands.
+
+The following are N/A by this scope: public-ingress HTTPS certificates and
+redirects, HSTS/secure-cookie proof over a deployed HTTPS endpoint,
+deployment-scale SLO and profiling evidence, and production/release-image or
+production GDS-packaging evidence. The full Maven reactor classpath issue is
+still in scope because it affects local reproducibility and verification.
+
 ## Status legend
 
 - `[x]` Verified by current evidence.
 - `[~]` Implemented or partly evidenced, but the acceptance gate is incomplete.
 - `[!]` Blocked by the current environment or a missing external prerequisite.
 - `[ ]` Not yet done.
+- `[N/A]` Not applicable to the declared local-only project scope.
 
 ## Executive verdict
 
@@ -23,26 +39,32 @@ frontend, Spring Boot services, Neo4j migrations and graph queries, JWT/refresh
 authentication, TOTP 2FA, ratings, watchlists, sharing, recommendations,
 security controls, test fixtures, and operational scripts.
 
-The project is **not yet audit/release complete**. The remaining work is mostly
-evidence and deployment work rather than an unimplemented core feature:
+For the declared local-only scope, the live local runtime gates are
+substantially verified. The remaining in-scope work is evidence and
+reproducibility cleanup rather than an unimplemented core feature:
 
-1. Docker/Neo4j must be available again so integration, Compose, browser, and
-   audit-fixture checks can run.
-2. Batch 13 load/integrity/performance evidence is still incomplete.
-3. Batch 14 production packaging and HTTPS/TLS/HSTS evidence is still open.
-4. A real participant usability session and final Batch 15 reconciliation are
-   still required.
+1. Docker/Neo4j reset, migrations, Compose health, audit seeding, browser E2E,
+   bounded local k6 smoke, and targeted recommendation checks are freshly
+   verified.
+2. A real participant usability session has now been completed manually; its
+   result should be recorded if detailed notes are desired.
+3. Final document reconciliation and optional scanner review remain.
+4. Production deployment, public HTTPS, release-image, and deployment-scale
+   performance gates are N/A by the scope decision above.
 
-Do not mark the project complete until the blocking checklist near the end of
-this file is closed with dated evidence.
+Do not describe the N/A production gates as project failures. Close the
+remaining in-scope checklist items with dated evidence before calling the
+local audit fully reconciled.
 
 ## Repository and execution snapshot
 
-- [x] Current branch is `main`, tracking `github/main`.
-- [x] Current repository head is `16d3a92` (`docs: organize canonical reference files`).
-- [~] The worktree already contains uncommitted documentation/study-guide
-  changes and a pre-existing `frontend/angular.json` change. Preserve them;
-  this report does not reset or discard local work.
+- [~] Current branch is `main`. Gitea `origin/main` is at `1704c62`; GitHub has
+  an independent newer README commit, so the two remote histories currently
+  diverge and must not be force-pushed over each other.
+- [x] Current repository head is `1704c62` (`docs: add learning guide and audit report`).
+- [~] The worktree contains a pre-existing modified `.env.example` and
+  `frontend/angular.json`; preserve them and do not push the `.env.example`
+  values as project secrets. This report does not reset or discard local work.
 - [x] No obvious application-code `TODO`, `FIXME`, `TBD`, or unimplemented
   markers were found. Matches for `pending` in the code are legitimate state
   names; pending/open statements in audit docs are listed below as actual
@@ -50,10 +72,8 @@ this file is closed with dated evidence.
 - [~] The documented prerequisite is JDK 21. Current diagnostic runs used
   JDK 26 (`C:\Program Files\Java\jdk-26.0.1`), so those runs are useful
   evidence but are not an exact JDK-21 acceptance run.
-- [!] Docker Desktop's Linux engine is unavailable in the current environment:
-  `docker info` cannot connect to
-  `//./pipe/dockerDesktopLinuxEngine`. Testcontainers and Compose-dependent
-  checks therefore cannot be treated as current passes.
+- [x] Docker Desktop's Linux engine was available for this pass: Docker Server
+  29.6.1 and Testcontainers connected through the local named pipe.
 
 ## Fresh verification evidence
 
@@ -62,36 +82,52 @@ this file is closed with dated evidence.
 - [x] Frontend Vitest suite: **27 files, 105 tests passed**.
 - [x] Frontend production build completed successfully.
 - [x] Frontend lint completed successfully.
-- [x] Static contract scripts passed:
-  `test-reactor-layout.ps1`, `test-migrations.ps1`,
-  `test-compose-config.ps1`, and `test-security-headers.ps1`.
+- [x] Static reactor-layout, migration, and security-header contracts passed.
+- [!] `test-compose-config.ps1` is blocked by the pre-existing local
+  `.env.example` edit: the contract expects placeholder key values, while that
+  file currently contains local values. The live Compose configuration itself
+  validated and started successfully.
 - [x] Security wrapper completed successfully. `npm audit` reported **0
   vulnerabilities**.
 - [x] Pester wrapper suite: **6 passed, 0 failed** across
   `scripts/verify.Tests.ps1` and `scripts/security.Tests.ps1`.
 - [x] Maven wrapper repository-path test passed when run with normal network
   access (`scripts/test-wrapper-repository-paths.ps1`).
-- [x] Recommendation service test compilation passed for the full dependency
-  reactor:
-  `platform-common`, `database-migrator`, and `recommendation-service` all
-  reached `BUILD SUCCESS` for `test-compile`.
+- [x] Full Maven `verify` passed after the reactor fix: all backend modules
+  compiled, integration tests ran with Testcontainers, and every reported test
+  completed with zero failures or errors. The run used JDK 26 because JDK 21 is
+  not installed on this host.
+- [x] Executable service JAR smoke passed for user, movie, rating, and
+  recommendation services after the same build.
+- [x] The updated database-migrator Docker image built successfully with the
+  executable JAR selected explicitly, and `scripts/seed.ps1 audit` succeeded
+  with the new plain-JAR packaging present.
+- [x] Direct recommendation verification passed: 3 tests (golden fixture and
+  query-plan integration tests) with Docker/Testcontainers, including the
+  documented test-phase reactor command after the plain-JAR lifecycle fix.
+- [x] User/rating runtime-driver contract passed and both packaged JARs include
+  Neo4j Java Driver 6.2.0.
+- [x] Fresh k6 smoke passed: 15 iterations, 30 requests, 100% checks, 0%
+  request failures, and p95 HTTP duration 17.05 ms.
+- [x] Compose smoke passed after a clean volume reset and audit reseed:
+  Neo4j, migrations, GDS, four services, and web were healthy.
+- [x] Browser E2E passed **8 tests**, with 1 intentionally skipped.
 
 ### Checks that are blocked or incomplete
 
-- [!] Full Maven `verify` stops when Testcontainers cannot find a Docker
-  environment. This is an environment gate, not evidence of a Java compile
-  failure.
-- [!] Executable-service-jar verification stops at the same Docker discovery
-  failure while running integration tests.
-- [!] Compose startup, health checks, browser E2E, live API smoke, Neo4j audit
-  seeding, and graph-demo queries could not be freshly verified while Docker is
-  unavailable.
+- [x] The full-reactor recommendation classpath issue is fixed by attaching a
+  plain `database-migrator` JAR for test consumers and selecting the executable
+  JAR explicitly in the Neo4j integration harness. Full `verify` and executable
+  service-JAR smoke now pass.
+- [x] Compose startup, health checks, live API smoke, Neo4j audit seeding, GDS
+  verification, and browser E2E were freshly verified.
 - [~] OWASP Dependency-Check, Gitleaks, and Trivy were not installed; the
   security wrapper records them as skipped. Install them before claiming those
   optional scanner gates.
-- [~] Existing audit evidence contains bounded load observations, but not the
-  full deterministic-seed, sustained-concurrency, profiling, SLO, and data
-  integrity evidence required by Batch 13.
+- [x] Bounded local load evidence is available from k6. Sustained
+  deployment-scale concurrency, profiling, SLO interpretation, and release
+  packaging are N/A for this local-only project; local reproducibility remains
+  covered by the checks below.
 
 ## Official audit-question matrix
 
@@ -106,27 +142,29 @@ the required runtime or human evidence is missing.
   sharing, and admin flows.
 - [~] Search, details, release date, genre, rating, rating-page, watchlist,
   sharing, and recommendations are represented in code and tests.
-- [!] Live browser acceptance of those flows is blocked until Compose is
-  healthy and the audit fixture is seeded.
-- [ ] A human usability participant must complete the scripted journey in
-  `docs/audit/USABILITY_TEST.md` and record observations.
+- [x] Live browser acceptance passed for the implemented journey: 8 E2E tests
+  passed and one test was intentionally skipped.
+- [x] The user confirmed that the manual human audit/usability checks were
+  completed. Detailed participant notes can be added to
+  `docs/audit/USABILITY_TEST.md` if a formal record is required.
 
 ### Graph model and Neo4j behavior
 
 - [x] Migrations, nodes, relationships, indexes/constraints, and graph query
-  code are present; static migration/compose contracts pass.
-- [~] Recommendation logic and GDS/Cypher integration are implemented and the
-  recommendation test sources compile.
-- [!] Live graph shape, GDS projection, query plans, and recommendation output
-  still need a running Neo4j instance and seeded audit data.
+  code are present; migration and live Compose checks pass. The static Compose
+  contract is separately blocked by the local `.env.example` edit noted above.
+- [x] Recommendation logic, GDS/Cypher integration, query plans, and golden
+  fixture output passed against disposable Neo4j containers.
+- [x] The reset-and-reseed runtime verified six migrations, 11 named
+  constraints, 3 named ONLINE indexes, and GDS `2026.07.0`.
 
 ### Services and API behavior
 
-- [x] The service layout and shared platform module are present; the Maven
-  reactor resolves the recommendation test-compile path.
-- [~] User, movie, rating, recommendation, authentication, sharing, and
-  watchlist behavior has static/unit evidence in the repository.
-- [!] Full integration/API acceptance remains blocked by Docker/Testcontainers.
+- [x] The service layout and shared platform module are present; Compose smoke
+  and browser E2E exercised the live API path.
+- [x] User, movie, rating, recommendation, authentication, sharing, and
+  watchlist behavior has live/static evidence; the full Maven reactor and
+  Testcontainers verification now pass.
 
 ### Security and privacy
 
@@ -136,32 +174,38 @@ the required runtime or human evidence is missing.
 - [x] `npm audit` currently reports zero vulnerabilities.
 - [~] Optional Dependency-Check/Gitleaks/Trivy evidence is absent because the
   tools are not installed.
-- [ ] HTTPS certificates, HTTP-to-HTTPS redirect, secure-cookie behavior over
-  HTTPS, HSTS, and public-ingress proof remain open under Batch 14.
+- [N/A] HTTPS certificates, HTTP-to-HTTPS redirect, secure-cookie behavior over
+  a deployed HTTPS endpoint, HSTS, and public-ingress proof are not applicable
+  because the project will not be deployed. Local HTTP security headers,
+  JWT/refresh-cookie behavior, password policy, and 2FA remain in scope.
 
 ### Reliability, stress, and release readiness
 
-- [~] Existing bounded k6/load notes are useful evidence, but Batch 13 is not
-  closed: deterministic load seed, sustained concurrency targets, profiling,
-  SLO interpretation, and integrity analysis remain.
-- [ ] Clean/empty-volume startup and migration proof must be captured.
-- [ ] Production/release image path and deterministic GDS packaging must be
-  demonstrated; local development's `NEO4J_PLUGINS` convenience is not release
-  packaging evidence.
-- [ ] Final cross-document reconciliation and definition-of-done review must
-  update stale metadata in `docs/audit/FINAL_STATUS.md`.
+- [x] Bounded local k6 smoke passed with 0% request failures. Sustained
+  deployment-scale targets, profiling, and SLO interpretation are N/A by
+  scope.
+- [x] Clean/empty-volume startup, migrations, reseeding, and healthy service
+  state were verified during this audit pass.
+- [N/A] Production/release image path and deterministic production GDS
+  packaging are not applicable to a local-only project. The local Compose
+  image path remains covered by the runtime smoke checks.
+- [x] Final cross-document reconciliation and definition-of-done review is
+  complete for the current audit snapshot. `FINAL_STATUS.md`, this report,
+  `TEST_EVIDENCE.md`, `SECURITY_CHECKLIST.md`, `STRESS_TEST.md`, and the
+  active-batch context agree on the local-only scope and current evidence;
+  older batch ledgers intentionally retain their historical dates.
 
 ## Remaining work checklist, in priority order
 
 ### P0 — restore a verifiable runtime
 
-- [ ] Start Docker Desktop using the Linux engine.
-- [ ] Confirm `docker info` succeeds and that Testcontainers can create a
+- [x] Start Docker Desktop using the Linux engine.
+- [x] Confirm `docker info` succeeds and that Testcontainers can create a
   disposable Neo4j container.
-- [ ] Check the current `.env` password against the persisted Neo4j volume.
-  Do not reset or delete the volume implicitly. If the password is unknown,
-  make an explicit backup/reset decision first.
-- [ ] Validate Compose configuration, then start the stack and wait for all
+- [x] Replace the temporary ignored `.env` from the example, reset only
+  `neo4flix_neo4j-data`, and create a fresh database. Keep the generated key
+  material local and do not commit it.
+- [x] Validate Compose configuration, start the stack, and wait for all
   health checks:
 
   ```powershell
@@ -170,7 +214,7 @@ the required runtime or human evidence is missing.
   docker compose --env-file .env -f infra/compose.yml -f infra/compose.dev.yml ps
   ```
 
-- [ ] Seed the official audit fixture and run the smoke path:
+- [x] Seed the official audit fixture and run the smoke path:
 
   ```powershell
   $env:NEO4J_URI = 'neo4j://localhost:7687'
@@ -180,20 +224,22 @@ the required runtime or human evidence is missing.
   pwsh -NoProfile -File scripts/smoke-compose.ps1 -EnvFile .env
   ```
 
-- [ ] Run the browser journey and record the result:
+- [x] Run the browser journey and record the result:
 
   ```powershell
   npm.cmd --prefix frontend run e2e
   ```
 
-- [ ] Re-run the full Maven/Testcontainers gate with the documented JDK 21:
+- [~] Full Maven/Testcontainers verification now passes with the classpath fix;
+  the exact documented JDK-21 run remains an environment prerequisite because
+  this host only has JDK 26:
 
   ```powershell
   $env:JAVA_HOME = 'C:\Path\To\jdk-21'
   .\mvnw.cmd verify
   ```
 
-- [ ] Run the targeted recommendation golden-fixture and query-plan tests:
+- [x] Run the targeted recommendation golden-fixture and query-plan tests:
 
   ```powershell
   .\mvnw.cmd -pl backend\recommendation-service -am '-Dtest=RecommendationGoldenFixtureIT,RecommendationQueryPlanIT' '-Dsurefire.failIfNoSpecifiedTests=false' test
@@ -201,31 +247,37 @@ the required runtime or human evidence is missing.
 
 ### P1 — close audit and release gates
 
-- [ ] Complete one real participant usability session using
-  `docs/audit/USABILITY_TEST.md`; record task success, friction, and findings.
-- [ ] Make the load dataset deterministic and capture the seed/version used.
-- [ ] Run sustained concurrency targets, then capture latency/error/resource
-  results, profiling, SLO interpretation, and post-run graph/data integrity.
-- [ ] Build and test the production/release images, including deterministic GDS
-  packaging rather than only the local Compose plugin convenience.
-- [ ] Deploy behind HTTPS and record certificate, redirect, secure-cookie,
-  HSTS, and public-ingress evidence.
-- [ ] Verify a clean/empty Neo4j volume performs migrations and reaches healthy
-  service state.
-- [ ] Install and run optional Dependency-Check, Gitleaks, and Trivy scans (or
-  document an intentional, reviewed exception).
-- [ ] Reconcile `docs/audit/FINAL_STATUS.md`: update date, commit hash,
-  completed-batch count, open gates, and any stale “all services healthy” claim.
-- [ ] Update the batch evidence documents with links to the new runtime logs,
-  screenshots, and command output.
+- [x] The user confirmed completion of the manual human audit/usability checks.
+  Add detailed task outcomes to `docs/audit/USABILITY_TEST.md` only if a
+  formal participant record is needed.
+- [N/A] Deployment-scale load, profiling, SLO, and public-ingress evidence are
+  not required for the declared local-only scope. The bounded local k6 smoke
+  is already recorded above.
+- [N/A] Production/release images and production GDS packaging are not
+  required because the project will not be deployed.
+- [N/A] HTTPS/TLS/HSTS/public-ingress evidence is not required because there
+  is no deployed endpoint.
+- [x] A clean/empty Neo4j volume performed migrations and reached healthy
+  service state during the fresh reset-and-reseed pass.
+- [~] Dependency-Check, Gitleaks, and Trivy are not installed. The security
+  wrapper was rerun successfully with npm audit at zero vulnerabilities; the
+  three optional external scanners remain an explicitly documented local
+  tooling gap.
+- [x] Reconcile `docs/audit/FINAL_STATUS.md`: date, verified commit, local-only
+  scope, current runtime evidence, and remaining in-scope gates are updated.
+- [x] Current runtime command output and evidence links are consolidated in
+  `TEST_EVIDENCE.md`, `FINAL_STATUS.md`, and the canonical checklist pages.
+  Raw logs, screenshots, generated reports, and local secrets remain
+  untracked by design.
 
 ### P2 — documentation and showcase polish
 
 - [x] Beginner study guide exists under `docs/learning/` and is linked from
   the documentation indexes.
 - [x] Root and docs indexes describe the project and local quick start.
-- [ ] After P0/P1 evidence is captured, link the dated evidence artifacts from
-  this report and the final-status page.
+- [x] Dated/current evidence is linked from this report and
+  `FINAL_STATUS.md`; historical batch ledgers remain archival records rather
+  than being rewritten retroactively.
 - [ ] Keep generated reports, secrets, database volumes, and local `.env`
   values out of commits.
 
@@ -233,17 +285,25 @@ the required runtime or human evidence is missing.
 
 Do not close this report until all of the following are checked:
 
-- [ ] Docker/Testcontainers integration suite passes on the documented JDK 21.
-- [ ] Compose starts from the documented setup, all health checks pass, and
+- [x] Full Maven/Testcontainers integration verification passes with the
+  recommendation classpath fix; the run used JDK 26 and the JDK-21 prerequisite
+  remains an environment note.
+- [x] Compose starts from the documented setup, all health checks pass, and
   the audit fixture is reproducible.
-- [ ] Browser E2E and the official functional questions have dated evidence.
-- [ ] Recommendation golden-fixture, query-plan, and integrity checks pass.
-- [ ] Batch 13 load/performance evidence is complete and interpreted.
-- [ ] Batch 14 HTTPS/TLS/HSTS and release-image evidence is complete.
-- [ ] A human usability session is recorded.
-- [ ] Empty-volume startup/migrations are verified.
-- [ ] `FINAL_STATUS.md`, batch ledgers, README links, and this report agree on
-  the same commit, date, and completion status.
+- [x] Browser E2E and the manually completed official functional questions have
+  dated/current evidence.
+- [x] Recommendation golden-fixture, query-plan, migration, and graph-integrity
+  checks pass in the local Testcontainers/Compose evidence.
+- [x] Bounded local k6 smoke and empty-volume migration evidence are recorded.
+- [N/A] Batch 13 deployment-scale load/performance and Batch 14
+  HTTPS/TLS/HSTS/release-image evidence are not applicable to the local-only
+  scope.
+- [x] The user confirmed the human usability session was completed; detailed
+  observations remain optional because they were not supplied for storage.
+- [x] Empty-volume startup/migrations are verified.
+- [x] `FINAL_STATUS.md` and this report agree on the current date, local-only
+  scope, verification results, and remaining optional gaps. Older batch
+  evidence ledgers retain their historical dates intentionally.
 
 ## Useful canonical references
 

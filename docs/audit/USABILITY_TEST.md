@@ -1,11 +1,11 @@
 # Human Usability Test
 
 Date prepared: 2026-09-15
-Status: **Pending a real participant**
+Status: **Completed manually; detailed observations were not recorded in this repository**
 
 The automated Playwright journey provides supporting interaction evidence, but
 it must not be reported as human observation. A facilitator should run the
-following path against a seeded local or staging stack and record the participant
+following path against the seeded local stack and record the participant
 without collecting passwords, tokens, or identifying data.
 
 | Step | Participant task | Record |
@@ -24,9 +24,10 @@ without collecting passwords, tokens, or identifying data.
   sharing, disposable-admin cleanup, and 2FA flow. A fresh local rerun passed 8
   tests with 1 credential-gated ADMIN skip; see
   `docs/audit/batch-11-browser-failure-verification.md`.
-- No human participant, confusion notes, satisfaction score, or time-on-task
-  result has been invented. Batch 12 remains partial until a facilitator records
-  those observations.
+- The user confirmed on 2026-09-24 that the manual human audit/usability checks
+  were completed. This file intentionally does not invent participant identity,
+  confusion notes, satisfaction scores, or time-on-task results that were not
+  supplied for storage.
 
 ## Suggested record
 

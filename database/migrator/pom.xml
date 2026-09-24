@@ -14,6 +14,10 @@
     <artifactId>database-migrator</artifactId>
     <packaging>jar</packaging>
 
+    <properties>
+        <migrator.build.directory>${project.basedir}/target</migrator.build.directory>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -52,6 +56,7 @@
     </dependencies>
 
     <build>
+        <directory>${migrator.build.directory}</directory>
         <resources>
             <resource>
                 <directory>${project.basedir}/../migrations</directory>
@@ -63,6 +68,25 @@
             </resource>
         </resources>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.4.2</version>
+                <executions>
+                    <execution>
+                        <id>attach-plain-jar</id>
+                        <!-- Recommendation tests consume this classifier during
+                             test-compile, so publish it before the test phase. -->
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>plain</classifier>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>

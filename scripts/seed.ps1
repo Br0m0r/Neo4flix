@@ -23,7 +23,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 $jar = Get-ChildItem -Path database/migrator/target -Filter 'database-migrator-*.jar' -File |
-    Where-Object { $_.Name -notmatch '^original-' } |
+    Where-Object { $_.Name -notmatch '^original-' -and $_.Name -notmatch '-plain\.jar$' } |
     Select-Object -First 1
 if ($null -eq $jar) {
     throw 'Database migrator JAR was not produced.'

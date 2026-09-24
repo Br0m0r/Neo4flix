@@ -94,16 +94,21 @@ public final class Neo4jGdsContainer implements AutoCloseable {
 
     private static Path buildMigratorJar() {
         Path root = repositoryRoot();
-        Path target = root.resolve("database/migrator/target");
+        // Build the executable in an isolated directory. The recommendation
+        // tests consume the attached plain migrator JAR, so Maven keeps the
+        // normal target artifact open on Windows while this nested build runs.
+        Path target = root.resolve("database/migrator/target/it-migrator");
         try {
             ProcessBuilder build = new ProcessBuilder(
-                    mavenWrapper(), "-pl", "database/migrator", "-am", "clean", "package", "-DskipTests")
+                    mavenWrapper(), "-pl", "database/migrator", "-am", "clean", "package", "-DskipTests",
+                    "-Dmigrator.build.directory=" + target.toAbsolutePath())
                     .directory(root.toFile())
                     .redirectErrorStream(true);
             runProcess(build, "Database migrator build");
             try (var files = Files.list(target)) {
                 return files.filter(path -> path.getFileName().toString()
                                 .matches("database-migrator-.+\\.jar"))
+                        .filter(path -> !path.getFileName().toString().endsWith("-plain.jar"))
                         .findFirst()
                         .orElseThrow(() -> new IllegalStateException("Database migrator JAR was not produced"));
             }

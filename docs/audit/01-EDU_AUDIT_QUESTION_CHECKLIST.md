@@ -50,8 +50,9 @@ needs help:
 - Visit login, registration, home, details, rating, and recommendations pages.
 
 The automated contract covers the repeatable paths. Record human observations
-in [USABILITY_TEST.md](USABILITY_TEST.md); the current repository deliberately
-leaves participant findings pending rather than inventing them.
+in [USABILITY_TEST.md](USABILITY_TEST.md) when they are available. The user
+confirmed the manual human audit was completed; this repository does not invent
+participant details that were not supplied.
 
 ## Security questions
 
@@ -69,8 +70,10 @@ the following live checks:
   request ID; do not paste tokens into the report.
 - Inspect cookie attributes, CORS/origin behavior, response headers, and rate
   limiting using `SECURITY_CHECKLIST.md`.
-- Treat HTTPS/certificate/redirect questions as deployment evidence. The local
-  Compose stack is HTTP-only, so mark that answer pending until Batch 14.
+- Treat HTTPS/certificate/redirect questions as deployment evidence. This
+  project is intentionally local-only and will not be deployed, so mark those
+  production-only rows `N/A`; local HTTP security headers, cookies, JWT, 2FA,
+  and rate-limit checks remain in scope.
 
 ## Testing, errors, and stress questions
 
@@ -81,7 +84,8 @@ current bounded evidence is green, but it is not a production capacity claim.
 
 ## Completing the checklist
 
-For each question, write one of `PASS`, `PARTIAL`, or `BLOCKED`, attach the
+For each question, write one of `PASS`, `PARTIAL`, `BLOCKED`, or `N/A`, attach the
 corresponding local evidence file/command, and add one short observation. Do not
-mark usability, HTTPS, or release-capacity questions as passed without the
-required participant or deployment evidence.
+mark HTTPS or release-capacity questions as passed when they are out of scope;
+mark them `N/A` with the local-only rationale. The manual human audit is
+user-confirmed, while detailed participant notes remain optional.

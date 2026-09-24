@@ -1,6 +1,6 @@
 # Active Batch Context — Batch 12 Partial
 
-> **Status:** Batches 10 and 11 exercise deliverables are complete and pushed. Batch 12 evidence foundation plus minimum audit/readme artifacts are present; human usability, full load, and HTTPS remain open. Guarded disposable Neo4j backup/restore plus bounded public and authenticated k6 smokes passed. Execution remains direct on `main`.
+> **Status:** Batches 10 and 11 exercise deliverables are complete and pushed. Batch 12 evidence foundation plus minimum audit/readme artifacts are present. The user has completed the manual human audit; full local Maven/Testcontainers verification, executable-JAR smoke, reset/reseed, Compose, browser, and bounded k6 checks now pass. Production deployment, HTTPS, release-image, and deployment-scale performance gates are N/A because the project is intentionally local-only. Execution remains direct on `main`.
 >
 > **Purpose:** Compact handoff cache generated from the Batch 10 plan, SDD ledger, current git state, and canonical requirements. It does not replace the master plan, product/API specs, or approved batch plans.
 
@@ -79,7 +79,17 @@
 
 ## Next unfinished workstream
 
-- Run the human usability session, then complete the authenticated Batch 13 load/integrity gate. Batch 14 still requires deployment HTTPS and release-ingress evidence.
+- Current local audit metadata is reconciled; adding detailed human
+  observations to `docs/audit/USABILITY_TEST.md` remains optional because the
+  user confirmed the audit without supplying a participant record.
+- The focused recommendation Testcontainers suite now passes in a fresh
+  test-phase reactor; the migrator plain classifier is attached at
+  `process-classes` and nested executable builds use an isolated target.
+- The exact documented JDK-21 run remains an environment prerequisite; current
+  full verification passed with JDK 26.
+- Optional Dependency-Check, Gitleaks, and Trivy scans are not installed.
+- Batch 13 deployment-scale load and Batch 14 deployment HTTPS/release-ingress
+  evidence are N/A for the declared local-only scope.
 - Preserve Batch 10 controls: explicit edge headers and limits, request-ID propagation, generic Problem Details, explicit CORS/cookie-origin checks, bounded inputs, proxy-aware auth throttling, poster URL validation, and deterministic scan entry points.
 
 ## Execution policy

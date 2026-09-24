@@ -5,10 +5,9 @@ Profile: `scripts/k6/smoke.js`
 Status: **Partial — bounded public and authenticated smoke passed**
 
 The checked-in profile is intentionally small: one to five virtual users, a
-short duration, and anonymous catalog/genre reads only. It is a readiness probe,
-not the full Batch 13 authenticated load, rate-limit, latency, or throughput
-audit. It accepts 2xx/3xx/429 responses and fails on other HTTP responses or
-the explicit latency/error thresholds.
+short duration, and anonymous catalog/genre reads only. It is a local readiness
+probe, not a deployment-scale capacity audit. It accepts 2xx/3xx/429 responses
+and fails on other HTTP responses or the explicit latency/error thresholds.
 
 Run with native k6 when installed:
 
@@ -63,14 +62,14 @@ Runner: `grafana/k6:0.53.0`, 1 VU for 15 seconds
 | Disposable cleanup | 0 `k6-*` users remained after teardown |
 | Graph continuity | Relationship count remained `42` after cleanup |
 
-These bounded public and authenticated smokes are recorded, but Batch 13
-remains open until sustained concurrency, a deterministic load-seed integrity
-check, and performance interpretation are complete.
+These bounded public and authenticated smokes are recorded. Sustained
+deployment-scale concurrency, deterministic load-seed performance analysis,
+and release SLO interpretation are N/A for this intentionally local-only
+project; the bounded local smoke remains the relevant acceptance evidence.
 
 The authenticated profile is a bounded smoke probe only; a successful run does
-not establish sustained throughput or a release SLO. The full Batch 13 gate
-still requires a deterministic load seed, sustained concurrency, and integrity
-analysis under load.
+not establish sustained throughput or a release SLO. No deployment environment
+or production SLO is in scope for this project.
 
 ## Bounded sustained run
 
@@ -81,6 +80,6 @@ p95 latency of 11.83 ms. The profile observed 115 HTTP 429 responses; these are
 classified as intentional rate limiting, not server failures. Teardown left 0
 disposable users and the relationship count remained 42.
 
-This result is useful integrity/rate-limit evidence, but it is not a production
-capacity claim: the load seed, concurrency envelope, and SLO targets still need
-to be defined and interpreted for the deployment environment.
+This result is useful local integrity/rate-limit evidence, but it is not a
+production capacity claim. No deployment environment or production SLO is in
+scope for this project.

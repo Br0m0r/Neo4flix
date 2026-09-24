@@ -1,6 +1,6 @@
 # Security Checklist
 
-Date: 2026-09-15
+Date: 2026-09-24
 Scope: evidence available in the repository and the current local Compose stack
 
 This checklist distinguishes verified controls from evidence that still needs an
@@ -16,13 +16,13 @@ production deployment has been independently certified.
 | Generic Problem Details, request IDs, no credential/token logging | `docs/audit/batch-10-verification.md`; security wrapper tests and service tests | Verified |
 | Security headers, explicit CORS, refresh-cookie origin checks, trusted-proxy handling | `docs/audit/batch-10-verification.md`; Nginx/header and auth tests | Verified for local HTTP configuration |
 | Dependency and repository secret scans | `make security`; `scripts/security.ps1` | Optional scanners are unavailable in this environment; repository checks pass |
-| TLS termination, HTTPS redirect, HSTS, certificate rotation | `docs/reference/08_DEPLOYMENT_OPERATIONS.md` | Deployment evidence required; not provided by the local HTTP stack |
-| Authenticated k6 load and rate-limit profile | `docs/audit/STRESS_TEST.md`, `scripts/k6/smoke.js` | Public smoke profile only; full profile remains open |
-| Backup/restore recovery evidence | `scripts/backup-neo4j.ps1`, `scripts/restore-neo4j.ps1` | Helpers are guarded; disposable recovery run is required before release sign-off |
+| TLS termination, HTTPS redirect, HSTS, certificate rotation | `docs/reference/08_DEPLOYMENT_OPERATIONS.md` | N/A by declared local-only scope; no deployed endpoint is planned |
+| Authenticated k6 load and rate-limit profile | `docs/audit/STRESS_TEST.md`, `scripts/k6/smoke.js` | Bounded local public/authenticated profiles verified; deployment-scale capacity is N/A |
+| Backup/restore recovery evidence | `scripts/backup-neo4j.ps1`, `scripts/restore-neo4j.ps1`; disposable temporary-container dump/load record | Verified for local recovery; production release sign-off is N/A for this project |
 
 ## Operator checks
 
-Before sharing a non-local deployment, run `make security`, inspect the generated
-Compose configuration, verify the certificate/redirect policy at the edge, and
-complete the restore and human usability records. Do not place key material,
-passwords, refresh tokens, or TOTP secrets in this document.
+For this local-only project, run `make security`, inspect the generated Compose
+configuration, verify local security headers/cookies, and keep the human audit
+record current. Do not place key material, passwords, refresh tokens, or TOTP
+secrets in this document.
