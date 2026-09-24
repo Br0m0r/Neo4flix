@@ -2,8 +2,9 @@
 
 Date: 2026-09-24
 Branch: `main`
-Latest verified commit: `1704c62` (current local working tree also contains
-uncommitted verification fixes; do not treat this file as a commit record)
+Latest verified commit: `92ed4c7` (Gitea and GitHub `main` are aligned; the
+pre-existing local `.env.example` and `frontend/angular.json` edits remain
+uncommitted by design)
 
 ## Current state
 

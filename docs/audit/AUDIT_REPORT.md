@@ -58,10 +58,10 @@ local audit fully reconciled.
 
 ## Repository and execution snapshot
 
-- [~] Current branch is `main`. Gitea `origin/main` is at `1704c62`; GitHub has
-  an independent newer README commit, so the two remote histories currently
-  diverge and must not be force-pushed over each other.
-- [x] Current repository head is `1704c62` (`docs: add learning guide and audit report`).
+- [x] Current branch is `main`; Gitea `origin/main` and GitHub `main` are
+  aligned at merge commit `92ed4c7` after preserving GitHub's independent
+  README update without force-pushing.
+- [x] Current repository head is `92ed4c7` (merged verified audit/code update).
 - [~] The worktree contains a pre-existing modified `.env.example` and
   `frontend/angular.json`; preserve them and do not push the `.env.example`
   values as project secrets. This report does not reset or discard local work.
