@@ -2,9 +2,9 @@
 
 [![Verify](https://github.com/Br0m0r/Neo4flix/actions/workflows/verify.yml/badge.svg)](https://github.com/Br0m0r/Neo4flix/actions/workflows/verify.yml)
 
-Neo4flix is a graph-powered movie discovery and recommendation platform built for
-the 01-edu Neo4flix assignment. It combines four Spring Boot services, a shared
-Neo4j graph, an Angular frontend, and an Nginx edge container into one runnable
+Neo4flix is a graph-powered movie discovery and recommendation platform.
+It combines four Spring Boot services, a shared Neo4j graph,
+an Angular frontend, and an Nginx edge container into one runnable
 local stack.
 
 The project is intentionally an educational MVP: it demonstrates catalog search,
