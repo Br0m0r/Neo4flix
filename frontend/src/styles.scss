@@ -4,18 +4,79 @@ html {
   @include mat.theme(
     (
       color: (
-        primary: mat.$violet-palette,
-        theme-type: light,
+        primary: mat.$blue-palette,
+        tertiary: mat.$orange-palette,
+        theme-type: dark,
       ),
       typography: Arial,
       density: 0,
     )
   );
+
+  color-scheme: dark;
+  --neo-ink: #070b14;
+  --neo-ink-raised: #0d1422;
+  --neo-surface: #111b2d;
+  --neo-surface-strong: #17243a;
+  --neo-border: rgba(148, 163, 184, 0.2);
+  --neo-text: #f5f7fb;
+  --neo-text-muted: #a9b5c8;
+  --neo-primary: #60a5fa;
+  --neo-primary-strong: #3b82f6;
+  --neo-cta: #f97316;
+  --neo-success: #34d399;
+  --neo-radius-sm: 0.65rem;
+  --neo-radius-md: 1rem;
+  --neo-radius-lg: 1.4rem;
+  --neo-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.32);
 }
 
 body {
   margin: 0;
-  background: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
+  min-width: 20rem;
+  background:
+    radial-gradient(circle at 90% -10%, rgba(59, 130, 246, 0.16), transparent 34rem),
+    radial-gradient(circle at -10% 60%, rgba(249, 115, 22, 0.08), transparent 28rem),
+    var(--neo-ink);
+  color: var(--neo-text);
+  font-family: "Source Sans 3", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+a { color: var(--neo-primary); }
+
+button,
+a,
+input,
+select,
+textarea { font: inherit; }
+
+button,
+a[mat-button],
+a[mat-flat-button] { cursor: pointer; }
+
+button:disabled { cursor: not-allowed; }
+
+h1,
+h2,
+h3 { font-family: "Lexend", "Avenir Next", "Segoe UI", system-ui, sans-serif; letter-spacing: -0.03em; }
+
+h1 { font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1.08; }
+
+::selection { background: rgba(96, 165, 250, 0.35); }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }

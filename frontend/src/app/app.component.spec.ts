@@ -15,7 +15,7 @@ describe('AppComponent', () => {
     pendingChallenge: null,
   });
   const authStore = { state: authState, logout: vi.fn(() => of(undefined)) };
-  const router = { navigateByUrl: vi.fn().mockResolvedValue(true) };
+  const router = { events: of(), navigateByUrl: vi.fn().mockResolvedValue(true) };
 
   beforeEach(() => {
     authState.set({
@@ -53,6 +53,24 @@ describe('AppComponent', () => {
     expect(fixture.nativeElement.querySelector('main h1')).toBeNull();
     const mobileMenu = fixture.nativeElement.querySelector('.mobile-menu-trigger') as HTMLButtonElement;
     expect(mobileMenu.getAttribute('aria-label')).toBe('Open primary navigation menu');
+  });
+
+  it('exposes the cinematic shell landmarks for styling and navigation state', async () => {
+    await TestBed.configureTestingModule({
+      imports: [AppComponent],
+      providers: [
+        { provide: AuthStore, useValue: authStore },
+        { provide: Router, useValue: router },
+        { provide: ActivatedRoute, useValue: {} },
+      ],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.site-header')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.brand-mark')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.desktop-nav .nav-link')).not.toBeNull();
   });
 
   it('shows anonymous actions and logs an authenticated user out through the store', async () => {

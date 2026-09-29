@@ -29,19 +29,26 @@ type FilterForm = {
   imports: [ReactiveFormsModule, RouterLink],
   template: `
     <section class="recommendations" aria-labelledby="recommendations-title">
-      <a routerLink="/movies">← Browse movies</a>
-      <h1 id="recommendations-title">Recommendations</h1>
-      <form [formGroup]="form" (ngSubmit)="applyFilters()" aria-label="Recommendation filters">
-        <label for="recommendation-genre">Genre</label><input id="recommendation-genre" formControlName="genre" maxlength="80" />
-        <label for="recommendation-from-year">From year</label><input id="recommendation-from-year" formControlName="fromYear" inputmode="numeric" />
-        <label for="recommendation-to-year">To year</label><input id="recommendation-to-year" formControlName="toYear" inputmode="numeric" />
-        <label for="recommendation-min-rating">Minimum rating</label><input id="recommendation-min-rating" formControlName="minimumAverageRating" inputmode="decimal" />
-        <label for="recommendation-sort">Sort</label>
+      <a class="back-link" routerLink="/movies">← Browse movies</a>
+      <div class="page-heading">
+        <div>
+          <p class="eyebrow">Curated by your taste</p>
+          <h1 id="recommendations-title">Recommendations</h1>
+        </div>
+        <p>Every rating teaches the graph a little more about what you love.</p>
+      </div>
+      <form class="filter-panel" [formGroup]="form" (ngSubmit)="applyFilters()" aria-label="Recommendation filters">
+        <label for="recommendation-genre"><span>Genre</span><input id="recommendation-genre" formControlName="genre" maxlength="80" /></label>
+        <label for="recommendation-from-year"><span>From year</span><input id="recommendation-from-year" formControlName="fromYear" inputmode="numeric" /></label>
+        <label for="recommendation-to-year"><span>To year</span><input id="recommendation-to-year" formControlName="toYear" inputmode="numeric" /></label>
+        <label for="recommendation-min-rating"><span>Minimum rating</span><input id="recommendation-min-rating" formControlName="minimumAverageRating" inputmode="decimal" /></label>
+        <label for="recommendation-sort"><span>Sort</span>
           <select id="recommendation-sort" formControlName="sort">
             <option value="recommendation">Recommended</option>
             <option value="rating">Highest rated</option>
             <option value="newest">Newest</option>
           </select>
+        </label>
         <button data-testid="apply-filters" type="submit">Apply filters</button>
         <button type="button" (click)="resetFilters()">Reset</button>
       </form>
@@ -60,29 +67,34 @@ type FilterForm = {
         <p class="empty" role="status">{{ emptyGuidance(response()?.strategy) }}</p>
         <a routerLink="/movies">Browse movies</a>
       } @else {
-        <p data-testid="strategy">{{ strategyLabel(response()?.strategy) }}</p>
+        <p class="strategy-label" data-testid="strategy">{{ strategyLabel(response()?.strategy) }}</p>
         <div data-testid="recommendations" class="grid">
           @for (item of items(); track item.movie.id) {
-            <article>
-              <h2>{{ item.movie.title }}</h2>
-              @if (item.movie.releaseYear) { <p>{{ item.movie.releaseYear }}</p> }
-              @if (item.movie.posterUrl) { <img [src]="item.movie.posterUrl" [alt]="item.movie.title" /> }
-              @if (item.movie.overview) { <p>{{ item.movie.overview }}</p> }
-              @if (item.movie.genres.length) { <p>Genres: {{ genreNames(item) }}</p> }
-              <p data-testid="recommendation-score">Recommendation score: {{ item.recommendationScore }}</p>
-              <p>Rating: {{ item.movie.averageRating }} ({{ item.movie.ratingCount }} ratings)</p>
-              <p>{{ item.reason.text }}</p>
-              <a data-testid="movie-details" [routerLink]="['/movies', item.movie.id]">Details</a>
-              <button data-testid="share-action" type="button" [disabled]="shareBusyMovieId() === item.movie.id" (click)="createShare(item)">
+            <article class="recommendation-card">
+              <div class="recommendation-card__media">
+                @if (item.movie.posterUrl) { <img [src]="item.movie.posterUrl" [alt]="item.movie.title + ' poster'" loading="lazy" /> }
+                <span class="score-badge">{{ item.recommendationScore }}</span>
+              </div>
+              <div class="recommendation-card__body">
+                <div class="recommendation-card__title"><h2>{{ item.movie.title }}</h2>@if (item.movie.releaseYear) { <span>{{ item.movie.releaseYear }}</span> }</div>
+                @if (item.movie.overview) { <p class="overview">{{ item.movie.overview }}</p> }
+                @if (item.movie.genres.length) { <p class="genres">{{ genreNames(item) }}</p> }
+                <p class="rating-line">Rating: {{ item.movie.averageRating }} <span>({{ item.movie.ratingCount }} ratings)</span></p>
+                <p class="reason">{{ item.reason.text }}</p>
+                <div class="recommendation-card__actions">
+                  <a data-testid="movie-details" [routerLink]="['/movies', item.movie.id]">Details</a>
+                  <button data-testid="share-action" type="button" [disabled]="shareBusyMovieId() === item.movie.id" (click)="createShare(item)">
                 {{ shareBusyMovieId() === item.movie.id ? 'Creating link…' : 'Share' }}
-              </button>
+                  </button>
+                </div>
               @if (shareMovieId() === item.movie.id && shareUrl()) {
                 <p data-testid="share-url">{{ shareUrl() }}</p>
                 @if (shareStatus()) { <p role="status">{{ shareStatus() }}</p> }
               }
-              <button data-testid="watchlist-add" type="button" [disabled]="busyMovieId() === item.movie.id" (click)="addToWatchlist(item)">
+                <button class="watchlist-button" data-testid="watchlist-add" type="button" [disabled]="busyMovieId() === item.movie.id" (click)="addToWatchlist(item)">
                 {{ busyMovieId() === item.movie.id ? 'Adding…' : 'Add to watchlist' }}
-              </button>
+                </button>
+              </div>
             </article>
           }
         </div>
@@ -95,7 +107,43 @@ type FilterForm = {
       }
     </section>
   `,
-  styles: [`.recommendations{max-width:1100px;margin:2rem auto;padding:0 1rem}.recommendations form{display:flex;flex-wrap:wrap;gap:1rem;align-items:end;margin:1rem 0}.recommendations label{display:flex;flex-direction:column;gap:.25rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}.grid article{border:1px solid #ddd;border-radius:8px;padding:1rem;min-width:0;overflow-wrap:anywhere}.grid img{display:block;max-width:100%;height:auto}.grid button{margin-left:.75rem}@media (max-width:37.5rem){.recommendations form{display:grid;grid-template-columns:1fr;align-items:stretch}.recommendations form button{width:100%}.grid{grid-template-columns:1fr}.grid button{margin-left:0;margin-top:.5rem}}`],
+  styles: [`
+    .recommendations { max-width: 78rem; margin: 0 auto; }
+    .back-link { display: inline-flex; margin-bottom: 1.5rem; color: var(--neo-text-muted); text-decoration: none; }
+    .back-link:hover { color: var(--neo-primary); }
+    .page-heading { display: flex; align-items: end; justify-content: space-between; gap: 2rem; margin-bottom: 1.5rem; }
+    .eyebrow { margin: 0 0 .6rem; color: var(--neo-primary); font-size: .78rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+    h1 { margin: 0; }
+    .page-heading > p { max-width: 25rem; margin: 0; color: var(--neo-text-muted); text-align: right; }
+    .filter-panel { display: grid; grid-template-columns: repeat(5, minmax(8rem, 1fr)); gap: .85rem; align-items: end; margin-bottom: 1.5rem; padding: 1rem; border: 1px solid var(--neo-border); border-radius: var(--neo-radius-md); background: rgba(17, 27, 45, .72); }
+    .filter-panel label { display: flex; min-width: 0; flex-direction: column; gap: .35rem; color: var(--neo-text-muted); font-size: .82rem; font-weight: 600; }
+    .filter-panel input, .filter-panel select { width: 100%; min-height: 2.75rem; padding: .55rem .7rem; border: 1px solid var(--neo-border); border-radius: .55rem; background: var(--neo-ink-raised); color: var(--neo-text); }
+    .filter-panel button, .recommendation-card button { min-height: 2.75rem; padding: .55rem .9rem; border: 0; border-radius: .6rem; background: var(--neo-primary-strong); color: #fff; font-weight: 700; transition: transform 180ms ease, filter 180ms ease; }
+    .filter-panel button:hover, .recommendation-card button:hover { filter: brightness(1.13); transform: translateY(-1px); }
+    .filter-panel button[type="button"] { border: 1px solid var(--neo-border); background: transparent; color: var(--neo-text-muted); }
+    .strategy-label { margin: 0 0 1rem; color: var(--neo-text-muted); font-size: .9rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: 1.25rem; }
+    .recommendation-card { min-width: 0; overflow: hidden; border: 1px solid var(--neo-border); border-radius: var(--neo-radius-md); background: var(--neo-surface); transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease; }
+    .recommendation-card:hover { border-color: rgba(96, 165, 250, .55); box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, .28); transform: translateY(-4px); }
+    .recommendation-card__media { position: relative; min-height: 13rem; background: linear-gradient(145deg, #172554, #111827); }
+    .recommendation-card__media img { display: block; width: 100%; height: 13rem; object-fit: cover; }
+    .score-badge { position: absolute; top: .75rem; right: .75rem; padding: .35rem .55rem; border: 1px solid rgba(255, 255, 255, .24); border-radius: 999px; background: rgba(7, 11, 20, .76); color: #fdba74; font-size: .8rem; font-weight: 800; backdrop-filter: blur(.5rem); }
+    .recommendation-card__body { padding: 1rem; }
+    .recommendation-card__title { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; }
+    .recommendation-card h2 { margin: 0; font-size: 1.2rem; }
+    .recommendation-card__title > span, .genres, .rating-line span { color: var(--neo-text-muted); font-size: .85rem; }
+    .overview { display: -webkit-box; overflow: hidden; margin: .75rem 0; color: var(--neo-text-muted); -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+    .genres { margin: .5rem 0; }
+    .rating-line { margin: .75rem 0; color: #fdba74; font-weight: 700; }
+    .reason { margin: .75rem 0 1rem; padding-left: .75rem; border-left: 2px solid var(--neo-primary); color: var(--neo-text-muted); font-size: .9rem; }
+    .recommendation-card__actions { display: flex; flex-wrap: wrap; align-items: center; gap: .65rem; }
+    .recommendation-card__actions a { color: var(--neo-primary); font-weight: 700; }
+    .recommendation-card__actions button { background: transparent; color: var(--neo-primary); }
+    .watchlist-button { width: 100%; margin-top: .75rem; background: var(--neo-cta) !important; color: #1c0d03 !important; }
+    @media (max-width: 62rem) { .filter-panel { grid-template-columns: repeat(3, minmax(8rem, 1fr)); } }
+    @media (max-width: 48rem) { .page-heading { align-items: start; flex-direction: column; gap: .4rem; } .page-heading > p { text-align: left; } .filter-panel { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 30rem) { .filter-panel { grid-template-columns: 1fr; } .filter-panel button { width: 100%; } .grid { grid-template-columns: 1fr; } }
+  `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RecommendationsComponent implements OnInit {

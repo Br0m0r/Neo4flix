@@ -2,13 +2,13 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AppStateService } from './core/app-state.service';
 import { AuthStore } from './core/auth.store';
 
 @Component({
   selector: 'app-root',
-  imports: [MatButtonModule, MatMenuModule, MatToolbarModule, RouterLink, RouterOutlet],
+  imports: [MatButtonModule, MatMenuModule, MatToolbarModule, RouterLink, RouterLinkActive, RouterOutlet],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

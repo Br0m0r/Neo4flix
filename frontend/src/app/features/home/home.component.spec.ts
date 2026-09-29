@@ -28,6 +28,12 @@ describe('HomeComponent', () => {
     expect(fixture.nativeElement.querySelector('a[href="/watchlist"]')).not.toBeNull();
   });
 
+  it('renders a focused discovery hero and recommendation surface', () => {
+    expect(fixture.nativeElement.querySelector('.home-hero')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.home-primary-cta')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.home-recommendations')).not.toBeNull();
+  });
+
   it('explains recommendation outages instead of rendering a blank section', () => {
     recommendationApi.list.mockReturnValue(throwError(() => new Error('offline')));
     fixture = TestBed.createComponent(HomeComponent);

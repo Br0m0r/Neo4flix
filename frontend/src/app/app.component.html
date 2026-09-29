@@ -1,22 +1,25 @@
-<mat-toolbar>
-  <a class="brand" routerLink="/">{{ applicationName() }}</a>
+<mat-toolbar class="site-header">
+  <a class="brand brand-mark" routerLink="/" aria-label="Neo4flix home">
+    <span class="brand-mark__glyph" aria-hidden="true">N</span>
+    <span>{{ applicationName() }}</span>
+  </a>
   <span class="toolbar-spacer"></span>
   <nav class="desktop-nav" aria-label="Primary navigation">
     @if (authState().status === 'authenticated') {
-      <span class="identity">{{ authState().user?.displayName }}</span>
-      <a mat-button routerLink="/home">Home</a>
-      <a mat-button routerLink="/movies">Movies</a>
-      <a mat-button routerLink="/recommendations">Recommendations</a>
-      <a mat-button routerLink="/watchlist">Watchlist</a>
-      <a mat-button routerLink="/search">Search</a>
-      <a mat-button routerLink="/profile">Profile</a>
+      <span class="identity" title="Signed-in account">{{ authState().user?.displayName }}</span>
+      <a mat-button class="nav-link" routerLink="/home" routerLinkActive="nav-link--active">Home</a>
+      <a mat-button class="nav-link" routerLink="/movies" routerLinkActive="nav-link--active">Movies</a>
+      <a mat-button class="nav-link" routerLink="/recommendations" routerLinkActive="nav-link--active">Recommendations</a>
+      <a mat-button class="nav-link" routerLink="/watchlist" routerLinkActive="nav-link--active">Watchlist</a>
+      <a mat-button class="nav-link" routerLink="/search" routerLinkActive="nav-link--active">Search</a>
+      <a mat-button class="nav-link" routerLink="/profile" routerLinkActive="nav-link--active">Profile</a>
       @if (authState().user?.role === 'ADMIN') {
-        <a mat-button routerLink="/admin">Admin</a>
+        <a mat-button class="nav-link" routerLink="/admin" routerLinkActive="nav-link--active">Admin</a>
       }
-      <button mat-button data-testid="logout" type="button" (click)="logout()">Logout</button>
+      <button mat-button class="nav-link nav-link--logout" data-testid="logout" type="button" (click)="logout()">Logout</button>
     } @else {
-      <a mat-button routerLink="/auth/login">Sign in</a>
-      <a mat-button routerLink="/auth/register">Register</a>
+      <a mat-button class="nav-link" routerLink="/auth/login" routerLinkActive="nav-link--active">Sign in</a>
+      <a mat-flat-button class="nav-cta" routerLink="/auth/register">Register</a>
     }
   </nav>
   <button
@@ -46,6 +49,6 @@
     <a mat-menu-item routerLink="/auth/register">Register</a>
   }
 </mat-menu>
-<main aria-live="polite">
+<main class="site-main" aria-live="polite">
   <router-outlet />
 </main>
